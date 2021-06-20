@@ -49,9 +49,9 @@ export default class ChemicalMap {
         let pos = 0
         for (let i = 0; i < data.length; i++) {
             let val = 255 - data[i]
-            image[pos++] = 255
-            image[pos++] = val
-            image[pos++] = val
+            image[pos++] = 0
+            image[pos++] = 255 - val
+            image[pos++] = 255 - val
             image[pos++] = 255
         }
         ctx.putImageData(new ImageData(image, this.width, this.height), 0, 0)

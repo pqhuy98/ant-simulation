@@ -27,9 +27,9 @@ export default class Ant {
     render(ctx) {
         ctx.beginPath()
         if (this.isCarryingFood()) {
-            ctx.fillStyle = "#aa4800"
+            ctx.fillStyle = "#000000"
         } else {
-            ctx.fillStyle = "black"
+            ctx.fillStyle = "#37d3d2"
         }
         ctx.fillRect(this.position.x, this.position.y, 1, 1)
         ctx.stroke()
@@ -51,9 +51,9 @@ export default class Ant {
 
         if ((this.rand + world.version) % 4 > 0) {
             if (this.isCarryingFood()) {
-                this.findWay({ trail: world.homeTrail, map: world.homeMap })
+                this.findWay({ trail: world.homeTrail, dest: world.home })
             } else {
-                this.findWay({ trail: world.foodTrail, map: world.foodMap })
+                this.findWay({ trail: world.foodTrail, dest: world.food })
             }
         } else {
             this.rotation += randomFloat(-0.05, 0.05)
@@ -61,7 +61,7 @@ export default class Ant {
         this.rotation %= 2 * Math.PI
     }
 
-    findWay({ trail, map }) {
+    findWay({ trail, dest }) {
         let vision = this.visionRange
 
         // Sample 3 areas ahead: left, straight, right
@@ -75,7 +75,7 @@ export default class Ant {
 
         // find destination within vision
         for (let i = 0; i < degs.length; i++) {
-            let pos = map.has(
+            let pos = dest.has(
                 x + Math.cos(degs[i]) * vision * 1.1,
                 y + Math.sin(degs[i]) * vision * 1.1,
                 vision
@@ -117,17 +117,17 @@ export default class Ant {
 
         if (!this.isCarryingFood()) {
             // search for very close food
-            let foodPos = world.foodMap.has(this.position.x, this.position.y, this.pickupRange)
+            let foodPos = world.food.has(this.position.x, this.position.y, this.pickupRange)
             if (foodPos) {
                 this.carryingFood += 1
                 this.freshness = 1
-                world.foodMap.take(foodPos[0], foodPos[1], 1)
+                world.food.take(foodPos[0], foodPos[1], 1)
                 this.rotation *= -1
             }
         } else {
-            let homePos = world.homeMap.has(this.position.x, this.position.y, this.storeRange)
+            let homePos = world.home.has(this.position.x, this.position.y, this.storeRange)
             if (homePos) {
-                world.homeMap.give(this.carryingFood)
+                world.home.give(this.carryingFood)
                 this.carryingFood = 0
                 this.freshness = 1
                 this.rotation *= -1

@@ -1,4 +1,4 @@
-export default class HomeMap {
+export default class Home {
     constructor({ width, height, colonyCount }) {
         this.width = width
         this.height = height
@@ -28,7 +28,7 @@ export default class HomeMap {
         this.locations.forEach(loc => {
             ctx.beginPath()
             ctx.arc(loc.x, loc.y, 5, 0, 2 * Math.PI, false)
-            ctx.fillStyle = "brown"
+            ctx.fillStyle = "lightBlue"
             ctx.fill()
             ctx.stroke()
         })

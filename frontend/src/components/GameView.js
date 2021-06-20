@@ -16,7 +16,7 @@ export default function GameView() {
             height: size[1],
             antCount: 5000,
             colonyCount: 3,
-            foodClusters: 100,
+            foodClusters: 7000,
         }))
     }, [setWorld])
 

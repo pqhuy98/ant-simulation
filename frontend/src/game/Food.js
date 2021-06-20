@@ -1,11 +1,11 @@
-export default class FoodMap {
+export default class Food {
     constructor({ width, height }) {
         this.width = width
         this.height = height
         this.rawMap = new Uint8ClampedArray(width * height)
     }
 
-    put(x, y, sz, min = 1, max = 5) {
+    put(x, y, sz, min = 15, max = 20) {
         x = Math.floor(x)
         y = Math.floor(y)
         for (let i = x; i < x + sz; i++) {
@@ -46,7 +46,7 @@ export default class FoodMap {
 
     render(ctx) {
         let data = this.rawMap
-        ctx.fillStyle = "#fa3"
+        ctx.fillStyle = "#dfd"
         for (let i = 0; i < data.length; i++) {
             if (data[i] > 0) {
                 let x = i % this.width
