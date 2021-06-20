@@ -5,7 +5,7 @@ import {
     Route,
     Link,
 } from "react-router-dom"
-import World from "./components/World"
+import GameView from "./components/GameView"
 
 function Home() {
     return (
@@ -34,7 +34,7 @@ function App() {
                         <h1> About </h1>
                     </Route>
                     <Route path="/game">
-                        <World />
+                        <GameView />
                     </Route>
                     <Route path="/">
                         <Home />

@@ -1,8 +1,6 @@
-import { configureStore } from "@reduxjs/toolkit"
-import worldReducer from "../game/World.reducer"
+import { configureStore, } from "@reduxjs/toolkit"
 
 export const store = configureStore({
     reducer: {
-        world: worldReducer,
     },
 })
