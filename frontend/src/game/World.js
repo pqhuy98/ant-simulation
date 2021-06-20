@@ -77,8 +77,6 @@ export default class World {
         this.homeMap.render(ctx)
         this.foodMap.render(ctx)
 
-        // final result
-        this.imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
-        return this.imageData
+        ctx.fillText(this.homeMap.food, 5, this.height - 5)
     }
 }

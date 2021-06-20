@@ -127,6 +127,7 @@ export default class Ant {
         } else {
             let homePos = world.homeMap.has(this.position.x, this.position.y, this.storeRange)
             if (homePos) {
+                world.homeMap.give(this.carryingFood)
                 this.carryingFood = 0
                 this.freshness = 1
                 this.rotation *= -1

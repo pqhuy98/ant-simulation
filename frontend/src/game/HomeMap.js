@@ -6,6 +6,7 @@ export default class HomeMap {
             x: Math.random() * width,
             y: Math.random() * height,
         }))
+        this.food = 0
     }
 
     has(x, y, sz) {
@@ -17,6 +18,10 @@ export default class HomeMap {
             }
         }
         return null
+    }
+
+    give(amount) {
+        this.food += amount
     }
 
     render(ctx) {
