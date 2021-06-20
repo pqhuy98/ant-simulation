@@ -46,7 +46,7 @@ export default class FoodMap {
 
     render(ctx) {
         let data = this.rawMap
-        ctx.fillStyle = "#ff0"
+        ctx.fillStyle = "#fa3"
         for (let i = 0; i < data.length; i++) {
             if (data[i] > 0) {
                 let x = i % this.width

@@ -27,7 +27,7 @@ export default class Ant {
     render(ctx) {
         ctx.beginPath()
         if (this.isCarryingFood()) {
-            ctx.fillStyle = "orange"
+            ctx.fillStyle = "#aa4800"
         } else {
             ctx.fillStyle = "black"
         }
@@ -94,6 +94,7 @@ export default class Ant {
                 yc: y + Math.sin(degs[i]) * vision * 1.1,
                 sz: vision
             })
+            val *= val
             // val = Math.exp(val)
             angle += val * degs[i]
             total += val
