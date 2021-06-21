@@ -1,3 +1,5 @@
+import { t } from "config/Themes"
+
 export default class Food {
     constructor({ width, height }) {
         this.width = width
@@ -5,7 +7,7 @@ export default class Food {
         this.rawMap = new Uint8ClampedArray(width * height)
     }
 
-    put(x, y, sz, min = 15, max = 20) {
+    put(x, y, sz, min = t().foodCapacity[0], max = t().foodCapacity[1]) {
         x = Math.floor(x)
         y = Math.floor(y)
         for (let i = x; i < x + sz; i++) {
@@ -46,7 +48,7 @@ export default class Food {
 
     render(ctx) {
         let data = this.rawMap
-        ctx.fillStyle = "#dfd"
+        ctx.fillStyle = t().foodColor
         for (let i = 0; i < data.length; i++) {
             if (data[i] > 0) {
                 let x = i % this.width

@@ -1,6 +1,7 @@
 import config from "../config"
 import { add, mul, randomFloat } from "lib/basic_math"
 import { v4 as uuidv4 } from "uuid"
+import { t } from "config/Themes"
 
 export default class Ant {
     constructor(props) {
@@ -26,10 +27,10 @@ export default class Ant {
 
     render(ctx) {
         ctx.beginPath()
-        if (this.isCarryingFood()) {
-            ctx.fillStyle = "#000000"
+        if (!this.isCarryingFood()) {
+            ctx.fillStyle = t().antColor0
         } else {
-            ctx.fillStyle = "#37d3d2"
+            ctx.fillStyle = t().antColor1
         }
         ctx.fillRect(this.position.x, this.position.y, 1, 1)
         ctx.stroke()

@@ -1,3 +1,5 @@
+import { t } from "config/Themes"
+
 export default class Home {
     constructor({ width, height, colonyCount }) {
         this.width = width
@@ -28,7 +30,7 @@ export default class Home {
         this.locations.forEach(loc => {
             ctx.beginPath()
             ctx.arc(loc.x, loc.y, 5, 0, 2 * Math.PI, false)
-            ctx.fillStyle = "lightBlue"
+            ctx.fillStyle = t().homeColor
             ctx.fill()
             ctx.stroke()
         })

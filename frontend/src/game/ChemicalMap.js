@@ -1,3 +1,5 @@
+import { t } from "config/Themes"
+
 export default class ChemicalMap {
     constructor({ width, height }) {
         this.width = width
@@ -48,11 +50,8 @@ export default class ChemicalMap {
         let image = new Uint8ClampedArray(4 * data.length)
         let pos = 0
         for (let i = 0; i < data.length; i++) {
-            let val = 255 - data[i]
-            image[pos++] = 0
-            image[pos++] = 255 - val
-            image[pos++] = 255 - val
-            image[pos++] = 255
+            image.set(t().chemicalColor(data[i]), pos)
+            pos += 4
         }
         ctx.putImageData(new ImageData(image, this.width, this.height), 0, 0)
     }

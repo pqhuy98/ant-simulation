@@ -35,7 +35,6 @@ export default function Canvas({ width, height, draw, next }) {
 
             draw(ctx)
 
-            ctx.fillStyle = "black"
             ctx.font = "15px Arial"
             ctx.fillText(fpsCalculator.get(), 2, 15)
             next()

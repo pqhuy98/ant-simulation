@@ -4,6 +4,7 @@ import ChemicalMap from "./ChemicalMap"
 import Food from "./Food"
 import Home from "./Home"
 import { randomInt } from "lib/basic_math"
+import { MODE_FOOD, t } from "config/Themes"
 
 
 export default class World {
@@ -26,7 +27,7 @@ export default class World {
             this.food.put(
                 Math.random() * width,
                 Math.random() * height,
-                randomInt(1, 3)
+                randomInt(...t().foodSize)
             )
         }
 
@@ -68,7 +69,11 @@ export default class World {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
         // render all objects
-        this.foodTrail.render(ctx)
+        if (t().chemicalRenderMode === MODE_FOOD) {
+            this.foodTrail.render(ctx)
+        } else {
+            this.homeTrail.render(ctx)
+        }
         this.ants.forEach(ant => ant.render(ctx))
         this.home.render(ctx)
         this.food.render(ctx)

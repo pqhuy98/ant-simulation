@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { t } from "config/Themes"
 import World from "game/World"
 import React, { useEffect, useState } from "react"
 import Canvas from "./Canvas"
@@ -14,9 +15,9 @@ export default function GameView() {
         setWorld(new World({
             width: size[0],
             height: size[1],
-            antCount: 5000,
-            colonyCount: 3,
-            foodClusters: 7000,
+            antCount: t().antCount,
+            colonyCount: t().colonyCount,
+            foodClusters: t().foodClusters,
         }))
     }, [setWorld])
 
