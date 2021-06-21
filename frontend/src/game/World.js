@@ -3,10 +3,8 @@ import { v4 as uuidv4 } from "uuid"
 import ChemicalMap from "./ChemicalMap"
 import Food from "./Food"
 import Home from "./Home"
-import { randomInt } from "lib/basic_math"
 import { MODE_FOOD, t } from "config/Themes"
-
-
+import { randomInt } from "../lib/basic_math"
 export default class World {
     static collection = new Map()
 

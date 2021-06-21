@@ -10,12 +10,10 @@ export const themes = {
         homeColor: "lightBlue",
         antCount: 5000,
         colonyCount: 3,
-        foodClusters: 7000,
+        foodClusters: 1216,
         foodSize: [1, 3],
         foodCapacity: [1, 20],
-        chemicalColor: (val) => {
-            return [0, val, val, 255]
-        },
+        chemicalColor: (val) => [0, val, val, 255],
         chemicalRenderMode: MODE_FOOD,
     },
     Classic: {
@@ -28,9 +26,7 @@ export const themes = {
         foodClusters: 100,
         foodSize: [10, 20],
         foodCapacity: [1, 5],
-        chemicalColor: (val) => {
-            return [255, 255 - val, 255 - val, 255]
-        },
+        chemicalColor: (val) => [255, 255 - val, 255 - val, 255],
         chemicalRenderMode: MODE_HOME,
     },
     Surprise: {
@@ -43,11 +39,22 @@ export const themes = {
         foodClusters: Math.round(randomExp(5, 10000)),
         foodSize: [1, Math.round(randomExp(1, 200))],
         foodCapacity: [1, Math.round(randomExp(1, 20))],
-        chemicalColor: (val) => {
-            return [255, 255 - val, 255 - val, 255]
-        },
+        chemicalColor: (val) => [255, 255 - val, 255 - val, 255],
         chemicalRenderMode: randomInt(0, 2),
-    }
+    },
+    SpaceDesert: {
+        antColor0: "#E2C141",
+        antColor1: "#136961",
+        antCount: 4540,
+        chemicalColor: val => [255 - val, 255 - val, 0, val],
+        chemicalRenderMode: 0,
+        colonyCount: 2,
+        foodCapacity: [1, 8],
+        foodClusters: 1216,
+        foodColor: "#BD8C41",
+        foodSize: [1, 4],
+        homeColor: "#72E95D",
+    },
 }
 // randomize Surprise.chemicalColor()
 const transformers = [
@@ -83,5 +90,6 @@ export function t() {
 
 // default theme
 // selectTheme(themes.StarWar)
-selectTheme(themes.Classic)
-// selectTheme(themes.Surprise)
+// selectTheme(themes.Classic)
+selectTheme(themes.Surprise)
+// selectTheme(themes.SpaceDesert)

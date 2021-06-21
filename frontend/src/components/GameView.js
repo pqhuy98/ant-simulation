@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { t } from "config/Themes"
-import World from "game/World"
 import React, { useEffect, useState } from "react"
+import { t } from "../config/Themes"
+import World from "../game/World"
 import Canvas from "./Canvas"
 
 const FPS = 60

@@ -1,7 +1,7 @@
-import config from "../config"
-import { add, mul, randomFloat } from "lib/basic_math"
 import { v4 as uuidv4 } from "uuid"
-import { t } from "config/Themes"
+import { t } from "../config/Themes"
+import config from "../config"
+import { add, mul, randomFloat } from "../lib/basic_math"
 
 export default class Ant {
     constructor(props) {
