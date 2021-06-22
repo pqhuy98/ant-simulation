@@ -3,8 +3,12 @@ import { v4 as uuidv4 } from "uuid"
 import ChemicalMap from "./ChemicalMap"
 import Food from "./Food"
 import Home from "./Home"
-import { MODE_FOOD, t } from "config/Themes"
+import {
+    MODE_FOOD,
+    t
+} from "config/Themes"
 import { randomInt } from "../lib/basic_math"
+import { directPixelManipulation } from "lib/canvas_optimizer"
 export default class World {
     static collection = new Map()
 
@@ -20,14 +24,8 @@ export default class World {
 
         // Food
         this.foodTrail = new ChemicalMap({ width, height })
-        this.food = new Food({ width, height })
-        for (let i = 0; i < foodClusters; i++) {
-            this.food.put(
-                Math.random() * width,
-                Math.random() * height,
-                randomInt(...t().foodSize)
-            )
-        }
+        this.food = new Food({ width, height, foodClusters })
+
 
         this.ants = [...Array(antCount)].map(() => new Ant({
             position: {
@@ -52,7 +50,6 @@ export default class World {
     gameLoop({ deltaT }) {
         this.ants.forEach(ant => {
             ant.gameLoop({ world: this, deltaT })
-
             // Ants cannot leave screen
             ant.position.x = Math.max(0, Math.min(this.width - 1, ant.position.x))
             ant.position.y = Math.max(0, Math.min(this.height - 1, ant.position.y))
@@ -67,15 +64,15 @@ export default class World {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
         // render all objects
-        if (t().chemicalRenderMode === MODE_FOOD) {
-            this.foodTrail.render(ctx)
-        } else {
-            this.homeTrail.render(ctx)
-        }
-        this.ants.forEach(ant => ant.render(ctx))
+        directPixelManipulation(ctx, (ctx) => {
+            if (t().chemicalRenderMode === MODE_FOOD) {
+                this.foodTrail.render(ctx)
+            } else {
+                this.homeTrail.render(ctx)
+            }
+            Ant.bulkRender(ctx, this.ants)
+            this.food.render(ctx)
+        })
         this.home.render(ctx)
-        this.food.render(ctx)
-
-        ctx.fillText(this.home.food, 5, this.height - 5)
     }
 }

@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from "uuid"
 import { t } from "../config/Themes"
 import config from "../config"
-import { add, mul, randomFloat } from "../lib/basic_math"
+import { add, mul, randomExp, randomFloat, randomInt } from "../lib/basic_math"
+import { getRGB } from "lib/color"
 
 export default class Ant {
     constructor(props) {
@@ -17,23 +18,31 @@ export default class Ant {
         this.size = 1
         this.rand = Math.floor(Math.random() * 100)
 
-        this.visionRange = 10
+        this.visionRange = 8
         this.pickupRange = 2
         this.storeRange = 2
 
         this.carryingFood = 0
         this.freshness = 1
+        let dice = randomInt(0, 4 + 1)
+        this.decide = this["decideAngle" + dice]
+
+        this.freshnessDecay = randomExp(0.6, 0.7)
     }
 
-    render(ctx) {
-        ctx.beginPath()
-        if (!this.isCarryingFood()) {
-            ctx.fillStyle = t().antColor0
-        } else {
-            ctx.fillStyle = t().antColor1
+    static bulkRender(ctx, ants) {
+        let freeColor = getRGB(t().antColor0)
+        let carryColor = getRGB(t().antColor1)
+        let width = ctx.canvas.width
+
+        var bitmap = ctx.bitmap
+        for (let i = 0; i < ants.length; i++) {
+            let { x, y } = ants[i].position
+            x = Math.floor(x)
+            y = Math.floor(y)
+            let offset = (x + y * width) * 4
+            bitmap.set(ants[i].isCarryingFood() ? carryColor : freeColor, offset)
         }
-        ctx.fillRect(this.position.x, this.position.y, 1, 1)
-        ctx.stroke()
     }
 
     gameLoop({ world, deltaT }) {
@@ -50,12 +59,16 @@ export default class Ant {
             this.rotation = 2 * Math.PI - this.rotation
         }
 
-        if ((this.rand + world.version) % 4 > 0) {
-            if (this.isCarryingFood()) {
-                this.findWay({ trail: world.homeTrail, dest: world.home })
+        if ((this.rand + world.version) % 3 > 0) {
+            let trail, dest
+            if (this.isCarryingFood() || this.freshness < 1e-60) {
+                trail = world.homeTrail
+                dest = world.home
             } else {
-                this.findWay({ trail: world.foodTrail, dest: world.food })
+                trail = world.foodTrail
+                dest = world.food
             }
+            this.rotation = this.findWay({ trail, dest })
         } else {
             this.rotation += randomFloat(-0.05, 0.05)
         }
@@ -65,44 +78,34 @@ export default class Ant {
     findWay({ trail, dest }) {
         let vision = this.visionRange
 
-        // Sample 3 areas ahead: left, straight, right
+        // Sample 3 areas ahead: straight, left right
         let { x, y } = this.position
-        let rot = this.rotation
-
         // sampled lines of sight
-        let deviant = randomFloat(Math.PI / 6, Math.PI / 4)
-
-        let degs = [rot + deviant, rot, rot - deviant]
+        let deviant = randomFloat(Math.PI / 4, Math.PI / 3)
+        let degs = [
+            this.rotation, this.rotation + deviant, this.rotation - deviant,
+        ]
 
         // find destination within vision
         for (let i = 0; i < degs.length; i++) {
             let pos = dest.has(
-                x + Math.cos(degs[i]) * vision * 1.1,
-                y + Math.sin(degs[i]) * vision * 1.1,
+                x + Math.cos(degs[i]) * vision,
+                y + Math.sin(degs[i]) * vision,
                 vision
             )
             if (pos) {
-                this.rotation = Math.atan2(pos[1] - y, pos[0] - x)
-                return
+                return Math.atan2(pos[1] - y, pos[0] - x)
             }
         }
 
         // No destination saw, use trail
-        let angle = 0, total = 0
-        for (let i = 0; i < degs.length; i++) {
-            let val = trail.sum({
-                xc: x + Math.cos(degs[i]) * vision * 1.1,
-                yc: y + Math.sin(degs[i]) * vision * 1.1,
-                sz: vision
-            })
-            val *= val
-            // val = Math.exp(val)
-            angle += val * degs[i]
-            total += val
-        }
-        angle /= total
+        let vals = degs.map(deg => trail.sum(
+            x + Math.cos(deg) * vision,
+            y + Math.sin(deg) * vision,
+            vision
+        ))
 
-        this.rotation = angle * randomFloat(0.85, 1 / 0.85)
+        return this.decide(degs, vals)
     }
 
     move({ world, deltaT }) {
@@ -114,25 +117,34 @@ export default class Ant {
                 this.speed * deltaT
             )
         )
-        this.freshness *= 0.999
-
         if (!this.isCarryingFood()) {
             // search for very close food
             let foodPos = world.food.has(this.position.x, this.position.y, this.pickupRange)
             if (foodPos) {
-                this.carryingFood += 1
-                this.freshness = 1
                 world.food.take(foodPos[0], foodPos[1], 1)
+                this.carryingFood += 1
                 this.rotation *= -1
+                this.freshness = 1
+            }
+            // near home, refresh itself
+            let homePos = world.home.has(this.position.x, this.position.y, this.visionRange / 2)
+            if (homePos) {
+                this.freshness = 1
             }
         } else {
             let homePos = world.home.has(this.position.x, this.position.y, this.storeRange)
             if (homePos) {
                 world.home.give(this.carryingFood)
                 this.carryingFood = 0
-                this.freshness = 1
                 this.rotation *= -1
+                this.freshness = 1
             }
+            // near food, refresh itself
+            let foodPos = world.food.has(this.position.x, this.position.y, this.visionRange * 2)
+            if (foodPos) {
+                this.freshness = 1
+            }
+
         }
     }
 
@@ -141,10 +153,62 @@ export default class Ant {
     }
 
     releaseChemicals({ world }) {
+        let { x, y } = this.position
+        let trail
         if (this.isCarryingFood()) {
-            world.foodTrail.put(this.position.x, this.position.y, this.freshness)
+            trail = world.foodTrail
         } else {
-            world.homeTrail.put(this.position.x, this.position.y, this.freshness)
+            trail = world.homeTrail
         }
+        // let val = trail.get(x, y)
+        // let wantedVal = Math.min(300, val + this.freshness * 100)
+        // trail.put(x, y, Math.max(0, wantedVal - val))
+        trail.put(x, y, 1 * this.freshness)
+        this.freshness *= this.freshnessDecay
+    }
+
+    /*
+        mutations
+    */
+    decideAngle0(degs, vals) {
+        let angle = 0, total = 0
+        for (let i = 0; i < degs.length; i++) {
+            let val = vals[i], deg = degs[i]
+            angle += val * deg
+            total += val
+        }
+        return (total != 0 ? angle / total : degs[0])
+    }
+
+    decideAngle1(degs, vals) {
+        let angle = degs[0], maxVal = vals[0]
+        for (let i = 0; i < degs.length; i++) {
+            if (vals[i] > maxVal) {
+                angle = degs[i]
+            }
+        }
+        return angle
+    }
+
+    decideAngle2(degs, vals) {
+        let total = 0
+        vals.forEach(v => total += v)
+        let dice = randomFloat(0, total)
+        let sum = 0
+        for (let i = 1; i < degs.length; i++) {
+            if (sum > dice) {
+                return degs[i - 1]
+            }
+            sum += vals[i]
+        }
+        return degs[degs.length - 1]
+    }
+
+    decideAngle3(degs, vals) {
+        return this.decideAngle2(degs, vals.map(v => v * v))
+    }
+
+    decideAngle4(degs, vals) {
+        return this.decideAngle0(degs, vals.map(v => v * v))
     }
 }

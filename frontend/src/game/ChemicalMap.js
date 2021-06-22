@@ -1,65 +1,62 @@
 import { t } from "config/Themes"
+import { inject } from "lib/canvas_optimizer"
+import { diffuse } from "lib/diffuser"
 
 export default class ChemicalMap {
     constructor({ width, height }) {
         this.width = width
         this.height = height
-        this.rawMap = new Uint8ClampedArray(width * height)
+        this.rawMap = new Float32Array(width * height)
+    }
+
+    get(x, y) {
+        x = Math.floor(x)
+        y = Math.floor(y)
+        return this.rawMap[x + y * this.width]
     }
 
     put(x, y, value) {
-        x = Math.floor(x)
-        y = Math.floor(y)
-        this.rawMap[x + y * this.width] += value * 100
+        let idx = Math.floor(x) + Math.floor(y) * this.width
+        this.rawMap[idx] = Math.min(100, this.rawMap[idx] + value)
     }
 
     // eslint-disable-next-line no-unused-vars
     process({ version }) {
-        let oldMap = this.rawMap
+        let map = this.rawMap
         let width = this.width
         let height = this.height
 
-        for (let i = 0; i < oldMap.length; i++) {
-            oldMap[i] -= 1
-        }
+        // the chemical diffuses and evaporate
+        let { result, min, max } = diffuse(map, width, height, 9.05, 0)
 
-        let newMap = new Uint8ClampedArray(oldMap.length)
-        let cnt = 9.1
-        for (let i = 0; i < oldMap.length; i++) {
-            // middle row
-            newMap[i] += oldMap[i] / cnt
-            if (i % width > 0) newMap[i] += oldMap[i - 1] / cnt
-            if (i % width < width - 1) newMap[i] += oldMap[i + 1] / cnt
-
-            // top row
-            if (i - 1 - width >= 0) newMap[i] += oldMap[i - 1 - width] / cnt
-            if (i - width >= 0) newMap[i] += oldMap[i - width] / cnt
-            if (i + 1 - width >= 0) newMap[i] += oldMap[i + 1 - width] / cnt
-
-            // bottom row
-            if (i - 1 + width < width * height) newMap[i] += oldMap[i - 1 + width] / cnt
-            if (i + width < width * height) newMap[i] += oldMap[i + width] / cnt
-            if (i + 1 + width < width * height) newMap[i] += oldMap[i + 1 + width] / cnt
-        }
-
-        this.rawMap = newMap
+        this.rawMap = result
+        this.min = min
+        this.max = max
     }
 
     render(ctx) {
+        inject(ctx, (ctx) => {
+            let colorZero = t().chemicalColor(0)
+            ctx.fillStyle = "rgba(" + colorZero.join(",") + ")"
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        })
+
+        let bitmap = ctx.bitmap
         let data = this.rawMap
-        let image = new Uint8ClampedArray(4 * data.length)
         let pos = 0
         for (let i = 0; i < data.length; i++) {
-            image.set(t().chemicalColor(data[i]), pos)
+            let val = Math.floor((data[i] - this.min) / this.max * 255)
+            if (val > 0) {
+                bitmap.set(t().chemicalColor(val), pos)
+            }
             pos += 4
         }
-        ctx.putImageData(new ImageData(image, this.width, this.height), 0, 0)
     }
 
-    sum({ xc, yc, sz }) {
+    sum(xc, yc, sz) {
         xc = Math.floor(xc)
         yc = Math.floor(yc)
-        let res = 1e-6
+        let res = 0
         for (let i = xc - sz + 1; i < xc + sz; i++) {
             for (let j = yc - sz + 1; j < yc + sz; j++) {
                 if (i < 0 || i >= this.width) continue
@@ -67,6 +64,6 @@ export default class ChemicalMap {
                 res += this.rawMap[i + j * this.width]
             }
         }
-        return res / (sz * 2 - 1) / (sz * 2 - 1)
+        return res
     }
 }

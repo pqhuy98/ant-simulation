@@ -1,19 +1,25 @@
+import {
+    Route, Switch,
+    BrowserRouter as Router,
+} from "react-router-dom"
 import React from "react"
 import GameView from "./components/GameView"
+import { Random, Themes } from "config/Themes"
 
 function App() {
-    return [
-        <a
-            key="link"
-            style={{
-                color: "white"
-            }}
-            href={"https://github.com/pqhuy98/ant-simulation"}
-        >
-            Github
-        </a>,
-        <GameView key="game" />
-    ]
+    let w = 700, h = 400
+    return <Router>
+        <Switch>
+            <Route exact path="/">
+                <GameView theme={Random()} width={w} height={h} />
+            </Route>
+            {Object.keys(Themes).map((name) =>
+                <Route key={name} exact path={"/" + name.toLowerCase()}>
+                    <GameView theme={Themes[name]} width={w} height={h} />
+                </Route >
+            )}
+        </Switch>
+    </Router>
 }
 
 export default App
