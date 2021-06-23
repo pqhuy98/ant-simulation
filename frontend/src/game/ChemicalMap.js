@@ -71,8 +71,8 @@ export default class ChemicalMap {
         yc = Math.floor(yc)
         let res = 0
         for (let i = xc - sz + 1; i < xc + sz; i++) {
+            if (i < 0 || i >= this.width) continue
             for (let j = yc - sz + 1; j < yc + sz; j++) {
-                if (i < 0 || i >= this.width) continue
                 if (j < 0 || j >= this.height) continue
                 res += this.rawMap[i + j * this.width]
             }

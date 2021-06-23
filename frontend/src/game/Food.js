@@ -24,8 +24,8 @@ export default class Food {
         y = Math.floor(y)
         sz = Math.floor(sz)
         for (let i = x; i < x + sz; i++) {
+            if (i < 0 || i >= this.width) continue
             for (let j = y; j < y + sz; j++) {
-                if (i < 0 || i >= this.width) continue
                 if (j < 0 || j >= this.height) continue
                 let amount = Math.floor(Math.random() * (max - min) + min)
                 this.rawMap[i + j * this.width] = amount
@@ -43,16 +43,29 @@ export default class Food {
         this.rawMap[x + y * this.width] -= amount
         this.world.unpickedFood -= amount
 
-        this.putBuffer[x + y * this.width] = false
-        this.takeBuffer[x + y * this.width] = true
+        if (this.rawMap[x + y * this.width] <= 0) {
+            this.putBuffer[x + y * this.width] = false
+            this.takeBuffer[x + y * this.width] = true
+        }
     }
 
     has(x, y, sz) {
         x = Math.floor(x)
         y = Math.floor(y)
+        for (let _ = 0; _ < 2; _++) {
+            let i = randomInt(x - sz + 1, x + sz)
+            let j = randomInt(y - sz + 1, y + sz)
+            if (i < 0 || i >= this.width || j < 0 || j >= this.height) {
+                continue
+            }
+            let idx = i + j * this.width
+            if (this.rawMap[idx] > 0) {
+                return [i, j]
+            }
+        }
         for (let i = x - sz + 1; i < x + sz; i++) {
+            if (i < 0 || i >= this.width) continue
             for (let j = y - sz + 1; j < y + sz; j++) {
-                if (i < 0 || i >= this.width) continue
                 if (j < 0 || j >= this.height) continue
                 let idx = i + j * this.width
                 if (this.rawMap[idx] > 0) {
