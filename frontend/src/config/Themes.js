@@ -23,7 +23,7 @@ export const Themes = {
         antColor1: "brown",
         foodColor: "orange",
         homeColor: "brown",
-        backgroundColor: "#fff",
+        backgroundColor: "#ffffff",
         antCount: 2000,
         colonyCount: 3,
         foodClusters: 100,

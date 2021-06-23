@@ -28,7 +28,6 @@ export default class ChemicalMap {
     }
 
     render(ctx) {
-        // let color = getRGB(t().chemicalColor)
         let color = [...this.color]
         let bitmap = ctx.bitmap
         let data = this.rawMap
