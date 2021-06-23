@@ -1,9 +1,10 @@
 import { t } from "config/Themes"
 
 export default class Home {
-    constructor({ width, height, colonyCount }) {
+    constructor({ width, height, colonyCount, world }) {
         this.width = width
         this.height = height
+        this.world = world
         this.locations = [...Array(colonyCount)].map(() => ({
             x: Math.random() * width,
             y: Math.random() * height,
@@ -24,6 +25,7 @@ export default class Home {
 
     give(amount) {
         this.food += amount
+        this.world.storedFood += amount
     }
 
     render(ctx) {

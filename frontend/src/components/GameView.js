@@ -19,7 +19,7 @@ export default function GameView({ theme, width, height }) {
             foodClusters: t().foodClusters,
         })
     }, [theme])
-    const draw = useMemo(() => (ctx) => world?.render(ctx), [world])
+    const draw = useMemo(() => ({ ctx, ctxFood }) => world?.render({ ctx, ctxFood }), [world])
     const next = useMemo(() => () => world?.gameLoop({ deltaT }), [world])
 
     const [fps, setFps] = useState(0)
@@ -31,7 +31,7 @@ export default function GameView({ theme, width, height }) {
     return <div style={{
         width: "100%",
         height: "100%",
-        marginTop: "30px"
+        paddingTop: "30px"
     }}>
         <ThemeLinks />
         <Link text="github" url="https://github.com/pqhuy98/ant-simulation" />

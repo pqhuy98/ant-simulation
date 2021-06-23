@@ -4,7 +4,7 @@ import ChemicalMap from "./ChemicalMap"
 import Food from "./Food"
 import Home from "./Home"
 import {
-    MODE_FOOD,
+    // MODE_FOOD,
     t
 } from "config/Themes"
 import { randomInt } from "../lib/basic_math"
@@ -17,20 +17,24 @@ export default class World {
         this.width = width
         this.height = height
         this.version = 0
+        this.pickedFood = 0
+        this.unpickedFood = 0
+        this.storedFood = 0
 
         // Home
-        this.homeTrail = new ChemicalMap({ width, height })
-        this.home = new Home({ width, height, colonyCount })
+        this.homeTrail = new ChemicalMap({ width, height, color: t().homeColor })
+        this.home = new Home({ width, height, colonyCount, world: this })
 
         // Food
-        this.foodTrail = new ChemicalMap({ width, height })
-        this.food = new Food({ width, height, foodClusters })
+        this.foodTrail = new ChemicalMap({ width, height, color: t().foodColor })
+        this.food = new Food({ width, height, foodClusters, world: this })
 
 
         this.ants = [...Array(antCount)].map(() => new Ant({
             position: {
                 ...this.home.locations[randomInt(0, colonyCount)],
-            }
+            },
+            world: this,
         }))
 
 
@@ -60,19 +64,22 @@ export default class World {
         this.version++
     }
 
-    render(ctx) {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
+    render({ ctx, ctxFood }) {
+        ctx.fillStyle = t().backgroundColor
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         // render all objects
         directPixelManipulation(ctx, (ctx) => {
-            if (t().chemicalRenderMode === MODE_FOOD) {
-                this.foodTrail.render(ctx)
-            } else {
-                this.homeTrail.render(ctx)
-            }
+            // if (t().chemicalRenderMode === MODE_FOOD) {
+            this.foodTrail.render(ctx)
+            // } else {
+            this.homeTrail.render(ctx)
+            // }
             Ant.bulkRender(ctx, this.ants)
+        })
+
+        directPixelManipulation(ctxFood, (ctx) => {
             this.food.render(ctx)
         })
-        this.home.render(ctx)
+        this.home.render(ctxFood)
     }
 }

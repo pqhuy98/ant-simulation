@@ -6,7 +6,7 @@ import { getRGB } from "lib/color"
 
 export default class Ant {
     constructor(props) {
-        const { position, rotation, speed } = props || {}
+        const { position, rotation, speed, world } = props || {}
 
         this.id = uuidv4()
         this.position = position || {
@@ -24,15 +24,23 @@ export default class Ant {
 
         this.carryingFood = 0
         this.freshness = 1
-        let dice = randomInt(0, 4 + 1)
-        this.decide = this["decideAngle" + dice]
+        this.randomizeDecidePolicy()
 
         this.freshnessDecay = randomExp(0.6, 0.7)
+        this.world = world
+    }
+
+    randomizeDecidePolicy() {
+        this.decide = undefined
+        while (!this.decide) {
+            let dice = randomInt(0, 10)
+            this.decide = this["decideAngle" + dice]
+        }
     }
 
     static bulkRender(ctx, ants) {
         let freeColor = getRGB(t().antColor0)
-        let carryColor = getRGB(t().antColor1)
+        let carryColor = getRGB(t().foodColor)
         let width = ctx.canvas.width
 
         var bitmap = ctx.bitmap
@@ -58,10 +66,14 @@ export default class Ant {
         if (this.position.y === 0 || this.position.y === world.height - 1) {
             this.rotation = 2 * Math.PI - this.rotation
         }
+        // if (this.freshness < 1e-30) {
+        //     this.randomizeDecidePolicy()
+        //     this.freshness = 1e-20
+        // }
 
         if ((this.rand + world.version) % 3 > 0) {
             let trail, dest
-            if (this.isCarryingFood() || this.freshness < 1e-60) {
+            if (this.isCarryingFood()) {
                 trail = world.homeTrail
                 dest = world.home
             } else {
@@ -70,7 +82,7 @@ export default class Ant {
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
-            this.rotation += randomFloat(-0.05, 0.05)
+            this.rotation += randomFloat(-0.02, 0.02)
         }
         this.rotation %= 2 * Math.PI
     }
@@ -105,6 +117,10 @@ export default class Ant {
             vision
         ))
 
+        // if (vals.reduce((s, e) => s + e) < 1e-10) {
+        //     return degs[0]
+        // }
+
         return this.decide(degs, vals)
     }
 
@@ -122,6 +138,7 @@ export default class Ant {
             let foodPos = world.food.has(this.position.x, this.position.y, this.pickupRange)
             if (foodPos) {
                 world.food.take(foodPos[0], foodPos[1], 1)
+                this.world.pickedFood++
                 this.carryingFood += 1
                 this.rotation *= -1
                 this.freshness = 1
@@ -135,6 +152,7 @@ export default class Ant {
             let homePos = world.home.has(this.position.x, this.position.y, this.storeRange)
             if (homePos) {
                 world.home.give(this.carryingFood)
+                this.world.pickedFood -= this.carryingFood
                 this.carryingFood = 0
                 this.rotation *= -1
                 this.freshness = 1
@@ -170,6 +188,7 @@ export default class Ant {
     /*
         mutations
     */
+
     decideAngle0(degs, vals) {
         let angle = 0, total = 0
         for (let i = 0; i < degs.length; i++) {
@@ -190,7 +209,7 @@ export default class Ant {
         return angle
     }
 
-    decideAngle2(degs, vals) {
+    _decideAngle2(degs, vals) {
         let total = 0
         vals.forEach(v => total += v)
         let dice = randomFloat(0, total)
@@ -204,8 +223,8 @@ export default class Ant {
         return degs[degs.length - 1]
     }
 
-    decideAngle3(degs, vals) {
-        return this.decideAngle2(degs, vals.map(v => v * v))
+    _decideAngle3(degs, vals) {
+        return this._decideAngle2(degs, vals.map(v => v * v))
     }
 
     decideAngle4(degs, vals) {

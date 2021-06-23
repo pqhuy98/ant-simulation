@@ -1,28 +1,21 @@
 import { randomColor, randomExp, randomInt } from "lib/basic_math"
 
-// randomize Random.chemicalColor()
-const transformers = [
-    () => 0,
-    () => 255,
-    (val) => val,
-    (val) => 255 - val
-]
-
 export const MODE_FOOD = 0
 export const MODE_HOME = 1
 
 export const Themes = {
     StarWar: {
         antColor0: "#37d3d2",
-        antColor1: "#000000",
-        foodColor: "#dfd",
+        antColor1: "#ffffff",
+        foodColor: "#ddffdd",
         homeColor: "lightBlue",
+        backgroundColor: "#000",
         antCount: 2000,
         colonyCount: 3,
         foodClusters: 1216,
         foodSize: [1, 3],
         foodCapacity: [1, 20],
-        chemicalColor: (val) => [0, val, val, 255],
+        chemicalColor: "#37d3d2",
         chemicalRenderMode: MODE_FOOD,
     },
     Classic: {
@@ -30,20 +23,22 @@ export const Themes = {
         antColor1: "brown",
         foodColor: "orange",
         homeColor: "brown",
+        backgroundColor: "#fff",
         antCount: 2000,
         colonyCount: 3,
         foodClusters: 100,
         foodSize: [10, 20],
         foodCapacity: [1, 5],
-        chemicalColor: (val) => [255, 255 - val, 255 - val, 255],
+        chemicalColor: "#ff0000",
         chemicalRenderMode: MODE_HOME,
     },
     SpaceDesert: {
         antColor0: "#E2C141",
         antColor1: "#136961",
         antCount: 2000,
-        chemicalColor: val => [255 - val, 255 - val, 0, val],
+        chemicalColor: "#ffff00",
         chemicalRenderMode: 0,
+        backgroundColor: "#363",
         colonyCount: 2,
         foodCapacity: [1, 8],
         foodClusters: 1216,
@@ -55,7 +50,7 @@ export const Themes = {
         antColor0: "#72F82A",
         antColor1: "#7AEC03",
         antCount: 2000,
-        chemicalColor: val => [255 - val, 255, 255 - val, 255 - val],
+        chemicalColor: "#00ff00",
         chemicalRenderMode: 1,
         colonyCount: 6,
         foodCapacity: [1, 8],
@@ -75,34 +70,19 @@ Themes.PathFinding = {
 }
 
 export function Random() {
-    const fnIds = [
-        randomInt(0, transformers.length),
-        randomInt(0, transformers.length),
-        randomInt(0, transformers.length),
-        3
-    ]
-    console.log(fnIds)
-    const fns = [
-        transformers[fnIds[0]],
-        transformers[fnIds[1]],
-        transformers[fnIds[2]],
-        transformers[fnIds[3]],
-    ]
-    let chemicalColor = (val) => [
-        fns[0](val), fns[1](val), fns[2](val), fns[3](val)
-    ]
     return {
         antColor0: randomColor(),
         antColor1: randomColor(),
         foodColor: randomColor(),
         homeColor: randomColor(),
+        backgroundColor: randomColor(),
+        chemicalColor: randomColor(),
+        chemicalRenderMode: randomInt(0, 2),
         antCount: randomInt(1000, 5000),
         colonyCount: randomInt(1, 100),
         foodClusters: Math.round(randomExp(5, 10000)),
         foodSize: [1, Math.round(randomExp(1, 200))],
         foodCapacity: [1, Math.round(randomExp(1, 20))],
-        chemicalColor,
-        chemicalRenderMode: randomInt(0, 2),
     }
 }
 
