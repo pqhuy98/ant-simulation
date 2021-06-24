@@ -7,7 +7,7 @@ import GameView from "./components/GameView"
 import { Random, Themes } from "config/Themes"
 
 function App() {
-    let w = 900, h = 500
+    let w = 700, h = 400
     return <Router>
         <Switch>
             <Route exact path="/">

@@ -1,13 +1,13 @@
 var seed = 1337 ^ 0xDEADBEEF
 
 // perform 2x2 convolution, with [i,j] at a random corner of the 2x2 filter.
-export function diffuse(arr, width, height, evaporate = 1, skip = 2) {
+export function diffuse(arr, width, height, evaporate = 1) {
     let filterSize = 2 * 2
 
     let min = 9999, max = -9999
     let result = new Float32Array(arr.length)
     let x = -1
-    let y = 0 + skip - skip
+    let y = 0
     for (let i = 0; i < arr.length; i++) {
         // optimize
         x++

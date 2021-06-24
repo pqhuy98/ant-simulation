@@ -10,7 +10,7 @@ export default class ChemicalMap {
         this.min = 0
         this.max = 1e-3
         this.skip = 2
-        this.evaporate = 0.9
+        this.evaporate = 0.8
         this.version = 0
     }
 

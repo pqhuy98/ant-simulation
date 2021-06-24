@@ -10,7 +10,7 @@ export const Themes = {
         foodColor: "#ddffdd",
         homeColor: "lightBlue",
         backgroundColor: "#000",
-        antCount: 10000,
+        antCount: 3000,
         colonyCount: 3,
         foodClusters: 1216,
         foodSize: [1, 3],
