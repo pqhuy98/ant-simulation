@@ -31,8 +31,8 @@ export function FpsDisplay({ fpsValue }) {
         position: "absolute",
     }
     return (
-        <span style={style}>{"FPS: " + fpsValue} </span >
-        // <span style={style}>{Math.floor(1000 / fpsValue)}ms {fpsValue} </span >
+        // <span style={style}>{"FPS: " + fpsValue} </span >
+        <span style={style}>{Math.floor(1000 / fpsValue)}ms {fpsValue} </span >
     )
 }
 FpsDisplay.propTypes = {

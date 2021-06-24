@@ -1,5 +1,9 @@
-export function makeBitmap(ctx) {
-    ctx.bitmap = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data
+export function makeBitmap(ctx, reset = false) {
+    if (!reset) {
+        ctx.bitmap = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data
+    } else {
+        ctx.bitmap = new Uint8ClampedArray(4 * ctx.canvas.width * ctx.canvas.height)
+    }
     ctx.bitmap.addPixelLayer = (color, pos) => {
         ctx.bitmap.set([
             (color[0] * color[3] + ctx.bitmap[pos] * (255 - color[3])) >> 8,
@@ -15,8 +19,8 @@ export function commitBitmap(ctx) {
     delete ctx.bitmap
 }
 
-export function directPixelManipulation(ctx, fn) {
-    makeBitmap(ctx)
+export function directPixelManipulation(ctx, fn, reset = false) {
+    makeBitmap(ctx, reset)
     fn(ctx)
     commitBitmap(ctx)
 }

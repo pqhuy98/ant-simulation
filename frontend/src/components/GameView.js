@@ -19,13 +19,13 @@ export default function GameView({ theme, width, height }) {
             foodClusters: t().foodClusters,
         })
     }, [theme])
-    const draw = useMemo(() => ({ ctx, ctxFood }) => world?.render({ ctx, ctxFood }), [world])
+    const draw = useMemo(() => (...args) => world?.render(...args), [world])
     const next = useMemo(() => () => world?.gameLoop({ deltaT }), [world])
 
     const [fps, setFps] = useState(0)
     const fpsCalculator = useMemo(() => new FpsCalculator({
         onTick: (fpsValue) => setFps(fpsValue)
-    }))
+    }, [world.id]))
 
     // Resize detection
     return <div style={{

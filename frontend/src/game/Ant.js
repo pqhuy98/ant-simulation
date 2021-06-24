@@ -18,7 +18,7 @@ export default class Ant {
         this.size = 1
         this.rand = Math.floor(Math.random() * 100)
 
-        this.visionRange = 8
+        this.visionRange = 2
         this.pickupRange = 2
         this.storeRange = 2
 
@@ -82,7 +82,7 @@ export default class Ant {
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
-            this.rotation += randomFloat(-0.02, 0.02)
+            this.rotation += randomFloat(-0.01, 0.01)
         }
         this.rotation %= 2 * Math.PI
     }

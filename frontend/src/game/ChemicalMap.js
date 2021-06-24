@@ -8,13 +8,17 @@ export default class ChemicalMap {
         this.rawMap = new Float32Array(width * height)
         this.color = getRGB(color)
         this.min = 0
-        this.max = 0
-        this.evaporate = 0.8
+        this.max = 1e-3
+        this.skip = 2
+        this.evaporate = 0.9
+        this.version = 0
     }
 
-
-    // eslint-disable-next-line no-unused-vars
-    process({ version }) {
+    process() {
+        this.version++
+        if (this.version % this.skip > 0) {
+            return
+        }
         let map = this.rawMap
         let width = this.width
         let height = this.height
@@ -39,13 +43,15 @@ export default class ChemicalMap {
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
         // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min)
-        // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min) + min
-        let valZeroThreshold = Math.pow(5 / 255, 1 / evaPow) * (this.max - this.min) + this.min
+        // <=>  data[i] >= Math.pow(1/255, 1/evaPow) * (max-min) + min
+        let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
+        let minMaxDiff = (this.max - this.min)
         for (let i = 0; i < data.length; i++) {
             // // Original code:
             if (data[i] >= valZeroThreshold) {
-                let val = (data[i] - this.min) / (this.max - this.min)
-                val = Math.pow(val, evaPow)
+                // let val = 100
+                let val = (data[i] - this.min) / minMaxDiff
+                val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
                 val = Math.floor(val * 255)
                 color[3] = val
                 bitmap.addPixelLayer(color, pos)
