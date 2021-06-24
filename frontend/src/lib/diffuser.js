@@ -17,7 +17,7 @@ export function diffuse(arr, width, height, evaporate = 1) {
         }
 
         // fast random
-        seed = (seed + 0x12345678 ^ seed >> 2)
+        seed = (seed + 0xabcdef01 ^ seed >> 6)
         let offsetX = seed & 1
         let offsetY = (seed >> 1) & 1
 

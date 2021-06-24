@@ -32,6 +32,7 @@ export const Themes = {
         chemicalColor: "#ff0000",
         chemicalRenderMode: MODE_HOME,
     },
+    PathFinding: {},
     SpaceDesert: {
         antColor0: "#E2C141",
         antColor1: "#136961",
@@ -54,11 +55,25 @@ export const Themes = {
         chemicalRenderMode: 1,
         colonyCount: 6,
         foodCapacity: [1, 8],
-        foodClusters: 23,
-        foodColor: "#789196",
+        foodClusters: 123,
+        foodColor: "#78F126",
         foodSize: [1, 11],
         homeColor: "#ACF441",
     },
+    Violet: {
+        antColor0: "#7BE5EC",
+        antColor1: "#365C0F",
+        antCount: 2801,
+        backgroundColor: "#7B39D3",
+        chemicalColor: "#0A70EF",
+        chemicalRenderMode: 0,
+        colonyCount: 4,
+        foodCapacity: [1, 10],
+        foodClusters: 5576,
+        foodColor: "#E49FF7",
+        foodSize: [1, 8],
+        homeColor: "#0F03A9",
+    }
 }
 Themes.PathFinding = {
     ...Themes.Classic,

@@ -54,10 +54,10 @@ GameView.propTypes = {
 
 function ThemeLinks() {
     let links = []
+    links.push(<Link key={"/"} text="RANDOM" url="/" />)
     for (const theme in Themes) {
         links.push(<Link key={theme} text={theme} url={theme.toLowerCase()} />)
     }
-    links.push(<Link key={"/"} text="RANDOM" url="/" />)
     return links
 }
 function Link({ text, url }) {

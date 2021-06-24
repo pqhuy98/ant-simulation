@@ -10,7 +10,7 @@ export default class ChemicalMap {
         this.min = 0
         this.max = 1e-3
         this.skip = 2
-        this.evaporate = 0.8
+        this.evaporate = 0.95
         this.version = 0
     }
 
@@ -52,7 +52,7 @@ export default class ChemicalMap {
                 // let val = 100
                 let val = (data[i] - this.min) / minMaxDiff
                 val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
-                val = Math.floor(val * 255)
+                val = ~~(val * 255) // quicker Math.floor
                 color[3] = val
                 bitmap.addPixelLayer(color, pos)
             }
