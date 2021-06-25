@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getRGB } from "lib/color"
 import { diffuse } from "lib/diffuser"
 
@@ -6,19 +7,22 @@ export default class ChemicalMap {
         this.width = width
         this.height = height
         this.rawMap = new Float32Array(width * height)
-        this.color = getRGB(color)
         this.min = 0
         this.max = 1e-3
-        this.skip = 2
         this.evaporate = 0.95
         this.version = 0
+
+        this.color = getRGB(color)
+        this.color[3] = 0
+
+        // Store [R, G, B, 0, R, G, B, 0, ...]
+        this.placeholder = new Uint8ClampedArray(4 * width * height)
+        for (let i = 0; i < this.placeholder.length; i += 4) {
+            this.placeholder.set(this.color, i)
+        }
     }
 
     process() {
-        this.version++
-        if (this.version % this.skip > 0) {
-            return
-        }
         let map = this.rawMap
         let width = this.width
         let height = this.height
@@ -32,11 +36,12 @@ export default class ChemicalMap {
     }
 
     render(ctx) {
-        let color = [...this.color]
-        let bitmap = ctx.bitmap
         let data = this.rawMap
-        let pos = 0
 
+        let bitmap = ctx.bitmap
+        bitmap.set(this.placeholder)
+
+        let pos = 0
         let evaPow = 0.3 / this.evaporate
         //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
@@ -53,8 +58,7 @@ export default class ChemicalMap {
                 let val = (data[i] - this.min) / minMaxDiff
                 val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
                 val = ~~(val * 255) // quicker Math.floor
-                color[3] = val
-                bitmap.addPixelLayer(color, pos)
+                bitmap[pos + 3] = val
             }
             pos += 4
         }

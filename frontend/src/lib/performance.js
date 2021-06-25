@@ -34,11 +34,11 @@ export class Profiler {
     }
 
     print() {
-        // console.log("--------------------------------")
-        // Object.keys(this.values).forEach(k => {
-        //     let percent = (this.values["TOTAL"] ? Math.floor(this.values[k] / this.values["TOTAL"] * 100) : "--")
-        //     console.log(k, "\t", percent, this.values[k])
-        // })
+        console.log("--------------------------------")
+        Object.keys(this.values).forEach(k => {
+            let percent = (this.values["TOTAL"] ? Math.floor(this.values[k] / this.values["TOTAL"] * 100) : "--")
+            console.log(k, "\t", percent, this.values[k])
+        })
     }
 
     reset() {

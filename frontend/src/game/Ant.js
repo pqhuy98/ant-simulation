@@ -26,7 +26,7 @@ export default class Ant {
         this.freshness = 1
         this.randomizeDecidePolicy()
 
-        this.freshnessDecay = randomExp(0.6, 0.7)
+        this.freshnessDecay = randomExp(0.9, 0.95)
         this.world = world
     }
 

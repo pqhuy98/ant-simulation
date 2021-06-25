@@ -54,6 +54,8 @@ export default class World {
     }
 
     gameLoop({ deltaT }) {
+        this.pf.reset()
+        this.version++
         let tm = new Timer()
         this.ants.forEach(ant => {
             ant.gameLoop({ world: this, deltaT })
@@ -62,45 +64,49 @@ export default class World {
             ant.position.y = Math.max(0, Math.min(this.height - 1, ant.position.y))
         })
         this.pf.put("gameLoop : ants", tm.tick())
-        this.foodTrail.process()
-        this.pf.put("gameLoop : food trail", tm.tick())
-        this.homeTrail.process()
-        this.pf.put("gameLoop : home trail", tm.tick())
 
-        this.version++
+        if (this.version % 2 === 1) {
+            this.foodTrail.process()
+            this.pf.put("gameLoop : food trail", tm.tick())
+        } else {
+            this.homeTrail.process()
+            this.pf.put("gameLoop : home trail", tm.tick())
+        }
+
         if (typeof this.postProcessFn === "function") {
             this.postProcessFn(this)
         }
         this.pf.put("gameLoop : TOTAL", tm.dt0())
-        this.pf.put("TOTAL", this.pf.get("gameLoop : TOTAL") + this.pf.get("render : TOTAL"))
-        this.pf.print()
     }
 
-    render({ ctx, ctxAnt, ctxFood }) {
-        this.pf.reset()
+    render({ ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood }) {
         let tm = new Timer()
 
-        // render background and trail
-        if (this.version % 2 === 0) { // very expensive, so we want to do it infrequently
-            ctx.fillStyle = t().backgroundColor
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-            this.pf.put("render : background", tm.tick())
+        // render background
+        ctxBackground.fillStyle = t().backgroundColor
+        ctxBackground.fillRect(0, 0, this.width, this.height)
+        this.pf.put("render : background", tm.tick())
 
-            // render all objects
-            directPixelManipulation(ctx, (ctx) => {
-                this.pf.put("render : canvas1 prepare", tm.tick())
+        // render trail
+        if (this.version % 2 === 0) { // very expensive, so we want to do it infrequently
+            directPixelManipulation(ctxFoodTrail, (ctx) => {
+                this.pf.put("render : food trail prepare", tm.tick())
 
                 this.foodTrail.render(ctx)
                 this.pf.put("render : food trail", tm.tick())
+            }, false, true)
+            this.pf.put("render : food trail post", tm.tick())
+            directPixelManipulation(ctxHomeTrail, (ctx) => {
+                this.pf.put("render : home trail prepare", tm.tick())
 
                 this.homeTrail.render(ctx)
                 this.pf.put("render : home trail", tm.tick())
-            })
-            this.pf.put("render : canvas1 post", tm.tick())
+            }, false, true)
+            this.pf.put("render : food trail post", tm.tick())
         }
 
         // render ant
-        ctxAnt.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        ctxAnt.clearRect(0, 0, this.width, this.height)
         directPixelManipulation(ctxAnt, (ctxAnt) => {
             this.pf.put("render : canvasAnt prepare", tm.tick())
 
@@ -122,5 +128,8 @@ export default class World {
         this.pf.put("render : home", tm.tick())
 
         this.pf.put("render : TOTAL", tm.dt0())
+
+        this.pf.put("TOTAL", this.pf.get("gameLoop : TOTAL") + this.pf.get("render : TOTAL"))
+        this.pf.print()
     }
 }
