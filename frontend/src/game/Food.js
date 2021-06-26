@@ -1,5 +1,5 @@
 import { t } from "config/Themes"
-import { randomInt } from "lib/basic_math"
+import { circle, randomInt, square } from "lib/basic_math"
 import { getRGB } from "lib/color"
 
 export default class Food {
@@ -23,23 +23,26 @@ export default class Food {
 
     }
 
-    put(x, y, sz, min = t().foodCapacity[0], max = t().foodCapacity[1]) {
+    put(x, y, sz, min = t().foodCapacity[0], max = t().foodCapacity[1], shape = randomInt(0, 2)) {
         x = Math.floor(x)
         y = Math.floor(y)
         sz = Math.floor(sz)
-        for (let i = x; i < x + sz; i++) {
-            if (i < 0 || i >= this.width) continue
-            for (let j = y; j < y + sz; j++) {
-                if (j < 0 || j >= this.height) continue
-                let oldAmount = this.rawMap[i + j * this.width]
-                let newAmount = Math.floor(Math.random() * (max - min) + min)
-                this.rawMap[i + j * this.width] = newAmount
-                this.world.unpickedFood += newAmount - oldAmount
-
-                this.putBuffer[i + j * this.width] = true
-                this.takeBuffer[i + j * this.width] = false
-            }
+        let drawer
+        if (shape === 0) {
+            drawer = square
+        } else {
+            drawer = circle
         }
+
+        drawer(x, y, sz, this.width, this.height, (i, j) => {
+            let oldAmount = this.rawMap[i + j * this.width]
+            let newAmount = Math.floor(Math.random() * (max - min) + min)
+            this.rawMap[i + j * this.width] = newAmount
+            this.world.unpickedFood += newAmount - oldAmount
+
+            this.putBuffer[i + j * this.width] = true
+            this.takeBuffer[i + j * this.width] = false
+        })
     }
 
     take(x, y, amount = 1) {

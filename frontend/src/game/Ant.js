@@ -28,7 +28,7 @@ export default class Ant {
         this.randomizeDecidePolicy()
 
         // this.freshnessDecay = randomExp(0.8, 0.9)
-        this.freshnessDecay = randomExp(0.96, 0.99)
+        this.freshnessDecay = randomExp(0.99, 0.995)
         this.world = world
         this.deltaT = world.deltaT
     }
@@ -42,7 +42,7 @@ export default class Ant {
     }
 
     static bulkRender(ctx, ants) {
-        let freeColor = getRGB(t().antColor0)
+        let freeColor = getRGB(t().antColor)
         let carryColor = getRGB(t().foodColor)
         let width = ctx.canvas.width
 
