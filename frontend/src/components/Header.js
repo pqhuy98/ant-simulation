@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
 import { Themes } from "config/Themes"
+import { useLocation } from "react-router-dom"
 
 export function Header({ children }) {
     return <div style={style.header}>
@@ -16,19 +17,22 @@ export function ThemeLinks() {
     let links = []
     links.push(<Link key={"/"} text="RANDOM" url="/" />)
     for (const theme in Themes) {
-        links.push(<Link key={theme} text={theme} url={theme.toLowerCase()} />)
+        links.push(<Link key={theme} text={theme} url={"/" + theme.toLowerCase()} />)
     }
     return links
 }
 
 function Link({ text, url }) {
     const [hover, setHover] = useState(false)
+    const location = useLocation()
+
     return <a
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{
             ...style.link,
-            ...(hover ? style.link_hover : null)
+            ...(hover ? style.link_hover : null),
+            ...(location.pathname === url ? style.link_selected : null),
         }}
 
         href={url}>
@@ -49,7 +53,7 @@ export function GithubLink() {
 
 const style = {
     header: {
-        padding: "20px",
+        padding: "13px",
     },
     link: {
         color: "white",
@@ -57,7 +61,10 @@ const style = {
         textDecoration: "none",
     },
     link_hover: {
-        background: "#444"
+        background: "#444",
+    },
+    link_selected: {
+        borderTop: "3px solid white",
     },
     githubLink: {
         color: "white",

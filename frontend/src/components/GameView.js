@@ -43,7 +43,7 @@ export default function GameView({ theme, width, height }) {
             fpsCalculator={fpsCalculator}
         />
         <div style={style.infoContainer}>
-            <table style={style.table}>
+            <table style={style.table}><tbody>
                 <tr>
                     <td style={style.leftCell}>Ant population:</td>
                     <td style={style.rightCell}> {world.ants.length}</td>
@@ -60,7 +60,7 @@ export default function GameView({ theme, width, height }) {
                     <td style={style.leftCell}>Transporting food: </td>
                     <td style={style.rightCell}> {world.pickedFood}</td>
                 </tr>
-            </table>
+            </tbody></table>
         </div>
     </div >
 }

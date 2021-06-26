@@ -178,7 +178,7 @@ export default class Ant {
         }
         trail.put(x, y, 1 * this.freshness)
         if (!this.isCarryingFood()) {
-            world.foodTrail.clean(x, y, 0.9)
+            world.foodTrail.clean(x, y, 0.85)
         }
         this.freshness *= this.freshnessDecay
     }
