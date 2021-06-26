@@ -32,20 +32,16 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
         }
     }, [draw, next])
 
-    let canvasStyle = {
-        position: "absolute",
-        height: "90%",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-    }
-
-    return <div style={{ height: "90%", display: "relative" }} >
-        <canvas style={{ ...canvasStyle, zIndex: 1 }} ref={canvasRefBackground} width={width} height={height} />
-        <canvas style={{ ...canvasStyle, zIndex: 2 }} ref={canvasRefTrailFood} width={width} height={height} />
-        <canvas style={{ ...canvasStyle, zIndex: 3 }} ref={canvasRefTrailHome} width={width} height={height} />
-        <canvas style={{ ...canvasStyle, zIndex: 4 }} ref={canvasRefAnt} width={width} height={height} />
-        <canvas style={{ ...canvasStyle, zIndex: 5 }} ref={canvasRefFood} width={width} height={height} />
+    return <div style={{
+        width: window.innerWidth + "px",
+        height: (height * window.innerWidth / width) + "px",
+        ...style.container
+    }} >
+        <canvas style={{ ...style.canvas, zIndex: 1 }} ref={canvasRefBackground} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 2 }} ref={canvasRefTrailFood} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 3 }} ref={canvasRefTrailHome} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 4 }} ref={canvasRefAnt} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 5 }} ref={canvasRefFood} width={width} height={height} />
     </div >
 }
 Canvas.propTypes = {
@@ -54,4 +50,16 @@ Canvas.propTypes = {
     draw: PropTypes.func,
     next: PropTypes.func,
     fpsCalculator: PropTypes.object
+}
+
+const style = {
+    container: {
+        position: "relative",
+        textAlign: "left",
+    },
+    canvas: {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+    }
 }

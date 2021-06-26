@@ -19,6 +19,10 @@ export default class Food {
         }
     }
 
+    gameLoop() {
+
+    }
+
     put(x, y, sz, min = t().foodCapacity[0], max = t().foodCapacity[1]) {
         x = Math.floor(x)
         y = Math.floor(y)

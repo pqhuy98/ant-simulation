@@ -10,7 +10,7 @@ export const Themes = {
         foodColor: "#ddffdd",
         homeColor: "lightBlue",
         backgroundColor: "#000",
-        antCount: 3000,
+        antCount: 2000,
         colonyCount: 3,
         foodClusters: 1216,
         foodSize: [1, 3],
@@ -24,7 +24,7 @@ export const Themes = {
         foodColor: "orange",
         homeColor: "brown",
         backgroundColor: "#ffffff",
-        antCount: 2000,
+        antCount: 3000,
         colonyCount: 3,
         foodClusters: 100,
         foodSize: [10, 20],
@@ -58,7 +58,7 @@ export const Themes = {
         foodClusters: 123,
         foodColor: "#78F126",
         foodSize: [1, 11],
-        homeColor: "#ACF441",
+        homeColor: "#ffff7f",
     },
     Violet: {
         antColor0: "#7BE5EC",
@@ -77,7 +77,6 @@ export const Themes = {
 }
 Themes.PathFinding = {
     ...Themes.Classic,
-    antCount: 2000,
     colonyCount: 1,
     foodCapacity: [1, 3],
     foodClusters: 3,

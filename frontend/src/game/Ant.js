@@ -20,14 +20,15 @@ export default class Ant {
 
         this.visionRange = 2
         this.pickupRange = 2
-        this.storeRange = 2
+        this.storeRange = 3
 
         this.carryingFood = 0
         this.freshness = 1
         this.randomizeDecidePolicy()
 
-        this.freshnessDecay = randomExp(0.9, 0.95)
+        this.freshnessDecay = randomExp(0.8, 0.9)
         this.world = world
+        this.deltaT = world.deltaT
     }
 
     randomizeDecidePolicy() {
@@ -53,25 +54,22 @@ export default class Ant {
         }
     }
 
-    gameLoop({ world, deltaT }) {
-        this.think({ world })
-        this.releaseChemicals({ world })
-        this.move({ world, deltaT })
+    gameLoop() {
+        this.think()
+        this.releaseChemicals()
+        this.move()
     }
 
-    think({ world }) {
+    think() {
+        let world = this.world
         if (this.position.x === 0 || this.position.x === world.width - 1) {
             this.rotation = Math.PI - this.rotation
         }
         if (this.position.y === 0 || this.position.y === world.height - 1) {
             this.rotation = 2 * Math.PI - this.rotation
         }
-        // if (this.freshness < 1e-30) {
-        //     this.randomizeDecidePolicy()
-        //     this.freshness = 1e-20
-        // }
 
-        if ((this.rand + world.version) % 3 > 0) {
+        if ((this.rand + world.version) % 3 > -1) {
             let trail, dest
             if (this.isCarryingFood()) {
                 trail = world.homeTrail
@@ -82,7 +80,7 @@ export default class Ant {
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
-            this.rotation += randomFloat(-0.01, 0.01)
+            this.rotation += randomFloat(-0.1, 0.1)
         }
         this.rotation %= 2 * Math.PI
     }
@@ -117,14 +115,16 @@ export default class Ant {
             vision
         ))
 
-        // if (vals.reduce((s, e) => s + e) < 1e-10) {
-        //     return degs[0]
-        // }
+        if (vals.reduce((s, e) => s + e) <= 0) {
+            return degs[0]
+        }
 
         return this.decide(degs, vals)
     }
 
-    move({ world, deltaT }) {
+    move() {
+        let world = this.world
+        let deltaT = this.deltaT
         // move forward
         this.position = add(
             this.position,
@@ -162,7 +162,6 @@ export default class Ant {
             if (foodPos) {
                 this.freshness = 1
             }
-
         }
     }
 
@@ -170,7 +169,8 @@ export default class Ant {
         return this.carryingFood > 0
     }
 
-    releaseChemicals({ world }) {
+    releaseChemicals() {
+        let world = this.world
         let { x, y } = this.position
         let trail
         if (this.isCarryingFood()) {
@@ -178,10 +178,10 @@ export default class Ant {
         } else {
             trail = world.homeTrail
         }
-        // let val = trail.get(x, y)
-        // let wantedVal = Math.min(300, val + this.freshness * 100)
-        // trail.put(x, y, Math.max(0, wantedVal - val))
         trail.put(x, y, 1 * this.freshness)
+        if (!this.isCarryingFood()) {
+            world.foodTrail.clean(x, y, 0.7)
+        }
         this.freshness *= this.freshnessDecay
     }
 

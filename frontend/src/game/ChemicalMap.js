@@ -3,13 +3,14 @@ import { getRGB } from "lib/color"
 import { diffuse } from "lib/diffuser"
 
 export default class ChemicalMap {
-    constructor({ width, height, color }) {
+    constructor({ name, width, height, color, evaporate }) {
+        this.name = name
         this.width = width
         this.height = height
         this.rawMap = new Float32Array(width * height)
         this.min = 0
-        this.max = 1e-3
-        this.evaporate = 0.95
+        this.evaporate = evaporate
+        this.max = 1e-9
         this.version = 0
 
         this.color = getRGB(color)
@@ -22,7 +23,7 @@ export default class ChemicalMap {
         }
     }
 
-    process() {
+    gameLoop() {
         let map = this.rawMap
         let width = this.width
         let height = this.height
@@ -42,7 +43,7 @@ export default class ChemicalMap {
         bitmap.set(this.placeholder)
 
         let pos = 0
-        let evaPow = 0.3 / this.evaporate
+        let evaPow = 0.2 / this.evaporate
         //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
@@ -57,7 +58,7 @@ export default class ChemicalMap {
                 // let val = 100
                 let val = (data[i] - this.min) / minMaxDiff
                 val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
-                val = ~~(val * 255) // quicker Math.floor
+                val = ~~(val * 200) // quicker Math.floor
                 bitmap[pos + 3] = val
             }
             pos += 4
@@ -73,6 +74,11 @@ export default class ChemicalMap {
     put(x, y, value) {
         let idx = Math.floor(x) + Math.floor(y) * this.width
         this.rawMap[idx] = Math.min(100, this.rawMap[idx] + value)
+    }
+
+    clean(x, y, coeff = 0.99) {
+        let idx = Math.floor(x) + Math.floor(y) * this.width
+        this.rawMap[idx] *= coeff
     }
 
     sum(xc, yc, sz) {

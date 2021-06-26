@@ -1,4 +1,5 @@
 import { t } from "config/Themes"
+import { randomInt } from "lib/basic_math"
 
 export default class Home {
     constructor({ width, height, colonyCount, world }) {
@@ -10,6 +11,25 @@ export default class Home {
             y: Math.random() * height,
         }))
         this.food = 0
+        this.size = 5
+    }
+
+    gameLoop() {
+        let radius = this.size + 2
+        this.locations.forEach((loc) => {
+            let { x: xc, y: yc } = loc
+            for (let x = xc - radius; x < xc + radius; x++) {
+                let yspan = radius * Math.sin(Math.acos((xc - x) / radius))
+                for (let y = yc - yspan; y < yc + yspan; y++) {
+                    if (x < 0 || x > this.width || y < 0 || y > this.height) continue
+                    this.world.homeTrail.put(x, y, 1)
+                }
+            }
+        })
+    }
+
+    randomPosition() {
+        return this.locations[randomInt(0, this.locations.length)]
     }
 
     has(x, y, sz) {
@@ -31,7 +51,7 @@ export default class Home {
     render(ctx) {
         this.locations.forEach(loc => {
             ctx.beginPath()
-            ctx.arc(loc.x, loc.y, 5, 0, 2 * Math.PI, false)
+            ctx.arc(loc.x, loc.y, this.size, 0, 2 * Math.PI, false)
             ctx.fillStyle = t().homeColor
             ctx.fill()
             ctx.stroke()

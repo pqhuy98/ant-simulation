@@ -7,7 +7,6 @@ import {
     // MODE_FOOD,
     t
 } from "config/Themes"
-import { randomInt } from "../lib/basic_math"
 import { directPixelManipulation } from "lib/canvas_optimizer"
 import { Profiler, Timer } from "lib/performance"
 export default class World {
@@ -23,22 +22,19 @@ export default class World {
         this.storedFood = 0
         this.postProcessFn = postProcessFn
         this.pf = new Profiler()
+        this.deltaT = 1 / 30 // ms
 
         // Home
-        this.homeTrail = new ChemicalMap({ width, height, color: t().homeColor })
+        this.homeTrail = new ChemicalMap({ name: "home", width, height, color: t().homeColor, evaporate: 0.995 })
         this.home = new Home({ width, height, colonyCount, world: this })
 
         // Food
-        this.foodTrail = new ChemicalMap({ width, height, color: t().foodColor })
+        this.foodTrail = new ChemicalMap({ name: "food", width, height, color: t().foodColor, evaporate: 0.95 })
         this.food = new Food({ width, height, foodClusters, world: this })
 
-
-        this.ants = [...Array(antCount)].map(() => new Ant({
-            position: {
-                ...this.home.locations[randomInt(0, colonyCount)],
-            },
-            world: this,
-        }))
+        this.antCount = antCount
+        this.newAntPerFrame = this.antCount / 30 / 10
+        this.ants = []
 
         World.collection.set(this.id, this)
     }
@@ -57,6 +53,19 @@ export default class World {
         this.pf.reset()
         this.version++
         let tm = new Timer()
+
+        // Create new ants
+        let newCnt = this.newAntPerFrame
+        while (newCnt-- > 0 && this.ants.length < this.antCount) {
+            this.ants.push(new Ant({
+                position: {
+                    ...this.home.randomPosition(),
+                },
+                world: this,
+            }))
+        }
+
+        // Game lop for ants
         this.ants.forEach(ant => {
             ant.gameLoop({ world: this, deltaT })
             // Ants cannot leave screen
@@ -65,14 +74,20 @@ export default class World {
         })
         this.pf.put("gameLoop : ants", tm.tick())
 
+        // Food and home trail
         if (this.version % 2 === 1) {
-            this.foodTrail.process()
+            this.foodTrail.gameLoop()
             this.pf.put("gameLoop : food trail", tm.tick())
         } else {
-            this.homeTrail.process()
+            this.homeTrail.gameLoop()
             this.pf.put("gameLoop : home trail", tm.tick())
         }
 
+        // Home and Food
+        this.home.gameLoop()
+        this.food.gameLoop()
+
+        // trigger post process
         if (typeof this.postProcessFn === "function") {
             this.postProcessFn(this)
         }
