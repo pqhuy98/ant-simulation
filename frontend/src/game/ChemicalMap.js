@@ -54,7 +54,7 @@ export default class ChemicalMap {
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
         // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min)
         // <=>  data[i] >= Math.pow(1/255, 1/evaPow) * (max-min) + min
-        let evaPow = 0.2 / this.evaporate
+        let evaPow = 0.4 / this.evaporate
         let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
         let minMaxDiff = (this.max - this.min)
         for (let i = 0; i < data.length; i++) {

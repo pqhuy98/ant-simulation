@@ -49,7 +49,7 @@ export function GithubLink() {
 
 const style = {
     header: {
-        padding: "30px",
+        padding: "20px",
     },
     link: {
         color: "white",
