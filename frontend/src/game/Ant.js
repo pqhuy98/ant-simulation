@@ -3,7 +3,6 @@ import { t } from "../config/Themes"
 import config from "../config"
 import { add, mul, randomExp, randomFloat, randomInt } from "../lib/basic_math"
 import { getRGB } from "lib/color"
-
 export default class Ant {
     constructor(props) {
         const { position, rotation, speed, world } = props || {}
@@ -16,9 +15,11 @@ export default class Ant {
         this.rotation = rotation || Math.random() * 2 * Math.PI
         this.speed = speed || randomFloat(config.ANT_SPEED_MIN, config.ANT_SPEED_MAX)
         this.size = 1
-        this.rand = Math.floor(Math.random() * 100)
 
-        this.visionRange = 2
+        let diagonal = Math.sqrt(world.height * world.height + world.width * world.width) * 35
+        this.rand = Math.floor(Math.random() * diagonal / config.ANT_SPEED_MAX)
+
+        this.visionRange = 2//randomInt(2, 4)
         this.pickupRange = 2
         this.storeRange = 3
 
@@ -26,7 +27,8 @@ export default class Ant {
         this.freshness = 1
         this.randomizeDecidePolicy()
 
-        this.freshnessDecay = randomExp(0.8, 0.9)
+        // this.freshnessDecay = randomExp(0.8, 0.9)
+        this.freshnessDecay = randomExp(0.96, 0.99)
         this.world = world
         this.deltaT = world.deltaT
     }
@@ -69,7 +71,7 @@ export default class Ant {
             this.rotation = 2 * Math.PI - this.rotation
         }
 
-        if ((this.rand + world.version) % 3 > -1) {
+        if ((this.rand + world.version) % 2 > 0) {
             let trail, dest
             if (this.isCarryingFood()) {
                 trail = world.homeTrail
@@ -80,7 +82,7 @@ export default class Ant {
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
-            this.rotation += randomFloat(-0.1, 0.1)
+            this.rotation += randomFloat(-0.08, 0.08)
         }
         this.rotation %= 2 * Math.PI
     }
@@ -110,14 +112,10 @@ export default class Ant {
 
         // No destination saw, use trail
         let vals = degs.map(deg => trail.sum(
-            x + Math.cos(deg) * vision,
-            y + Math.sin(deg) * vision,
+            x + Math.cos(deg) * vision * 2,
+            y + Math.sin(deg) * vision * 2,
             vision
         ))
-
-        if (vals.reduce((s, e) => s + e) <= 0) {
-            return degs[0]
-        }
 
         return this.decide(degs, vals)
     }
@@ -180,7 +178,7 @@ export default class Ant {
         }
         trail.put(x, y, 1 * this.freshness)
         if (!this.isCarryingFood()) {
-            world.foodTrail.clean(x, y, 0.7)
+            world.foodTrail.clean(x, y, 0.8)
         }
         this.freshness *= this.freshnessDecay
     }

@@ -31,9 +31,10 @@ export default class Food {
             if (i < 0 || i >= this.width) continue
             for (let j = y; j < y + sz; j++) {
                 if (j < 0 || j >= this.height) continue
-                let amount = Math.floor(Math.random() * (max - min) + min)
-                this.rawMap[i + j * this.width] = amount
-                this.world.unpickedFood += amount
+                let oldAmount = this.rawMap[i + j * this.width]
+                let newAmount = Math.floor(Math.random() * (max - min) + min)
+                this.rawMap[i + j * this.width] = newAmount
+                this.world.unpickedFood += newAmount - oldAmount
 
                 this.putBuffer[i + j * this.width] = true
                 this.takeBuffer[i + j * this.width] = false

@@ -2,6 +2,11 @@
 import { getRGB } from "lib/color"
 import { diffuse } from "lib/diffuser"
 
+const sqrt = {}
+for (let i = 0; i < 100000; i++) {
+    sqrt[i] = Math.sqrt(i)
+}
+
 export default class ChemicalMap {
     constructor({ name, width, height, color, evaporate }) {
         this.name = name
@@ -11,7 +16,7 @@ export default class ChemicalMap {
         this.min = 0
         this.evaporate = evaporate
         this.max = 1e-9
-        this.version = 0
+        this.evaporate = evaporate
 
         this.color = getRGB(color)
         this.color[3] = 0
@@ -43,17 +48,16 @@ export default class ChemicalMap {
         bitmap.set(this.placeholder)
 
         let pos = 0
-        let evaPow = 0.2 / this.evaporate
         //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
         // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min)
         // <=>  data[i] >= Math.pow(1/255, 1/evaPow) * (max-min) + min
+        let evaPow = 0.2 / this.evaporate
         let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
         let minMaxDiff = (this.max - this.min)
         for (let i = 0; i < data.length; i++) {
-            // // Original code:
             if (data[i] >= valZeroThreshold) {
                 // let val = 100
                 let val = (data[i] - this.min) / minMaxDiff
@@ -73,7 +77,7 @@ export default class ChemicalMap {
 
     put(x, y, value) {
         let idx = Math.floor(x) + Math.floor(y) * this.width
-        this.rawMap[idx] = Math.min(100, this.rawMap[idx] + value)
+        this.rawMap[idx] = Math.max(0, Math.min(255, this.rawMap[idx] + value))
     }
 
     clean(x, y, coeff = 0.99) {
