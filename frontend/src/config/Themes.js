@@ -1,4 +1,5 @@
-import { randomColor, randomExp, randomInt } from "lib/basic_math"
+import { SHAPE_CIRCLE, SHAPE_SQUARE } from "game/Food"
+import { pickRandom, randomColor, randomExp, randomInt } from "lib/basic_math"
 
 export const Themes = {
     StarWar: {
@@ -11,6 +12,7 @@ export const Themes = {
         foodClusters: 1216,
         foodSize: [1, 3],
         foodCapacity: [1, 20],
+        foodShape: () => SHAPE_CIRCLE
     },
     Black: {
         antColor: "#000",
@@ -131,6 +133,7 @@ export function Random() {
         foodClusters: Math.round(randomExp(5, 10000)),
         foodSize: [1, Math.round(randomExp(1, 200))],
         foodCapacity: [1, Math.round(randomExp(1, 20))],
+        foodShape: pickRandom([() => SHAPE_CIRCLE, () => SHAPE_SQUARE, undefined])
     }
 }
 

@@ -59,8 +59,12 @@ export function circle(x, y, sz, width, height, callback) {
         let yspan = sz * Math.sin(Math.acos((x - i) / sz))
         for (let j = y - yspan; j < y + yspan; j++) {
             if (j < 0 || j >= height) continue
-            callback(~~i, ~~j)
+            callback(Math.floor(i), Math.floor(j))
         }
     }
 }
 
+// random
+export function pickRandom(arr) {
+    return arr[randomInt(0, arr.length)]
+}

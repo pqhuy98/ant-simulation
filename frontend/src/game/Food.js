@@ -2,8 +2,17 @@ import { t } from "config/Themes"
 import { circle, randomInt, square } from "lib/basic_math"
 import { getRGB } from "lib/color"
 
+export const SHAPE_RANDOM = 0
+export const SHAPE_SQUARE = 1
+export const SHAPE_CIRCLE = 2
+export const Shapes = [SHAPE_SQUARE, SHAPE_CIRCLE]
+
+export function randomShape() {
+    return Shapes[randomInt(0, Shapes.length)]
+}
+
 export default class Food {
-    constructor({ width, height, foodClusters, world }) {
+    constructor({ width, height, foodClusters, world, shape }) {
         this.width = width
         this.height = height
         this.world = world
@@ -14,7 +23,8 @@ export default class Food {
             this.put(
                 Math.random() * width,
                 Math.random() * height,
-                randomInt(...t().foodSize)
+                randomInt(...t().foodSize),
+                shape,
             )
         }
     }
@@ -23,15 +33,18 @@ export default class Food {
 
     }
 
-    put(x, y, sz, min = t().foodCapacity[0], max = t().foodCapacity[1], shape = randomInt(0, 2)) {
+    put(x, y, sz, shape, min = t().foodCapacity[0], max = t().foodCapacity[1]) {
+        if (!shape) shape = randomShape()
         x = Math.floor(x)
         y = Math.floor(y)
         sz = Math.floor(sz)
         let drawer
-        if (shape === 0) {
+        if (shape === SHAPE_SQUARE) {
             drawer = square
-        } else {
+        } else if (shape === SHAPE_CIRCLE) {
             drawer = circle
+        } else {
+            return
         }
 
         drawer(x, y, sz, this.width, this.height, (i, j) => {

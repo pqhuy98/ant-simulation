@@ -30,7 +30,7 @@ export default class World {
 
         // Food
         this.foodTrail = new ChemicalMap({ name: "food", width, height, color: t().foodColor, evaporate: 0.95 })
-        this.food = new Food({ width, height, foodClusters, world: this })
+        this.food = new Food({ width, height, foodClusters, world: this, shape: t().foodShape && t().foodShape() })
 
         this.antCount = antCount
         this.newAntPerFrame = this.antCount / 30 / 10
