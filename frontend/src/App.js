@@ -1,17 +1,18 @@
 import {
     Route, Switch,
     BrowserRouter as Router,
+    Redirect,
 } from "react-router-dom"
 import React from "react"
 import GameView from "./components/GameView"
-import { Random, Themes } from "config/Themes"
+import { Themes } from "config/Themes"
 
 function App() {
     let w = 1200, h = 400
     return <Router>
         <Switch>
             <Route exact path="/">
-                <GameView theme={Random()} width={w} height={h} />
+                <Redirect to={Object.keys(Themes)[0].toLowerCase()} />
             </Route>
             {Object.keys(Themes).map((name) =>
                 <Route key={name} exact path={"/" + name.toLowerCase()}>

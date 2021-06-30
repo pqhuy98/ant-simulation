@@ -9,6 +9,8 @@ import {
 } from "config/Themes"
 import { directPixelManipulation } from "lib/canvas_optimizer"
 import { Profiler, Timer } from "lib/performance"
+import Wall from "./Wall"
+
 export default class World {
     static collection = new Map()
 
@@ -24,14 +26,18 @@ export default class World {
         this.pf = new Profiler()
         this.deltaT = 1 / 30 // ms
 
+        // Wall
+        this.wall = new Wall({ width, height, scale: t().caveScale, flip: false })
+
         // Home
-        this.homeTrail = new ChemicalMap({ name: "home", width, height, color: t().homeColor, evaporate: 0.995 })
+        this.homeTrail = new ChemicalMap({ name: "home", width, height, color: t().homeColor, evaporate: 0.995, world: this })
         this.home = new Home({ width, height, colonyCount, world: this })
 
         // Food
-        this.foodTrail = new ChemicalMap({ name: "food", width, height, color: t().foodColor, evaporate: 0.95 })
+        this.foodTrail = new ChemicalMap({ name: "food", width, height, color: t().foodColor, evaporate: 0.95, world: this })
         this.food = new Food({ width, height, foodClusters, world: this, shape: t().foodShape && t().foodShape() })
 
+        // Ant
         this.antCount = antCount
         this.newAntPerFrame = this.antCount / 30 / 10
         this.ants = []
@@ -65,7 +71,7 @@ export default class World {
             }))
         }
 
-        // Game lop for ants
+        // Game loop for ants
         this.ants.forEach(ant => {
             ant.gameLoop({ world: this, deltaT })
             // Ants cannot leave screen
@@ -87,6 +93,9 @@ export default class World {
         this.home.gameLoop()
         this.food.gameLoop()
 
+        // Wall
+        this.wall.gameLoop()
+
         // trigger post process
         if (typeof this.postProcessFn === "function") {
             this.postProcessFn(this)
@@ -94,7 +103,7 @@ export default class World {
         this.pf.put("gameLoop : TOTAL", tm.dt0())
     }
 
-    render({ ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood }) {
+    render({ ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall }) {
         let tm = new Timer()
 
         // render background
@@ -103,7 +112,7 @@ export default class World {
         this.pf.put("render : background", tm.tick())
 
         // render trail
-        if (this.version % 2 === 0) { // very expensive, so we want to do it infrequently
+        if (this.version % 2 === 1) { // very expensive, so we want to do it infrequently
             directPixelManipulation(ctxFoodTrail, (ctx) => {
                 this.pf.put("render : food trail prepare", tm.tick())
 
@@ -111,6 +120,7 @@ export default class World {
                 this.pf.put("render : food trail", tm.tick())
             }, false, true)
             this.pf.put("render : food trail post", tm.tick())
+        } else {
             directPixelManipulation(ctxHomeTrail, (ctx) => {
                 this.pf.put("render : home trail prepare", tm.tick())
 
@@ -139,9 +149,15 @@ export default class World {
         })
         this.pf.put("render : canvasFood post", tm.tick())
 
+        // render home
         this.home.render(ctxFood)
         this.pf.put("render : home", tm.tick())
 
+        // render wall
+        this.wall.render(ctxWall)
+        this.pf.put("render : wall", tm.tick())
+
+        // finalize
         this.pf.put("render : TOTAL", tm.dt0())
 
         this.pf.put("TOTAL", this.pf.get("gameLoop : TOTAL") + this.pf.get("render : TOTAL"))

@@ -6,12 +6,18 @@ export default class Home {
         this.width = width
         this.height = height
         this.world = world
-        this.locations = [...Array(colonyCount)].map(() => ({
-            x: Math.random() * width,
-            y: Math.random() * height,
-        }))
-        this.food = 0
+        this.locations = []
         this.size = 5
+        while (this.locations.length < colonyCount) {
+            let loc = {
+                x: Math.random() * width,
+                y: Math.random() * height,
+            }
+            if (world.wall.allowCircle({ ...loc, sz: this.size })) {
+                this.locations.push(loc)
+            }
+        }
+        this.food = 0
     }
 
     gameLoop() {

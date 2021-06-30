@@ -8,7 +8,7 @@ for (let i = 0; i < 100000; i++) {
 }
 
 export default class ChemicalMap {
-    constructor({ name, width, height, color, evaporate }) {
+    constructor({ name, width, height, color, evaporate, world }) {
         this.name = name
         this.width = width
         this.height = height
@@ -17,6 +17,7 @@ export default class ChemicalMap {
         this.evaporate = evaporate
         this.max = 1e-9
         this.evaporate = evaporate
+        this.world = world
 
         this.color = getRGB(color)
         this.color[3] = 0
@@ -34,7 +35,7 @@ export default class ChemicalMap {
         let height = this.height
 
         // the chemical diffuses and evaporate
-        let { result, min, max } = diffuse(map, width, height, this.evaporate)
+        let { result, min, max } = diffuse(map, this.world.wall, width, height, this.evaporate)
 
         this.rawMap = result
         this.min = (this.min * 0.9 + min * 0.1)
@@ -77,6 +78,10 @@ export default class ChemicalMap {
 
     put(x, y, value) {
         let idx = Math.floor(x) + Math.floor(y) * this.width
+        this.rawMap[idx] = Math.max(0, Math.min(255, this.rawMap[idx] + value))
+    }
+
+    putIdx(idx, value) {
         this.rawMap[idx] = Math.max(0, Math.min(255, this.rawMap[idx] + value))
     }
 

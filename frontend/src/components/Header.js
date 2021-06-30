@@ -15,7 +15,6 @@ Header.propTypes = {
 
 export function ThemeLinks() {
     let links = []
-    links.push(<Link key={"/"} text="RANDOM" url="/" />)
     for (const theme in Themes) {
         links.push(<Link key={theme} text={theme} url={"/" + theme.toLowerCase()} />)
     }

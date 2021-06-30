@@ -27,8 +27,8 @@ export default class Ant {
         this.freshness = 1
         this.randomizeDecidePolicy()
 
-        // this.freshnessDecay = randomExp(0.8, 0.9)
-        this.freshnessDecay = randomExp(0.99, 0.995)
+        this.freshnessDecay = randomExp(0.8, 0.9)
+        // this.freshnessDecay = randomExp(0.99, 0.995)
         this.world = world
         this.deltaT = world.deltaT
     }
@@ -124,6 +124,7 @@ export default class Ant {
         let world = this.world
         let deltaT = this.deltaT
         // move forward
+        let oldPos = this.position
         this.position = add(
             this.position,
             mul(
@@ -131,6 +132,12 @@ export default class Ant {
                 this.speed * deltaT
             )
         )
+        if (!this.world.wall.allowPoint(this.position)) {
+            // revert the move
+            this.position = oldPos
+            this.rotation += randomFloat(-Math.PI / 2, Math.PI / 2)
+        }
+
         if (!this.isCarryingFood()) {
             // search for very close food
             let foodPos = world.food.has(this.position.x, this.position.y, this.pickupRange)

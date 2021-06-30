@@ -8,6 +8,7 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
     const canvasRefTrailHome = useRef(null)
     const canvasRefAnt = useRef(null)
     const canvasRefFood = useRef(null)
+    const canvasRefWall = useRef(null)
 
     useEffect(() => {
         const ctxs = {
@@ -16,6 +17,7 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
             ctxHomeTrail: canvasRefTrailHome.current.getContext("2d"),
             ctxAnt: canvasRefAnt.current.getContext("2d"),
             ctxFood: canvasRefFood.current.getContext("2d"),
+            ctxWall: canvasRefWall.current.getContext("2d"),
         }
 
         let animationFrameId
@@ -42,6 +44,7 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
         <canvas style={{ ...style.canvas, zIndex: 3 }} ref={canvasRefTrailHome} width={width} height={height} />
         <canvas style={{ ...style.canvas, zIndex: 4 }} ref={canvasRefAnt} width={width} height={height} />
         <canvas style={{ ...style.canvas, zIndex: 5 }} ref={canvasRefFood} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 6 }} ref={canvasRefWall} width={width} height={height} />
     </div >
 }
 Canvas.propTypes = {

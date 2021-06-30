@@ -30,7 +30,11 @@ export default class Food {
     }
 
     gameLoop() {
-
+        for (let i = 0; i < this.rawMap.length; i++) {
+            if (this.rawMap[i] > 0) {
+                this.world.foodTrail.putIdx(i, 1)
+            }
+        }
     }
 
     put(x, y, sz, shape, min = t().foodCapacity[0], max = t().foodCapacity[1]) {
@@ -48,6 +52,8 @@ export default class Food {
         }
 
         drawer(x, y, sz, this.width, this.height, (i, j) => {
+            if (!this.world.wall.allowPoint({ x: i, y: j })) return
+
             let oldAmount = this.rawMap[i + j * this.width]
             let newAmount = Math.floor(Math.random() * (max - min) + min)
             this.rawMap[i + j * this.width] = newAmount

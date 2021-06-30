@@ -1,7 +1,7 @@
 var seed = 1337 ^ 0xDEADBEEF
 
 // perform 2x2 convolution, with [i,j] at a random corner of the 2x2 filter.
-export function diffuse(arr, width, height, evaporate = 1) {
+export function diffuse(arr, wall, width, height, evaporate = 1) {
     let filterSize = 2 * 2
 
     let min = 9999, max = -9999
@@ -14,6 +14,11 @@ export function diffuse(arr, width, height, evaporate = 1) {
         if (x == width) {
             x = 0
             y++
+        }
+
+        if (!wall.allowPoint({ x, y })) {
+            result[i] = 0
+            continue
         }
 
         // fast random
