@@ -6,7 +6,7 @@ export default class Wall {
     constructor({ width, height, scale, flip, border }) {
         this.width = width
         this.height = height
-        console.log(scale)
+        console.log("cave scale:", scale)
         this.scale = scale
         if (scale >= 1) {
             this.map = generate({ width, height, scale, border })
@@ -112,7 +112,6 @@ function smoothen(image, width, height, iteration) {
         if (lowT > highT) {
             [lowT, highT] = [highT, lowT]
         }
-        console.log("L-H", lowT, highT)
 
         let original = new Uint8ClampedArray(image.data.length)
         original.set(image.data, 0)
@@ -133,5 +132,3 @@ function smoothen(image, width, height, iteration) {
         }
     }
 }
-console.log(smoothen)
-console.log(scaleImageData)

@@ -35,7 +35,6 @@ stencils.border = stencil(neighborhood, function (p1, p2, p3, p4, p5, p6, p7, p8
 
 function generate(array, opts) {
     opts = opts || {}
-    console.log("cave opts:", opts)
 
     var width = array.shape[0]
         , height = array.shape[1]
@@ -51,7 +50,6 @@ function generate(array, opts) {
 
 
     if (shouldFill) {
-        console.log("D=", array.data)
         for (let i = 0; i < array.data.length; i++) {
             // let x = i % width
             // let y = Math.floor(i / width)
