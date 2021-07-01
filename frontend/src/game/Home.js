@@ -8,7 +8,8 @@ export default class Home {
         this.world = world
         this.locations = []
         this.size = 5
-        while (this.locations.length < colonyCount) {
+        let _cnt = 1000
+        while (this.locations.length < colonyCount && _cnt-- > 0) {
             let loc = {
                 x: Math.random() * width,
                 y: Math.random() * height,

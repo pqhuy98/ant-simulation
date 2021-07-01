@@ -27,7 +27,7 @@ export default class World {
         this.deltaT = 1 / 30 // ms
 
         // Wall
-        this.wall = new Wall({ width, height, scale: t().caveScale, flip: false })
+        this.wall = new Wall({ width, height, scale: t().caveScale, flip: t().caveFlip, border: t().caveBorder })
 
         // Home
         this.homeTrail = new ChemicalMap({ name: "home", width, height, color: t().homeColor, evaporate: 0.995, world: this })

@@ -1,16 +1,16 @@
-import cave from "cave-automata-2d"
+import cave from "../vendors/cave-automata-2d/cave-automata-2d"
 import { circle, randomExp, randomInt } from "lib/basic_math"
 const ndarray = require("ndarray")
 
 export default class Wall {
-    constructor({ width, height, scale, flip }) {
+    constructor({ width, height, scale, flip, border }) {
         this.width = width
         this.height = height
         console.log(scale)
         this.scale = scale
         if (scale >= 1) {
-            this.map = generate({ width, height, scale })
-            if (!flip) {
+            this.map = generate({ width, height, scale, border })
+            if (flip) {
                 for (let i = 3; i < this.map.data.length; i += 4) {
                     this.map.data[i] = 255 - this.map.data[i]
                 }
@@ -48,16 +48,17 @@ export default class Wall {
 }
 
 
-function generate({ width, height, scale }) {
+function generate({ width, height, scale, border }) {
     let scaledWidth = Math.floor(width / scale)
     let scaledHeight = Math.floor(height / scale)
     // @ts-ignore
-    let grid = ndarray(0, [scaledWidth, scaledHeight])
+    let grid = ndarray(new Uint8Array(scaledWidth * scaledHeight), [scaledWidth, scaledHeight])
     let iterate = cave(grid, {
-        density: randomExp(0.45, 0.6),
+        density: randomExp(0.4, 0.47),
         threshold: 5,
         hood: 1,
         fill: true,
+        border,
     })
     iterate(5)
     let img = new ImageData(scaledWidth, scaledHeight)
@@ -71,10 +72,10 @@ function generate({ width, height, scale }) {
         }
     }
     img = scaleImageData(img, width, height, scale)
-    for (let i = width * (height - 1); i < width * height; i++) {
+    for (let i = width * (height - Math.ceil(height % scale)); i < width * height; i++) {
         img.data[i * 4 + 3] = 255
     }
-    smoothen(img, width, height, Math.max(Math.floor(scale), 5))
+    smoothen(img, width, height, Math.min(Math.floor(scale), 10))
     return img
 }
 
@@ -132,3 +133,5 @@ function smoothen(image, width, height, iteration) {
         }
     }
 }
+console.log(smoothen)
+console.log(scaleImageData)

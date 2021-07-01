@@ -36,6 +36,7 @@ export const Themes = {
         foodSize: [1, 2],
         homeColor: "#7F0B34",
         caveScale: 3,
+        caveBorder: 2,
     },
     FelColony: {
         antColor: "#72F82A",
@@ -104,6 +105,7 @@ export const Themes = {
         foodSize: [20, 30],
         homeColor: randomColor(),// "#000",
         caveScale: 1,
+        caveBorder: 2,
     },
     Bricks: {
         antColor: "#BF6C4A",
@@ -141,6 +143,7 @@ export const Themes = {
         foodSize: [10, 20],
         foodCapacity: [1, 5],
         caveScale: 1.5,
+        caveBorder: 3,
     },
     PathFinding: {},
     RANDOM: {
@@ -155,6 +158,7 @@ export const Themes = {
         foodCapacity: [1, Math.round(randomExp(1, 20))],
         foodShape: pickRandom([() => SHAPE_CIRCLE, () => SHAPE_SQUARE, undefined]),
         caveScale: Math.random() > 0.5 ? randomExp(1, 15) : 0,
+        caveBorder: Math.random() > 0.5 ? 2 : 0,
     }
 }
 Themes.PathFinding = {
