@@ -6,7 +6,6 @@ const ndarray = require("ndarray")
 export default class Wall extends GameObject {
     constructor({ world, width, height, scale, flip, border }) {
         super(world)
-        scale = 2
         this.width = width
         this.height = height
         console.log("cave scale:", scale)
@@ -14,9 +13,9 @@ export default class Wall extends GameObject {
         if (scale >= 1) {
             this.map = generate({ width, height, scale, border, rng: this.r })
             if (flip) {
-                for (let i = 3; i < this.map.data.length; i += 4) {
-                    this.map.data[i] = 255 - this.map.data[i]
-                }
+                for (let i = 0; i < this.map.shape[0]; i++)
+                    for (let j = 0; j < this.map.shape[1]; j++)
+                        this.map.set(i, j, 1 - this.map.get(i, j))
             }
         } else {
             this.disabled = true
@@ -27,7 +26,7 @@ export default class Wall extends GameObject {
         if (this.disabled) return true
         x = Math.floor(x)
         y = Math.floor(y)
-        return this.map.data[(x + y * this.width) * 4 + 3] === 0
+        return this.map.get(x, y) === 0
     }
 
     allowCircle({ x, y, sz }) {
@@ -43,7 +42,14 @@ export default class Wall extends GameObject {
 
     render(ctx) {
         if (this.disabled) return true
-        ctx.putImageData(this.map, 0, 0)
+        let img = new ImageData(this.width, this.height)
+        for (let i = 0; i < this.map.shape[0]; i++) {
+            for (let j = 0; j < this.map.shape[1]; j++) {
+                img.data[(i + j * this.width) * 4 + 3] = this.map.get(i, j) ? 255 : 0
+                img.data[(i + j * this.width) * 4 + 2] = 50
+            }
+        }
+        ctx.putImageData(img, 0, 0)
     }
 
     gameLoop() {
@@ -61,55 +67,50 @@ function generate({ width, height, scale, border, rng }) {
         threshold: 5,
         hood: 1,
         fill: true,
-        border,
+        border: true,
         rng,
     })
     iterate(5)
-    let img = new ImageData(scaledWidth, scaledHeight)
-    for (let i = 0; i < scaledWidth * scaledHeight; i++) {
-        if (i % scaledWidth === 0 || i % scaledWidth === scaledWidth - 1 ||
-            i < scaledWidth || i > scaledWidth * (scaledHeight - 1)
-        ) {
-            img.data[i * 4 + 3] = 255
-        } else {
-            img.data[i * 4 + 3] = grid.get(i % scaledWidth, Math.floor(i / scaledWidth)) * 255
+    let result = scaleArray(grid, scaledWidth, scaledHeight, width, height)
+    smoothen(result, width, height, Math.min(Math.floor(scale), 0), rng)
+    console.log(border)
+    for (let d = 0; d <= Math.max(scale, border || 0); d++) {
+        for (let i = 0; i < result.shape[0]; i++) {
+            result.set(i, d, 1)
+            result.set(i, result.shape[1] - 1 - d, 1)
+        }
+        for (let i = 0; i < result.shape[1]; i++) {
+            result.set(d, i, 1)
+            result.set(result.shape[0] - 1 - d, i, 1)
         }
     }
-    img = scaleImageData(img, width, height, scale)
-    for (let i = width * (height - Math.ceil(height % scale)); i < width * height; i++) {
-        img.data[i * 4 + 3] = 255
-    }
-    smoothen(img, width, height, Math.min(Math.floor(scale), 10), rng)
-    return img
+    return result
 }
-
-function scaleImageData(imageData, width, height, scale) {
-    var scaled = new ImageData(Math.ceil(width), Math.ceil(height))
-    for (var row = 0; row < imageData.height; row++) {
-        for (var col = 0; col < imageData.width; col++) {
-            var sourcePixel = [
-                imageData.data[(row * imageData.width + col) * 4 + 0],
-                imageData.data[(row * imageData.width + col) * 4 + 1],
-                imageData.data[(row * imageData.width + col) * 4 + 2],
-                imageData.data[(row * imageData.width + col) * 4 + 3]
-            ]
-            for (var y = 0; y < scale; y++) {
-                var destRow = Math.floor(row * scale + y)
-                if (destRow >= height) break
-                for (var x = 0; x < scale; x++) {
-                    var destCol = Math.floor(col * scale + x)
-                    if (destCol >= width) break
-                    for (var i = 0; i < 4; i++) {
-                        scaled.data[(destRow * scaled.width + destCol) * 4 + i] = sourcePixel[i]
-                    }
+console.log(scaleArray)
+console.log(smoothen)
+function scaleArray(array, oldWidth, oldHeight, newWidth, newHeight) {
+    let result = ndarray(new Uint8Array(newWidth * newHeight), [newWidth, newHeight])
+    let scaleX = newWidth / oldWidth
+    let scaleY = newHeight / oldHeight
+    for (var x0 = 0; x0 < oldWidth; x0++) {
+        for (var y0 = 0; y0 < oldHeight; y0++) {
+            for (var dx = 0; dx < scaleX; dx++) {
+                var x1 = Math.floor(x0 * scaleX + dx)
+                if (x1 >= newWidth) break
+                for (var dy = 0; dy < scaleY; dy++) {
+                    var y1 = Math.floor(y0 * scaleY + dy)
+                    if (y1 >= newHeight) break
+                    result.set(x1, y1, array.get(x0, y0))
                 }
             }
+            // result[x0 + y0 * newWidth] = array[x0 + y0 * oldWidth]
         }
     }
-    return scaled
+    console.log(result.shape)
+    return result
 }
 
-function smoothen(image, width, height, iteration, rng) {
+function smoothen(array, width, height, iteration, rng) {
     while (iteration-- > 0) {
         let lowT = rng.randomInt(1, 6)
         let highT = rng.randomInt(1, 6)
@@ -117,8 +118,9 @@ function smoothen(image, width, height, iteration, rng) {
             [lowT, highT] = [highT, lowT]
         }
 
-        let original = new Uint8ClampedArray(image.data.length)
-        original.set(image.data, 0)
+        let data = new Uint8Array(width * height)
+        data.set(array.data, 0)
+        let original = ndarray(data, [width, height])
         for (let i = 1; i < width - 1; i++) {
             for (let j = 1; j < height - 1; j++) {
                 let sum = 0
@@ -126,13 +128,15 @@ function smoothen(image, width, height, iteration, rng) {
                     if (i + di < 0 || i + di >= width) continue
                     for (let dj = -1; dj <= 1; dj++) {
                         if (j + dj < 0 || j + dj >= height) continue
-                        sum += original[((i + di) + (j + dj) * width) * 4 + 3] ? 1 : 0
+                        sum += original.get(i + di, j + dj) ? 1 : 0
                     }
                 }
                 // console.log(sum)
-                if (sum >= highT) image.data[(i + j * width) * 4 + 3] = 255 // black
-                if (sum <= lowT) image.data[(i + j * width) * 4 + 3] = 0 // white
+                if (sum >= highT) array.set(i, j, 1) // black
+                else if (sum <= lowT) array.set(i, j, 0) // white
             }
         }
     }
 }
+
+console.log(JSON.stringify(ndarray([1, 2, 3, 4, 5, 6], [2, 3]), null, 2))

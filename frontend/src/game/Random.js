@@ -4,7 +4,7 @@ export class Random {
 
     static buildFreshRNG() {
         return new Random(
-            Math.floor(Math.random() * 2147483647),
+            Math.floor(Math.random() * this.maxValue),
             primes[Math.floor(Math.random() * primes.length)],
             primes[Math.floor(Math.random() * primes.length)],
         )
@@ -18,7 +18,7 @@ export class Random {
     }
 
     nextInt() {
-        return (this.seed = (this.seed + this.prime1) * this.prime2 % Random.maxValue)
+        return (this.seed = (this.seed * this.prime2) % Random.maxValue)
     }
 
     random() {

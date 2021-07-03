@@ -124,6 +124,7 @@ export const Themes = {
         antCount: 3494,
         backgroundColor: "#0C0147",
         caveScale: 10,
+        // caveFlip: true,
         colonyCount: 1,
         foodCapacity: [1, 2],
         foodClusters: 20,
