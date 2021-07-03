@@ -1,25 +1,26 @@
-import { v4 as uuidv4 } from "uuid"
-import { t } from "../config/Themes"
-import config from "../config"
-import { add, mul, randomExp, randomFloat, randomInt } from "../lib/basic_math"
+import { add, mul } from "../lib/basic_math"
 import { getRGB } from "lib/color"
-export default class Ant {
-    constructor(props) {
-        const { position, rotation, speed, world } = props || {}
+import { GameObject } from "./Random"
+console.log(getRGB)
 
-        this.id = uuidv4()
+export default class Ant extends GameObject {
+    constructor({ world, position, rotation, speed, color, foodColor }) {
+        super(world)
+
+        this.color = color
+        this.foodColor = foodColor
         this.position = position || {
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: this.r.random() * window.innerWidth,
+            y: this.r.random() * window.innerHeight,
         }
-        this.rotation = rotation || Math.random() * 2 * Math.PI
-        this.speed = speed || randomFloat(config.ANT_SPEED_MIN, config.ANT_SPEED_MAX)
+        this.rotation = rotation || this.r.random() * 2 * Math.PI
+        this.speed = speed || this.r.randomFloat(world.antSpeedMin, world.antSpeedMax)
         this.size = 1
 
         let diagonal = Math.sqrt(world.height * world.height + world.width * world.width) * 35
-        this.rand = Math.floor(Math.random() * diagonal / config.ANT_SPEED_MAX)
+        this.rand = Math.floor(this.r.random() * diagonal / world.antSpeedMax)
 
-        this.visionRange = 2//randomInt(2, 4)
+        this.visionRange = 2
         this.pickupRange = 2
         this.storeRange = 3
 
@@ -27,32 +28,36 @@ export default class Ant {
         this.freshness = 1
         this.randomizeDecidePolicy()
 
-        this.freshnessDecay = randomExp(0.8, 0.9)
-        // this.freshnessDecay = randomExp(0.99, 0.995)
-        this.world = world
+        this.freshnessDecay = this.r.randomExp(0.8, 0.9)
         this.deltaT = world.deltaT
     }
 
     randomizeDecidePolicy() {
         this.decide = undefined
         while (!this.decide) {
-            let dice = randomInt(0, 10)
+            let dice = this.r.randomInt(0, 10)
             this.decide = this["decideAngle" + dice]
         }
     }
 
     static bulkRender(ctx, ants) {
-        let freeColor = getRGB(t().antColor)
-        let carryColor = getRGB(t().foodColor)
         let width = ctx.canvas.width
-
         var bitmap = ctx.bitmap
+        const colorCache = {}
+
         for (let i = 0; i < ants.length; i++) {
+            let color = ants[i].isCarryingFood() ? ants[i].color : ants[i].foodColor
+            let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
+
             let { x, y } = ants[i].position
             x = Math.floor(x)
             y = Math.floor(y)
             let offset = (x + y * width) * 4
-            bitmap.set(ants[i].isCarryingFood() ? carryColor : freeColor, offset)
+
+            bitmap[offset] = colorArr[0]
+            bitmap[offset + 1] = colorArr[1]
+            bitmap[offset + 2] = colorArr[2]
+            bitmap[offset + 3] = colorArr[3]
         }
     }
 
@@ -82,7 +87,7 @@ export default class Ant {
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
-            this.rotation += randomFloat(-0.08, 0.08)
+            this.rotation += this.r.randomFloat(-0.08, 0.08)
         }
         this.rotation %= 2 * Math.PI
     }
@@ -92,8 +97,9 @@ export default class Ant {
 
         // Sample 3 areas ahead: straight, left right
         let { x, y } = this.position
+
         // sampled lines of sight
-        let deviant = randomFloat(Math.PI / 4, Math.PI / 3)
+        let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 3)
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]
@@ -135,7 +141,7 @@ export default class Ant {
         if (!this.world.wall.allowPoint(this.position)) {
             // revert the move
             this.position = oldPos
-            this.rotation += randomFloat(-Math.PI / 2, Math.PI / 2)
+            this.rotation += this.r.randomFloat(-Math.PI / 2, Math.PI / 2)
         }
 
         if (!this.isCarryingFood()) {
@@ -217,7 +223,7 @@ export default class Ant {
     _decideAngle2(degs, vals) {
         let total = 0
         vals.forEach(v => total += v)
-        let dice = randomFloat(0, total)
+        let dice = this.r.randomFloat(0, total)
         let sum = 0
         for (let i = 1; i < degs.length; i++) {
             if (sum > dice) {

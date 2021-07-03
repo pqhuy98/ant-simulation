@@ -45,3 +45,10 @@ export class Profiler {
         this.values = {}
     }
 }
+
+export class NullProfiler extends Profiler {
+    put() { }
+    get() { return 0 }
+    print() { }
+    reset() { }
+}

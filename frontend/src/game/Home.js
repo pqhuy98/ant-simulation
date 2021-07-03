@@ -1,18 +1,18 @@
-import { t } from "config/Themes"
-import { randomInt } from "lib/basic_math"
+import { GameObject } from "./Random"
 
-export default class Home {
-    constructor({ width, height, colonyCount, world }) {
+export default class Home extends GameObject {
+    constructor({ world, width, height, colonyCount, color }) {
+        super(world)
         this.width = width
         this.height = height
-        this.world = world
         this.locations = []
         this.size = 5
+        this.color = color
         let _cnt = 1000
         while (this.locations.length < colonyCount && _cnt-- > 0) {
             let loc = {
-                x: Math.random() * width,
-                y: Math.random() * height,
+                x: this.r.random() * width,
+                y: this.r.random() * height,
             }
             if (world.wall.allowCircle({ ...loc, sz: this.size })) {
                 this.locations.push(loc)
@@ -36,7 +36,7 @@ export default class Home {
     }
 
     randomPosition() {
-        return this.locations[randomInt(0, this.locations.length)]
+        return this.locations[this.r.randomInt(0, this.locations.length)]
     }
 
     has(x, y, sz) {
@@ -59,7 +59,7 @@ export default class Home {
         this.locations.forEach(loc => {
             ctx.beginPath()
             ctx.arc(loc.x, loc.y, this.size, 0, 2 * Math.PI, false)
-            ctx.fillStyle = t().homeColor
+            ctx.fillStyle = this.color
             ctx.fill()
             ctx.stroke()
         })

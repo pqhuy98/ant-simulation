@@ -1,29 +1,29 @@
-import { t } from "config/Themes"
-import { circle, randomInt, square } from "lib/basic_math"
+import { circle, square } from "lib/basic_math"
 import { getRGB } from "lib/color"
+import { GameObject } from "./Random"
 
 export const SHAPE_RANDOM = 0
 export const SHAPE_SQUARE = 1
 export const SHAPE_CIRCLE = 2
 export const Shapes = [SHAPE_SQUARE, SHAPE_CIRCLE]
 
-export function randomShape() {
-    return Shapes[randomInt(0, Shapes.length)]
-}
-
-export default class Food {
-    constructor({ width, height, foodClusters, world, shape }) {
+export default class Food extends GameObject {
+    constructor({ world, width, height, clustersCount, size, capacity, color, shape }) {
+        super(world)
         this.width = width
         this.height = height
-        this.world = world
         this.rawMap = new Uint8ClampedArray(width * height)
         this.putBuffer = {}
         this.takeBuffer = {}
-        for (let i = 0; i < foodClusters; i++) {
+        this.clustersCount = clustersCount
+        this.size = size
+        this.capacity = capacity
+        this.color = color
+        for (let i = 0; i < clustersCount; i++) {
             this.put(
-                Math.random() * width,
-                Math.random() * height,
-                randomInt(...t().foodSize),
+                this.r.random() * width,
+                this.r.random() * height,
+                this.r.randomInt(...this.size),
                 shape,
             )
         }
@@ -37,8 +37,8 @@ export default class Food {
         }
     }
 
-    put(x, y, sz, shape, min = t().foodCapacity[0], max = t().foodCapacity[1]) {
-        if (!shape) shape = randomShape()
+    put(x, y, sz, shape, min = this.capacity[0], max = this.capacity[1]) {
+        if (!shape) shape = this.randomShape()
         x = Math.floor(x)
         y = Math.floor(y)
         sz = Math.floor(sz)
@@ -55,7 +55,7 @@ export default class Food {
             if (!this.world.wall.allowPoint({ x: i, y: j })) return
 
             let oldAmount = this.rawMap[i + j * this.width]
-            let newAmount = Math.floor(Math.random() * (max - min) + min)
+            let newAmount = Math.floor(this.r.random() * (max - min) + min)
             this.rawMap[i + j * this.width] = newAmount
             this.world.unpickedFood += newAmount - oldAmount
 
@@ -80,8 +80,8 @@ export default class Food {
         x = Math.floor(x)
         y = Math.floor(y)
         for (let _ = 0; _ < 2; _++) {
-            let i = randomInt(x - sz + 1, x + sz)
-            let j = randomInt(y - sz + 1, y + sz)
+            let i = this.r.randomInt(x - sz + 1, x + sz)
+            let j = this.r.randomInt(y - sz + 1, y + sz)
             if (i < 0 || i >= this.width || j < 0 || j >= this.height) {
                 continue
             }
@@ -104,7 +104,7 @@ export default class Food {
     }
 
     render(ctx) {
-        let colorFood = getRGB(t().foodColor)
+        let colorFood = getRGB(this.color)
         let colorEmpty = [0, 0, 0, 0]
 
         let bitmap = ctx.bitmap
@@ -120,5 +120,9 @@ export default class Food {
         }
         this.putBuffer = {}
         this.takeBuffer = {}
+    }
+
+    randomShape() {
+        return Shapes[this.r.randomInt(0, Shapes.length)]
     }
 }

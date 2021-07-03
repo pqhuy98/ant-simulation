@@ -19,7 +19,7 @@ export function normalize(a) {
     return { x: Math.cos(angle), y: Math.sin(angle) }
 }
 
-// arithmetic functions
+// random functions
 export function randomFloat(l, r) {
     return Math.random() * (r - l) + l
 }
@@ -32,7 +32,6 @@ export function randomExp(l, r) {
     return Math.exp(randomFloat(Math.log(l), Math.log(r)))
 }
 
-// color
 export function randomColor() {
     var letters = "0123456789ABCDEF"
     var color = "#"
@@ -40,6 +39,10 @@ export function randomColor() {
         color += letters[Math.floor(Math.random() * 16)]
     }
     return color
+}
+
+export function pickRandom(arr) {
+    return arr[randomInt(0, arr.length)]
 }
 
 // get all points in a square
@@ -62,9 +65,4 @@ export function circle(x, y, sz, width, height, callback) {
             callback(Math.floor(i), Math.floor(j))
         }
     }
-}
-
-// random
-export function pickRandom(arr) {
-    return arr[randomInt(0, arr.length)]
 }

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useRef, useEffect } from "react"
 import PropTypes from "prop-types"
+import { Profiler } from "lib/performance"
 
 export default function Canvas({ width, height, draw, next, fpsCalculator }) {
     const canvasRefBackground = useRef(null)
@@ -25,8 +26,13 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
             animationFrameId = window.requestAnimationFrame(render)
             fpsCalculator?.tick()
 
-            next()
-            draw(ctxs)
+            let profiler = new Profiler()
+
+            next({ profiler })
+            draw({ profiler, ...ctxs })
+
+            profiler.put("TOTAL", (profiler.get("gameLoop : TOTAL") || 0) + (profiler.get("render : TOTAL") || 0))
+            profiler.print()
         }
         render()
         return () => {

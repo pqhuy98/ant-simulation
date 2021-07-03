@@ -1,27 +1,29 @@
 // @ts-nocheck
 import React, { useMemo, useState } from "react"
 import PropTypes from "prop-types"
-import { selectTheme, t } from "../config/Themes"
+import { selectTheme } from "../config/Themes"
 import World from "../game/World"
 import Canvas from "./Canvas"
 import { FpsCalculator, FpsDisplay } from "./Fps"
 import { GithubLink, Header, ThemeLinks } from "./Header"
-
-const FPS = 60
-const deltaT = 1 / FPS
+import config from "../config"
+import { Random } from "../game/Random"
 
 export default function GameView({ theme, width, height }) {
     const world = useMemo(() => {
         selectTheme(theme)
         return new World({
             width, height,
-            antCount: t().antCount,
-            colonyCount: t().colonyCount,
-            foodClusters: t().foodClusters,
+            specs: {
+                ...theme,
+                antSpeedMin: config.ANT_SPEED_MIN,
+                antSpeedMax: config.ANT_SPEED_MAX,
+            },
+            rng: Random.buildFreshRNG()//  new Random(1, primes[0], primes[1])
         })
     }, [theme])
     const draw = useMemo(() => (...args) => world?.render(...args), [world])
-    const next = useMemo(() => () => world?.gameLoop({ deltaT }), [world])
+    const next = useMemo(() => (...args) => world?.gameLoop(...args), [world])
 
     const [fps, setFps] = useState(0)
     const fpsCalculator = useMemo(() => new FpsCalculator({

@@ -39,6 +39,7 @@ function generate(array, opts) {
     var width = array.shape[0]
         , height = array.shape[1]
         , buffer = opts.buffer || zero([width, height])
+        , rng = opts.rng || Math
 
     var density = opts.density || 0.5
         , threshold = opts.threshold || 5
@@ -51,9 +52,9 @@ function generate(array, opts) {
 
     if (shouldFill) {
         for (let i = 0; i < array.data.length; i++) {
-            // let x = i % width
-            // let y = Math.floor(i / width)
-            if (Math.random() <= density) {// || x <= 1 || x >= width - 2 || y <= 1 || y >= height - 2) {
+            let x = i % width
+            let y = Math.floor(i / width)
+            if (rng.random() <= density || x <= 1 || x >= width - 2 || y <= 1 || y >= height - 2) {
                 array.data[i] = 1
             }
         }

@@ -1,15 +1,18 @@
 import cave from "../vendors/cave-automata-2d/cave-automata-2d"
-import { circle, randomExp, randomInt } from "lib/basic_math"
+import { circle } from "lib/basic_math"
+import { GameObject } from "./Random"
 const ndarray = require("ndarray")
 
-export default class Wall {
-    constructor({ width, height, scale, flip, border }) {
+export default class Wall extends GameObject {
+    constructor({ world, width, height, scale, flip, border }) {
+        super(world)
+        scale = 2
         this.width = width
         this.height = height
         console.log("cave scale:", scale)
         this.scale = scale
         if (scale >= 1) {
-            this.map = generate({ width, height, scale, border })
+            this.map = generate({ width, height, scale, border, rng: this.r })
             if (flip) {
                 for (let i = 3; i < this.map.data.length; i += 4) {
                     this.map.data[i] = 255 - this.map.data[i]
@@ -48,17 +51,18 @@ export default class Wall {
 }
 
 
-function generate({ width, height, scale, border }) {
+function generate({ width, height, scale, border, rng }) {
     let scaledWidth = Math.floor(width / scale)
     let scaledHeight = Math.floor(height / scale)
     // @ts-ignore
     let grid = ndarray(new Uint8Array(scaledWidth * scaledHeight), [scaledWidth, scaledHeight])
     let iterate = cave(grid, {
-        density: randomExp(0.4, 0.47),
+        density: rng.randomExp(0.4, 0.47),
         threshold: 5,
         hood: 1,
         fill: true,
         border,
+        rng,
     })
     iterate(5)
     let img = new ImageData(scaledWidth, scaledHeight)
@@ -75,7 +79,7 @@ function generate({ width, height, scale, border }) {
     for (let i = width * (height - Math.ceil(height % scale)); i < width * height; i++) {
         img.data[i * 4 + 3] = 255
     }
-    smoothen(img, width, height, Math.min(Math.floor(scale), 10))
+    smoothen(img, width, height, Math.min(Math.floor(scale), 10), rng)
     return img
 }
 
@@ -105,10 +109,10 @@ function scaleImageData(imageData, width, height, scale) {
     return scaled
 }
 
-function smoothen(image, width, height, iteration) {
+function smoothen(image, width, height, iteration, rng) {
     while (iteration-- > 0) {
-        let lowT = randomInt(1, 6)
-        let highT = randomInt(1, 6)
+        let lowT = rng.randomInt(1, 6)
+        let highT = rng.randomInt(1, 6)
         if (lowT > highT) {
             [lowT, highT] = [highT, lowT]
         }

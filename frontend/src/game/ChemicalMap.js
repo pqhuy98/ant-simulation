@@ -1,14 +1,11 @@
 // @ts-nocheck
 import { getRGB } from "lib/color"
 import { diffuse } from "lib/diffuser"
+import { GameObject } from "./Random"
 
-const sqrt = {}
-for (let i = 0; i < 100000; i++) {
-    sqrt[i] = Math.sqrt(i)
-}
-
-export default class ChemicalMap {
-    constructor({ name, width, height, color, evaporate, world }) {
+export default class ChemicalMap extends GameObject {
+    constructor({ world, name, width, height, color, evaporate }) {
+        super(world)
         this.name = name
         this.width = width
         this.height = height
@@ -17,7 +14,6 @@ export default class ChemicalMap {
         this.evaporate = evaporate
         this.max = 1e-9
         this.evaporate = evaporate
-        this.world = world
 
         this.color = getRGB(color)
         this.color[3] = 0
@@ -35,7 +31,7 @@ export default class ChemicalMap {
         let height = this.height
 
         // the chemical diffuses and evaporate
-        let { result, min, max } = diffuse(map, this.world.wall, width, height, this.evaporate)
+        let { result, min, max } = diffuse(map, this.world.wall, width, height, this.evaporate, this.r.nextInt())
 
         this.rawMap = result
         this.min = (this.min * 0.9 + min * 0.1)

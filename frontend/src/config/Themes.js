@@ -1,5 +1,5 @@
-import { SHAPE_CIRCLE, SHAPE_SQUARE } from "game/Food"
-import { pickRandom, randomColor, randomExp, randomInt } from "lib/basic_math"
+import { SHAPE_CIRCLE, SHAPE_RANDOM, SHAPE_SQUARE } from "game/Food"
+import { randomColor, randomExp, randomInt } from "lib/basic_math"
 
 export const Themes = {
     Black: {
@@ -32,7 +32,7 @@ export const Themes = {
         foodCapacity: [1, 6],
         foodClusters: 6112,
         foodColor: "#FC9E10",
-        foodShape: () => SHAPE_CIRCLE,
+        foodShape: SHAPE_CIRCLE,
         foodSize: [1, 2],
         homeColor: "#7F0B34",
         caveScale: 3,
@@ -69,7 +69,7 @@ export const Themes = {
         foodClusters: 2216,
         foodSize: [1, 1],
         foodCapacity: [1, 4],
-        foodShape: () => SHAPE_CIRCLE
+        foodShape: SHAPE_CIRCLE
     },
     SpaceDesert: {
         antColor: "#E2C141",
@@ -92,7 +92,7 @@ export const Themes = {
         foodColor: "#78f21a",
         foodSize: [10, 15],
         homeColor: "#83f1d1",
-        foodShape: () => SHAPE_CIRCLE,
+        foodShape: SHAPE_CIRCLE,
     },
     Underground: {
         antColor: randomColor(),// "#67799d",
@@ -117,7 +117,7 @@ export const Themes = {
         foodColor: "#271F6A",
         foodSize: [1, 54],
         homeColor: "#42DF55",
-        foodShape: () => SHAPE_SQUARE
+        foodShape: SHAPE_SQUARE
     },
     Underwater: {
         antColor: "#7BB3D4",
@@ -128,7 +128,7 @@ export const Themes = {
         foodCapacity: [1, 2],
         foodClusters: 20,
         foodColor: "#3A4DFA",
-        foodShape: () => SHAPE_CIRCLE,
+        foodShape: SHAPE_CIRCLE,
         foodSize: [1, 28],
         homeColor: "orange" //"#58AD3E",
     },
@@ -156,7 +156,7 @@ export const Themes = {
         foodClusters: Math.round(randomExp(5, 10000)),
         foodSize: [1, Math.round(randomExp(1, 200))],
         foodCapacity: [1, Math.round(randomExp(1, 20))],
-        foodShape: pickRandom([() => SHAPE_CIRCLE, () => SHAPE_SQUARE, undefined]),
+        foodShape: SHAPE_RANDOM,
         caveScale: Math.random() > 0.5 ? randomExp(1, 15) : 0,
         caveBorder: Math.random() > 0.5 ? 2 : 0,
     }
