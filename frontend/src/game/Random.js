@@ -2,9 +2,9 @@ export class Random {
     static letters = "0123456789ABCDEF,"
     static maxValue = 2147483647
 
-    static buildFreshRNG() {
+    static freshRNG() {
         return new Random(
-            Math.floor(Math.random() * this.maxValue),
+            Math.max(1, Math.floor(Math.random() * this.maxValue)),
             primes[Math.floor(Math.random() * primes.length)],
             primes[Math.floor(Math.random() * primes.length)],
         )
@@ -18,19 +18,19 @@ export class Random {
     }
 
     nextInt() {
-        return (this.seed = (this.seed * this.prime2) % Random.maxValue)
+        return (this.seed = (this.seed * this.prime1 + this.prime2) % Random.maxValue)
     }
 
     random() {
         return (this.nextInt() - 1) / (Random.maxValue - 1)
     }
 
-    randomInt(l, r) {
-        return (this.nextInt() % (r - l)) + l
-    }
-
     randomFloat(l, r) {
         return this.random() * (r - l) + l
+    }
+
+    randomInt(l, r) {
+        return Math.floor(this.randomFloat(l, r))
     }
 
     randomExp(l, r) {

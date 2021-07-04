@@ -17,9 +17,12 @@ export default class Wall extends GameObject {
                     for (let j = 0; j < this.map.shape[1]; j++)
                         this.map.set(i, j, 1 - this.map.get(i, j))
             }
+            this.disabled = false
         } else {
+            this.map = null
             this.disabled = true
         }
+        this.rendered = false
     }
 
     allowPoint({ x, y }) {
@@ -41,12 +44,13 @@ export default class Wall extends GameObject {
     }
 
     render(ctx) {
-        if (this.disabled) return true
+        if (this.disabled) return
+        if (this.rendered) return; else this.rendered = true
         let img = new ImageData(this.width, this.height)
         for (let i = 0; i < this.map.shape[0]; i++) {
             for (let j = 0; j < this.map.shape[1]; j++) {
                 img.data[(i + j * this.width) * 4 + 3] = this.map.get(i, j) ? 255 : 0
-                img.data[(i + j * this.width) * 4 + 2] = 50
+                // img.data[(i + j * this.width) * 4 + 2] = 50
             }
         }
         ctx.putImageData(img, 0, 0)
@@ -72,8 +76,7 @@ function generate({ width, height, scale, border, rng }) {
     })
     iterate(5)
     let result = scaleArray(grid, scaledWidth, scaledHeight, width, height)
-    smoothen(result, width, height, Math.min(Math.floor(scale), 0), rng)
-    console.log(border)
+    smoothen(result, width, height, Math.min(Math.floor(scale), 5), rng)
     for (let d = 0; d <= Math.max(scale, border || 0); d++) {
         for (let i = 0; i < result.shape[0]; i++) {
             result.set(i, d, 1)
@@ -86,8 +89,7 @@ function generate({ width, height, scale, border, rng }) {
     }
     return result
 }
-console.log(scaleArray)
-console.log(smoothen)
+
 function scaleArray(array, oldWidth, oldHeight, newWidth, newHeight) {
     let result = ndarray(new Uint8Array(newWidth * newHeight), [newWidth, newHeight])
     let scaleX = newWidth / oldWidth
@@ -103,10 +105,8 @@ function scaleArray(array, oldWidth, oldHeight, newWidth, newHeight) {
                     result.set(x1, y1, array.get(x0, y0))
                 }
             }
-            // result[x0 + y0 * newWidth] = array[x0 + y0 * oldWidth]
         }
     }
-    console.log(result.shape)
     return result
 }
 
@@ -131,12 +131,9 @@ function smoothen(array, width, height, iteration, rng) {
                         sum += original.get(i + di, j + dj) ? 1 : 0
                     }
                 }
-                // console.log(sum)
                 if (sum >= highT) array.set(i, j, 1) // black
                 else if (sum <= lowT) array.set(i, j, 0) // white
             }
         }
     }
 }
-
-console.log(JSON.stringify(ndarray([1, 2, 3, 4, 5, 6], [2, 3]), null, 2))

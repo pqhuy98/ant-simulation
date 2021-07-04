@@ -27,7 +27,7 @@ export default class World {
         this.pf = new Profiler()
 
         // Random
-        this.r = rng || Random.buildFreshRNG()
+        this.r = rng || Random.freshRNG()
 
         // Wall
         this.wall = new Wall({

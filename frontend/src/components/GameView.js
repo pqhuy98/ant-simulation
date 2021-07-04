@@ -7,7 +7,9 @@ import Canvas from "./Canvas"
 import { FpsCalculator, FpsDisplay } from "./Fps"
 import { GithubLink, Header, ThemeLinks } from "./Header"
 import config from "../config"
-import { Random } from "../game/Random"
+import { primes, Random } from "../game/Random"
+
+console.log("# of primes:", primes.length)
 
 export default function GameView({ theme, width, height }) {
     const world = useMemo(() => {
@@ -19,7 +21,8 @@ export default function GameView({ theme, width, height }) {
                 antSpeedMin: config.ANT_SPEED_MIN,
                 antSpeedMax: config.ANT_SPEED_MAX,
             },
-            rng: Random.buildFreshRNG()//  new Random(1, primes[0], primes[1])
+            rng: Random.freshRNG(),
+            // rng: new Random(1, primes[0], primes[1]),
         })
     }, [theme])
     const draw = useMemo(() => (...args) => world?.render(...args), [world])

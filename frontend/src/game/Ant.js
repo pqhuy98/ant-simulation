@@ -1,7 +1,6 @@
 import { add, mul } from "../lib/basic_math"
 import { getRGB } from "lib/color"
 import { GameObject } from "./Random"
-console.log(getRGB)
 
 export default class Ant extends GameObject {
     constructor({ world, position, rotation, speed, color, foodColor }) {
@@ -46,7 +45,7 @@ export default class Ant extends GameObject {
         const colorCache = {}
 
         for (let i = 0; i < ants.length; i++) {
-            let color = ants[i].isCarryingFood() ? ants[i].color : ants[i].foodColor
+            let color = ants[i].isCarryingFood() ? ants[i].foodColor : ants[i].color
             let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
 
             let { x, y } = ants[i].position

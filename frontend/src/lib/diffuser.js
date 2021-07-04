@@ -40,7 +40,7 @@ export function diffuse(arr, wall, width, height, evaporate, seed) {
         if (result[i] < min) min = result[i]
         if (result[i] > max) max = result[i]
     }
-    return { result, min, max }
+    return { result, min, max, seed }
 }
 
 const neighbors = []
