@@ -182,14 +182,11 @@ export default class Ant extends GameObject {
     releaseChemicals() {
         let world = this.world
         let { x, y } = this.position
-        let trail
         if (this.isCarryingFood()) {
-            trail = world.foodTrail
+            world.foodTrail.put(x, y, 1 * this.freshness)
+            world.homeTrail.clean(x, y, 0.95)
         } else {
-            trail = world.homeTrail
-        }
-        trail.put(x, y, 1 * this.freshness)
-        if (!this.isCarryingFood()) {
+            world.homeTrail.put(x, y, 1 * this.freshness)
             world.foodTrail.clean(x, y, 0.85)
         }
         this.freshness *= this.freshnessDecay

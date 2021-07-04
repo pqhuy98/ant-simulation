@@ -48,6 +48,10 @@ export class Random {
     pickRandom(arr) {
         return arr[this.randomInt(0, arr.length)]
     }
+
+    prob(chance) {
+        return this.random() <= chance
+    }
 }
 
 export class GameObject {

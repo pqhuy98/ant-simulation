@@ -19,7 +19,7 @@ export default class Wall extends GameObject {
             }
             this.disabled = false
         } else {
-            this.map = null
+            this.map = ndarray(new Uint8Array(width * height), [width, height])
             this.disabled = true
         }
         this.rendered = false

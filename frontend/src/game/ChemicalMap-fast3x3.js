@@ -31,7 +31,7 @@ export default class ChemicalMap extends GameObject {
         let height = this.height
 
         // the chemical diffuses and evaporate
-        let { result, min, max, seed } = diffuse(map, this.world.wall, width, height, this.evaporate, this.seed)
+        let { result, min, max, seed } = diffuse3x3(map, this.world.wall, width, height, this.evaporate, this.seed)
 
         this.rawMap = result
         this.min = (this.min * 0.9 + min * 0.1)
@@ -52,7 +52,7 @@ export default class ChemicalMap extends GameObject {
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
         // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min)
         // <=>  data[i] >= Math.pow(1/255, 1/evaPow) * (max-min) + min
-        let evaPow = 0.4 / this.evaporate
+        let evaPow = 0.25 / this.evaporate
         let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
         let minMaxDiff = (this.max - this.min)
         for (let i = 0; i < data.length; i++) {
@@ -105,11 +105,10 @@ export default class ChemicalMap extends GameObject {
 // ----------------------------------------------------------------
 
 // perform 2x2 convolution, with [i,j] at a random corner of the 2x2 filter.
-function diffuse(arr, wall, width, height, evaporate, seed) {
-    let filterSize = 2 * 2
-
+export function diffuse3x3(arr, wall, width, height, evaporate) {
     let min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY
     let result = new Float32Array(arr.length)
+
     let x = -1
     let y = 0
     for (let i = 0; i < arr.length; i++) {
@@ -119,29 +118,42 @@ function diffuse(arr, wall, width, height, evaporate, seed) {
             x = 0
             y++
         }
-
         if (!wall.allowPoint({ x, y })) {
             result[i] = 0
-            continue
+        } else if (x === 0) {
+            result[i] = (arr[i] + arr[i + 1]) / 2 * evaporate
+        } else if (x === width - 1) {
+            result[i] = (arr[i - 1] + arr[i]) / 2 * evaporate
+        } else {
+            result[i] = (arr[i - 1] + arr[i] + arr[i + 1]) / 3 * evaporate
         }
-
-        // fast random
-        seed = (seed + 0xabcdef01 ^ seed >> 6)
-        let offsetX = seed & 1
-        let offsetY = (seed >> 1) & 1
-
-        let total = 0
-        let zl = Math.max(x + offsetX - 1, 0), zh = Math.min(x + offsetX + 1, width)
-        let tl = Math.max(y + offsetY - 1, 0), th = Math.min(y + offsetY + 1, height)
-        for (let z = zl; z < zh; z++) {
-            for (let t = tl; t < th; t++) {
-                total += arr[z + t * width]
-            }
-        }
-        result[i] = Math.max(0, total / filterSize * evaporate)
-
-        if (result[i] < min) min = result[i]
-        if (result[i] > max) max = result[i]
     }
-    return { result, min, max, seed }
+
+    x = -1
+    y = 0
+    for (let i = 0; i < result.length; i++) {
+        // optimize
+        x++
+        if (x == width) {
+            x = 0
+            y++
+        }
+
+
+        if (wall.allowPoint({ x, y })) {
+            if (y === 0) {
+                result[i] = (result[i] + result[i + width]) / 2
+            } else if (y === height - 1) {
+                result[i] = (result[i - width] + result[i]) / 2
+            } else {
+                result[i] = (result[i - width] + result[i] + result[i + width]) / 3
+            }
+            if (result[i] < min) min = result[i]
+            if (result[i] > max) max = result[i]
+        } else {
+            result[i] = 0
+        }
+    }
+
+    return { result, min, max }
 }

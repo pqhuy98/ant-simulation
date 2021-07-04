@@ -1,11 +1,15 @@
 import Ant from "./Ant"
-import ChemicalMap from "./ChemicalMap"
 import Food from "./Food"
 import Home from "./Home"
 import { directPixelManipulation } from "lib/canvas_optimizer"
 import { NullProfiler, Profiler, Timer } from "lib/performance"
 import Wall from "./Wall"
 import { Random } from "./Random"
+
+// import ChemicalMap from "./ChemicalMap-fast3x3"
+import ChemicalMap from "./ChemicalMap"
+import ChemicalMapNdarray from "./ChemicalMap-ndarray"
+import ChemicalMap3x3 from "./ChemicalMap-fast3x3"
 
 export default class World {
     static collection = new Map()
@@ -38,8 +42,17 @@ export default class World {
             border: specs.caveBorder
         })
 
+        let CM
+        if (this.r.prob(0)) {
+            CM = ChemicalMap
+        } else if (this.r.prob(0.000001)) {
+            CM = ChemicalMapNdarray
+        } else {
+            CM = ChemicalMap3x3
+        }
+
         // Home
-        this.homeTrail = new ChemicalMap({
+        this.homeTrail = new CM({
             world: this, name: "home",
             width, height,
             color: specs.homeColor,
@@ -52,7 +65,7 @@ export default class World {
         })
 
         // Food
-        this.foodTrail = new ChemicalMap({
+        this.foodTrail = new CM({
             world: this, name: "food",
             width, height,
             color: specs.foodColor,
