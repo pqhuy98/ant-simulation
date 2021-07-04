@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { getRGB } from "lib/color"
-import { GameObject } from "./Random"
+const { getRGB } = require("../lib/color")
+const { GameObject } = require("./GameObject")
 
-export default class ChemicalMap extends GameObject {
+class ChemicalMap3x3 extends GameObject {
     constructor({ world, name, width, height, color, evaporate }) {
         super(world)
         this.name = name
@@ -105,7 +105,7 @@ export default class ChemicalMap extends GameObject {
 // ----------------------------------------------------------------
 
 // perform 2x2 convolution, with [i,j] at a random corner of the 2x2 filter.
-export function diffuse3x3(arr, wall, width, height, evaporate) {
+function diffuse3x3(arr, wall, width, height, evaporate) {
     let min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY
     let result = new Float32Array(arr.length)
 
@@ -157,3 +157,5 @@ export function diffuse3x3(arr, wall, width, height, evaporate) {
 
     return { result, min, max }
 }
+
+module.exports = ChemicalMap3x3

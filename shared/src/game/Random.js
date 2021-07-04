@@ -1,28 +1,30 @@
-export class Random {
-    static letters = "0123456789ABCDEF,"
-    static maxValue = 2147483647
+const { randomInt } = require("../lib/basic_math")
 
-    static freshRNG() {
-        return new Random(
-            Math.max(1, Math.floor(Math.random() * this.maxValue)),
-            primes[Math.floor(Math.random() * primes.length)],
-            primes[Math.floor(Math.random() * primes.length)],
-        )
-    }
+const LETTERS = "0123456789ABCDEF"
+const MAX_VALUE = 2147483647
 
-    constructor(seed, prime1, prime2) {
+function freshRNG() {
+    return new Random(
+        Math.max(1, Math.floor(Math.random() * MAX_VALUE)),
+        randomInt(0, primes.length),
+        randomInt(0, primes.length),
+    )
+}
+
+class Random {
+    constructor(seed, prime1Idx, prime2Idx) {
         this.seed = seed
-        this.prime1 = prime1
-        this.prime2 = prime2
+        this.prime1 = primes[prime1Idx]
+        this.prime2 = primes[prime2Idx]
         this.nextInt()
     }
 
     nextInt() {
-        return (this.seed = (this.seed * this.prime1 + this.prime2) % Random.maxValue)
+        return (this.seed = (this.seed * this.prime1 + this.prime2) % MAX_VALUE)
     }
 
     random() {
-        return (this.nextInt() - 1) / (Random.maxValue - 1)
+        return (this.nextInt() - 1) / (MAX_VALUE - 1)
     }
 
     randomFloat(l, r) {
@@ -40,7 +42,7 @@ export class Random {
     randomColor() {
         var color = "#"
         for (var i = 0; i < 6; i++) {
-            color += Random.letters[this.randomInt(0, 16)]
+            color += LETTERS[this.randomInt(0, 16)]
         }
         return color
     }
@@ -54,15 +56,12 @@ export class Random {
     }
 }
 
-export class GameObject {
-    constructor(world) {
-        this.world = world
-        this.r = new Random(world.r.nextInt(), world.r.pickRandom(primes), world.r.pickRandom(primes))
-    }
+function childRng(rng) {
+    return new Random(rng.nextInt(), rng.randomInt(0, primes.length), rng.randomInt(0, primes.length))
 }
 
 // list of primes for RNG
-export const primes = [
+const primes = [
     43669, 43691, 43711, 43717, 43721, 43753, 43759, 43777, 43781, 43783,
     43591, 43597, 43607, 43609, 43613, 43627, 43633, 43649, 43651, 43661,
     43787, 43789, 43793, 43801, 43853, 43867, 43889, 43891, 43913, 43933,
@@ -136,3 +135,10 @@ export const primes = [
     51217, 51229, 51239, 51241, 51257, 51263, 51283, 51287, 51307, 51329,
     51341, 51343, 51347, 51349, 51361, 51383, 51407, 51413, 51419, 51421,
 ]
+
+module.exports = {
+    Random,
+    primes,
+    freshRNG,
+    childRng
+}

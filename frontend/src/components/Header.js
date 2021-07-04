@@ -1,8 +1,8 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
-import { Themes } from "config/Themes"
 import { useLocation } from "react-router-dom"
 
+import { Themes } from "antworld-shared/src/game/Themes"
 export function Header({ children }) {
     return <div style={style.header}>
         {children}

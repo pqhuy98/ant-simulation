@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon babel-node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,5 +13,11 @@
     "@babel/core": "^7.14.6",
     "@babel/node": "^7.14.7",
     "nodemon": "^2.0.9"
+  },
+  "dependencies": {
+    "cwise": "^1.0.10",
+    "ndarray": "^1.0.19",
+    "perf_hooks": "0.0.1",
+    "performance-now": "^2.1.0"
   }
 }

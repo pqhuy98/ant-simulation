@@ -5,7 +5,7 @@ import {
 } from "react-router-dom"
 import React from "react"
 import GameView from "./components/GameView"
-import { Themes } from "config/Themes"
+import { Themes } from "antworld-shared/src/game/Themes"
 
 function App() {
     let w = 1110, h = 370

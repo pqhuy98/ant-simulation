@@ -1,26 +1,28 @@
-export class Timer {
+const perfnow = require("performance-now")
+
+class Timer {
     constructor() {
-        this.t0 = performance.now()
+        this.t0 = perfnow()
         this.t = this.t0
     }
 
     tick() {
-        let now = performance.now()
+        let now = perfnow()
         let dt = now - this.t
         this.t = now
         return dt
     }
 
     dt0() {
-        return performance.now() - this.t0
+        return perfnow() - this.t0
     }
 
     dt() {
-        return performance.now() - this.t
+        return perfnow() - this.t
     }
 }
 
-export class Profiler {
+class Profiler {
     constructor() {
         this.values = {}
     }
@@ -46,9 +48,15 @@ export class Profiler {
     }
 }
 
-export class NullProfiler extends Profiler {
+class NullProfiler extends Profiler {
     put() { }
     get() { return 0 }
     print() { }
     reset() { }
+}
+
+module.exports = {
+    Timer,
+    Profiler,
+    NullProfiler,
 }

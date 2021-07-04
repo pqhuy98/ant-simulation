@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { getRGB } from "lib/color"
-import { GameObject } from "./Random"
+const { getRGB } = require("../lib/color")
+const { GameObject } = require("./GameObject")
 
-export default class ChemicalMap extends GameObject {
+class ChemicalMap extends GameObject {
     constructor({ world, name, width, height, color, evaporate }) {
         super(world)
         this.name = name
@@ -145,3 +145,5 @@ function diffuse(arr, wall, width, height, evaporate, seed) {
     }
     return { result, min, max, seed }
 }
+
+module.exports = ChemicalMap

@@ -1,6 +1,6 @@
-import { GameObject } from "./Random"
+const { GameObject } = require("./GameObject")
 
-export default class Home extends GameObject {
+module.exports = class Home extends GameObject {
     constructor({ world, width, height, colonyCount, color }) {
         super(world)
         this.width = width

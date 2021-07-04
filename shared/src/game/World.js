@@ -1,20 +1,21 @@
-import Ant from "./Ant"
-import Food from "./Food"
-import Home from "./Home"
-import { directPixelManipulation } from "lib/canvas_optimizer"
-import { NullProfiler, Profiler, Timer } from "lib/performance"
-import Wall from "./Wall"
-import { Random } from "./Random"
+const Ant = require("./Ant")
+const { Food } = require("./Food")
+const Home = require("./Home")
+const { directPixelManipulation } = require("../lib/canvas_optimizer")
+const { NullProfiler, Profiler, Timer } = require("../lib/performance")
+const Wall = require("./Wall")
+const { freshRNG } = require("./Random")
 
-// import ChemicalMap from "./ChemicalMap-fast3x3"
-import ChemicalMap from "./ChemicalMap"
-import ChemicalMapNdarray from "./ChemicalMap-ndarray"
-import ChemicalMap3x3 from "./ChemicalMap-fast3x3"
+// const ChemicalMap = require("./ChemicalMap-fast3x3")
+const ChemicalMap = require("./ChemicalMap")
+const ChemicalMapNdarray = require("./ChemicalMap-ndarray")
+const ChemicalMap3x3 = require("./ChemicalMap-fast3x3")
+const { GameObject } = require("./GameObject")
 
-export default class World {
-    static collection = new Map()
-
+class World extends GameObject {
     constructor({ width, height, specs, rng, postProcessFn }) {
+        super()
+
         this.width = width
         this.height = height
         this.version = 0
@@ -31,7 +32,7 @@ export default class World {
         this.pf = new Profiler()
 
         // Random
-        this.r = rng || Random.freshRNG()
+        this.r = rng || freshRNG()
 
         // Wall
         this.wall = new Wall({
@@ -207,3 +208,5 @@ export default class World {
         pf.put("render : TOTAL", tm.dt0())
     }
 }
+
+module.exports = World

@@ -1,38 +1,38 @@
 // linear algebra functions
-export function add(a, b) {
+function add(a, b) {
     return { x: a.x + b.x, y: a.y + b.y }
 }
-export function sub(a, b) {
+function sub(a, b) {
     return { x: a.x - b.x, y: a.y - b.y }
 }
-export function mul(a, k) {
+function mul(a, k) {
     return { x: a.x * k, y: a.y * k }
 }
-export function zero() {
+function zero() {
     return { x: 0, y: 0 }
 }
-export function magnitude(a) {
+function magnitude(a) {
     return Math.sqrt(a.x * a.x + a.y * a.y)
 }
-export function normalize(a) {
+function normalize(a) {
     let angle = Math.atan2(a.y, a.x)
     return { x: Math.cos(angle), y: Math.sin(angle) }
 }
 
 // random functions
-export function randomFloat(l, r) {
+function randomFloat(l, r) {
     return Math.random() * (r - l) + l
 }
 
-export function randomInt(l, r) {
+function randomInt(l, r) {
     return Math.floor(randomFloat(l, r))
 }
 
-export function randomExp(l, r) {
+function randomExp(l, r) {
     return Math.exp(randomFloat(Math.log(l), Math.log(r)))
 }
 
-export function randomColor() {
+function randomColor() {
     var letters = "0123456789ABCDEF"
     var color = "#"
     for (var i = 0; i < 6; i++) {
@@ -41,12 +41,12 @@ export function randomColor() {
     return color
 }
 
-export function pickRandom(arr) {
+function pickRandom(arr) {
     return arr[randomInt(0, arr.length)]
 }
 
 // get all points in a square
-export function square(x, y, sz, width, height, callback) {
+function square(x, y, sz, width, height, callback) {
     for (let i = x; i < x + sz; i++) {
         if (i < 0 || i >= width) continue
         for (let j = y; j < y + sz; j++) {
@@ -56,7 +56,7 @@ export function square(x, y, sz, width, height, callback) {
     }
 }
 
-export function circle(x, y, sz, width, height, callback) {
+function circle(x, y, sz, width, height, callback) {
     for (let i = x - sz; i < x + sz; i++) {
         if (i < 0 || i >= width) continue
         let yspan = sz * Math.sin(Math.acos((x - i) / sz))
@@ -65,4 +65,10 @@ export function circle(x, y, sz, width, height, callback) {
             callback(Math.floor(i), Math.floor(j))
         }
     }
+}
+
+module.exports = {
+    add, sub, mul, zero, magnitude, normalize,
+    randomFloat, randomInt, randomExp, randomColor, pickRandom,
+    square, circle,
 }

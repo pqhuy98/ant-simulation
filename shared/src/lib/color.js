@@ -30,7 +30,7 @@ function colorNameToHex(color) {
 }
 
 
-export function getRGB(color) {
+exports.getRGB = function (color) {
     let h = colorNameToHex(color) || color
     if (h.length == 4) {
         // 3 digits

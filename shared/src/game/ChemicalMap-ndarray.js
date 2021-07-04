@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { getRGB } from "lib/color"
-import ndarray from "ndarray"
-import stencilOp from "vendors/cave-automata-2d/ndarray-stencil"
-import { GameObject } from "./Random"
+const { getRGB } = require("../lib/color")
+const ndarray = require("ndarray")
+const stencilOp = require("../vendors/cave-automata-2d/ndarray-stencil")
+const { GameObject } = require("./GameObject")
 
-export default class ChemicalMap extends GameObject {
+class ChemicalMapNdArray extends GameObject {
     constructor({ world, name, width, height, color, evaporate }) {
         super(world)
         this.name = name
@@ -28,7 +28,6 @@ export default class ChemicalMap extends GameObject {
     }
 
     gameLoop() {
-        // console.log("this.rawMap", this.rawMap)
         let map = this.rawMap
         let width = this.width
         let height = this.height
@@ -107,7 +106,6 @@ export default class ChemicalMap extends GameObject {
 let sharedWidth
 let sharedHeight
 let sharedScalar
-console.log(sharedWidth, sharedHeight, sharedScalar)
 
 const neighbors = [[-1, 0], [0, -1], [0, 1], [1, 0], [0, 0]]
 // const neighbors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1], [0, 0]]
@@ -118,7 +116,7 @@ const conv3x3_stencil = stencilOp(neighbors, function (p1, p2, p3, p4, p5, pos) 
 }, { useIndex: true })
 
 // perform 2x2 convolution, with [i,j] at a random corner of the 2x2 filter.
-export function diffuseNdArray(arr, wall, width, height, evaporate) {
+exports.diffuseNdArray = function (arr, wall, width, height, evaporate) {
     let result = ndarray(new Float32Array(width * height), [width, height])
     let scalar = evaporate / neighbors.length
 
@@ -144,3 +142,5 @@ export function diffuseNdArray(arr, wall, width, height, evaporate) {
 
     return { result, min, max }
 }
+
+module.exports = ChemicalMapNdArray

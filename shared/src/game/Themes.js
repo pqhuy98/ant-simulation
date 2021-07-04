@@ -1,7 +1,7 @@
-import { SHAPE_CIRCLE, SHAPE_RANDOM, SHAPE_SQUARE } from "game/Food"
-import { randomColor, randomExp, randomInt } from "lib/basic_math"
+const { SHAPE_CIRCLE, SHAPE_RANDOM, SHAPE_SQUARE } = require("./Food")
+const { randomColor, randomExp, randomInt } = require("../lib/basic_math")
 
-export const Themes = {
+const Themes = {
     Black: {
         antColor: "#000",
         antCount: 3301,
@@ -172,10 +172,31 @@ Themes.PathFinding = {
 
 // theme getter setter
 const theme = { _: Themes.Classic }
-export function selectTheme(th) {
+function selectTheme(th) {
     theme._ = th
     console.log(th)
 }
-export function t() {
+function t() {
     return theme._
+}
+
+
+const DevelopmentThemes = {
+    Tiny: {
+        antColor: "#000",
+        antCount: 3,
+        backgroundColor: "#fff",
+        colonyCount: 10,
+        foodCapacity: [1, 1],
+        foodClusters: 2,
+        foodColor: "#000",
+        foodSize: [2, 3],
+        homeColor: "#000",
+    },
+}
+module.exports = {
+    Themes,
+    DevelopmentThemes,
+    selectTheme,
+    t,
 }

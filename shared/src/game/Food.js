@@ -1,13 +1,13 @@
-import { circle, square } from "lib/basic_math"
-import { getRGB } from "lib/color"
-import { GameObject } from "./Random"
+const { circle, square } = require("../lib/basic_math")
+const { getRGB } = require("../lib/color")
+const { GameObject } = require("./GameObject")
 
-export const SHAPE_RANDOM = 0
-export const SHAPE_SQUARE = 1
-export const SHAPE_CIRCLE = 2
-export const Shapes = [SHAPE_SQUARE, SHAPE_CIRCLE]
+const SHAPE_RANDOM = 0
+const SHAPE_SQUARE = 1
+const SHAPE_CIRCLE = 2
+const Shapes = [SHAPE_SQUARE, SHAPE_CIRCLE]
 
-export default class Food extends GameObject {
+class Food extends GameObject {
     constructor({ world, width, height, clustersCount, size, capacity, color, shape }) {
         super(world)
         this.width = width
@@ -125,4 +125,12 @@ export default class Food extends GameObject {
     randomShape() {
         return Shapes[this.r.randomInt(0, Shapes.length)]
     }
+}
+
+module.exports = {
+    SHAPE_RANDOM,
+    SHAPE_SQUARE,
+    SHAPE_CIRCLE,
+    Shapes,
+    Food,
 }

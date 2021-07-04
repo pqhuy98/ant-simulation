@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useRef, useEffect } from "react"
 import PropTypes from "prop-types"
-import { Profiler } from "lib/performance"
+import { Profiler } from "antworld-shared/src/lib/performance"
 
 export default function Canvas({ width, height, draw, next, fpsCalculator }) {
     const canvasRefBackground = useRef(null)

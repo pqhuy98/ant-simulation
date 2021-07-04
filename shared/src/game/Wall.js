@@ -1,9 +1,9 @@
-import cave from "../vendors/cave-automata-2d/cave-automata-2d"
-import { circle } from "lib/basic_math"
-import { GameObject } from "./Random"
+const cave = require("../vendors/cave-automata-2d/cave-automata-2d")
+const { circle } = require("../lib/basic_math")
+const { GameObject } = require("./GameObject")
 const ndarray = require("ndarray")
 
-export default class Wall extends GameObject {
+module.exports = class Wall extends GameObject {
     constructor({ world, width, height, scale, flip, border }) {
         super(world)
         this.width = width

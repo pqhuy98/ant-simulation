@@ -1,30 +1,30 @@
 // @ts-nocheck
 import React, { useMemo, useState } from "react"
 import PropTypes from "prop-types"
-import { selectTheme } from "../config/Themes"
-import World from "../game/World"
 import Canvas from "./Canvas"
-import { FpsCalculator, FpsDisplay } from "./Fps"
+import { FpsDisplay } from "./Fps"
 import { GithubLink, Header, ThemeLinks } from "./Header"
 import config from "../config"
-import { primes, Random } from "../game/Random"
 
-console.log("# of primes:", primes.length)
+import World from "antworld-shared/src/game/World"
+import { FpsCalculator } from "antworld-shared/src/lib/fps"
+import { freshRNG } from "antworld-shared/src/game/Random"
 
-export default function GameView({ theme, width, height }) {
+export default function GameView({ worldObj, theme, width, height }) {
     const world = useMemo(() => {
-        selectTheme(theme)
-        return new World({
+        if (worldObj) return world
+        else return new World({
             width, height,
             specs: {
                 ...theme,
                 antSpeedMin: config.ANT_SPEED_MIN,
                 antSpeedMax: config.ANT_SPEED_MAX,
             },
-            rng: Random.freshRNG(),
-            // rng: new Random(1, primes[0], primes[1]),
+            rng: freshRNG(),
+            // rng: new Random(1, 0, 1),
         })
-    }, [theme])
+    }, [theme, worldObj])
+
     const draw = useMemo(() => (...args) => world?.render(...args), [world])
     const next = useMemo(() => (...args) => world?.gameLoop(...args), [world])
 
@@ -70,6 +70,7 @@ export default function GameView({ theme, width, height }) {
     </div >
 }
 GameView.propTypes = {
+    worldObj: PropTypes.object,
     theme: PropTypes.object,
     width: PropTypes.number,
     height: PropTypes.number,

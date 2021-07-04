@@ -1,8 +1,8 @@
-import { add, mul } from "../lib/basic_math"
-import { getRGB } from "lib/color"
-import { GameObject } from "./Random"
+const { add, mul } = require("../lib/basic_math")
+const { getRGB } = require("../lib/color")
+const { GameObject } = require("./GameObject")
 
-export default class Ant extends GameObject {
+module.exports = class Ant extends GameObject {
     constructor({ world, position, rotation, speed, color, foodColor }) {
         super(world)
 
