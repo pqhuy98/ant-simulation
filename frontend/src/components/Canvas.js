@@ -21,6 +21,9 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
             ctxWall: canvasRefWall.current.getContext("2d"),
         }
 
+        // first draw after construction
+        draw({ profiler: null, ...ctxs })
+
         let animationFrameId
         const render = () => {
             animationFrameId = window.requestAnimationFrame(render)

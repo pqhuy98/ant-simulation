@@ -13,7 +13,6 @@ class ChemicalMap3x3 extends GameObject {
         this.evaporate = evaporate
         this.max = 1e-9
         this.evaporate = evaporate
-        this.seed = 1337 ^ 0xDEADBEEF
 
         this.color = getRGB(color)
         this.color[3] = 0
@@ -31,12 +30,11 @@ class ChemicalMap3x3 extends GameObject {
         let height = this.height
 
         // the chemical diffuses and evaporate
-        let { result, min, max, seed } = diffuse3x3(map, this.world.wall, width, height, this.evaporate, this.seed)
+        let { result, min, max } = diffuse3x3(map, this.world.wall, width, height, this.evaporate, this.seed)
 
         this.rawMap = result
         this.min = (this.min * 0.9 + min * 0.1)
         this.max = (this.max * 0.9 + max * 0.1)
-        this.seed = seed
     }
 
     render(ctx) {
@@ -138,7 +136,6 @@ function diffuse3x3(arr, wall, width, height, evaporate) {
             x = 0
             y++
         }
-
 
         if (wall.allowPoint({ x, y })) {
             if (y === 0) {

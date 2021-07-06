@@ -7,8 +7,8 @@ import { GithubLink, Header, ThemeLinks } from "./Header"
 import config from "../config"
 
 import World from "antworld-shared/src/game/World"
-import { FpsCalculator } from "antworld-shared/src/lib/fps"
 import { freshRNG } from "antworld-shared/src/game/Random"
+import { FpsCalculator } from "antworld-shared/src/lib/fps"
 
 export default function GameView({ worldObj, theme, width, height }) {
     const world = useMemo(() => {

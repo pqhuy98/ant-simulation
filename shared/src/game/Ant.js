@@ -5,7 +5,6 @@ const { GameObject } = require("./GameObject")
 module.exports = class Ant extends GameObject {
     constructor({ world, position, rotation, speed, color, foodColor }) {
         super(world)
-
         this.color = color
         this.foodColor = foodColor
         this.position = position || {
@@ -25,17 +24,16 @@ module.exports = class Ant extends GameObject {
 
         this.carryingFood = 0
         this.freshness = 1
+        this.decideIdx = undefined
         this.randomizeDecidePolicy()
 
         this.freshnessDecay = this.r.randomExp(0.8, 0.9)
-        this.deltaT = world.deltaT
     }
 
     randomizeDecidePolicy() {
-        this.decide = undefined
-        while (!this.decide) {
-            let dice = this.r.randomInt(0, 10)
-            this.decide = this["decideAngle" + dice]
+        this.decideIdx = undefined
+        while (!this["decideAngle" + this.decideIdx]) {
+            this.decideIdx = this.r.randomInt(0, 10)
         }
     }
 
@@ -88,6 +86,7 @@ module.exports = class Ant extends GameObject {
         } else {
             this.rotation += this.r.randomFloat(-0.08, 0.08)
         }
+
         this.rotation %= 2 * Math.PI
     }
 
@@ -102,7 +101,6 @@ module.exports = class Ant extends GameObject {
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]
-
         // find destination within vision
         for (let i = 0; i < degs.length; i++) {
             let pos = dest.has(
@@ -119,7 +117,8 @@ module.exports = class Ant extends GameObject {
         let vals = degs.map(deg => trail.sum(
             x + Math.cos(deg) * vision * 2,
             y + Math.sin(deg) * vision * 2,
-            vision
+            vision,
+            this._id
         ))
 
         return this.decide(degs, vals)
@@ -127,7 +126,7 @@ module.exports = class Ant extends GameObject {
 
     move() {
         let world = this.world
-        let deltaT = this.deltaT
+        let deltaT = this.world.deltaT
         // move forward
         let oldPos = this.position
         this.position = add(
@@ -195,6 +194,10 @@ module.exports = class Ant extends GameObject {
     /*
         mutations
     */
+
+    decide(degs, vals) {
+        return this["decideAngle" + this.decideIdx](degs, vals)
+    }
 
     decideAngle0(degs, vals) {
         let angle = 0, total = 0

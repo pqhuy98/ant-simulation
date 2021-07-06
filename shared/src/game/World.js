@@ -8,28 +8,30 @@ const { freshRNG } = require("./Random")
 
 // const ChemicalMap = require("./ChemicalMap-fast3x3")
 const ChemicalMap = require("./ChemicalMap")
-const ChemicalMapNdarray = require("./ChemicalMap-ndarray")
 const ChemicalMap3x3 = require("./ChemicalMap-fast3x3")
 const { GameObject } = require("./GameObject")
 
+console.log("VERSION:", "serializable")
+
 class World extends GameObject {
+    requestId() { return (this.currentId++).toString() }
+
     constructor({ width, height, specs, rng, postProcessFn }) {
         super()
-
+        this.currentId = 0
+        this._id = this.requestId()
         this.width = width
         this.height = height
         this.version = 0
         this.pickedFood = 0
         this.unpickedFood = 0
         this.storedFood = 0
-        this.postProcessFn = postProcessFn
+        this.postProcessFn = postProcessFn || (() => { })
         this.deltaT = 1 / 30 // ms
         this.backgroundColor = specs.backgroundColor
         this.antSpeedMin = specs.antSpeedMin
         this.antSpeedMax = specs.antSpeedMax
         this.specs = specs
-
-        this.pf = new Profiler()
 
         // Random
         this.r = rng || freshRNG()
@@ -46,8 +48,6 @@ class World extends GameObject {
         let CM
         if (this.r.prob(0)) {
             CM = ChemicalMap
-        } else if (this.r.prob(0.000001)) {
-            CM = ChemicalMapNdarray
         } else {
             CM = ChemicalMap3x3
         }
@@ -97,11 +97,15 @@ class World extends GameObject {
     }
 
     gameLoop({ profiler }) {
+        let idx = 324173
         // if (this.version > 100) return
         let pf = profiler || new NullProfiler()
         let tm = new Timer()
-
         this.version++
+
+        // pre-gameLoop
+        this.food.preGameLoop()
+
         // Create new ants
         let newCnt = this.newAntPerFrame
         while (newCnt-- > 0 && this.ants.length < this.antCount) {
@@ -166,7 +170,7 @@ class World extends GameObject {
                 this.foodTrail.render(ctx)
                 pf.put("render : food trail", tm.tick())
             }, false, true)
-            this.pf.put("render : food trail post", tm.tick())
+            pf.put("render : food trail post", tm.tick())
         } else {
             directPixelManipulation(ctxHomeTrail, (ctx) => {
                 pf.put("render : home trail prepare", tm.tick())

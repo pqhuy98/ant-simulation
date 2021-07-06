@@ -9,8 +9,10 @@ module.exports = class Wall extends GameObject {
         this.width = width
         this.height = height
         console.log("cave scale:", scale)
+        scale = scale || null
         this.scale = scale
-        if (scale >= 1) {
+        if (!isNaN(this.scale) && scale !== null) {
+            console.log(this.scale, isNaN(this.scale))
             this.map = generate({ width, height, scale, border, rng: this.r })
             if (flip) {
                 for (let i = 0; i < this.map.shape[0]; i++)
@@ -19,7 +21,7 @@ module.exports = class Wall extends GameObject {
             }
             this.disabled = false
         } else {
-            this.map = ndarray(new Uint8Array(width * height), [width, height])
+            this.map = null // ndarray(new Uint8Array(width * height), [width, height])
             this.disabled = true
         }
         this.rendered = false

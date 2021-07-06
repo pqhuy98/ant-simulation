@@ -1,4 +1,5 @@
 const { randomInt } = require("../lib/basic_math")
+const { GameObject } = require("./GameObject")
 
 const LETTERS = "0123456789ABCDEF"
 const MAX_VALUE = 2147483647
@@ -11,8 +12,11 @@ function freshRNG() {
     )
 }
 
-class Random {
+class Random extends GameObject {
     constructor(seed, prime1Idx, prime2Idx) {
+        super()
+        this._id = "r"
+        this.initialSeed = seed
         this.seed = seed
         this.prime1 = primes[prime1Idx]
         this.prime2 = primes[prime2Idx]
@@ -20,7 +24,13 @@ class Random {
     }
 
     nextInt() {
-        return (this.seed = (this.seed * this.prime1 + this.prime2) % MAX_VALUE)
+        this.seed = (this.seed * this.prime1 + this.prime2) % MAX_VALUE
+        if (this.seed === this.initialSeed) {
+            // the cycle has completed, rotate to new primes
+            this.primes1 = this.randomInt(0, primes.length)
+            this.prime2 = this.randomInt(0, primes.length)
+        }
+        return this.seed
     }
 
     random() {
@@ -54,11 +64,13 @@ class Random {
     prob(chance) {
         return this.random() <= chance
     }
+
+    spawnChildRng() {
+        return new Random(this.nextInt(), this.randomInt(0, primes.length), this.randomInt(0, primes.length))
+    }
 }
 
-function childRng(rng) {
-    return new Random(rng.nextInt(), rng.randomInt(0, primes.length), rng.randomInt(0, primes.length))
-}
+
 
 // list of primes for RNG
 const primes = [
@@ -140,5 +152,4 @@ module.exports = {
     Random,
     primes,
     freshRNG,
-    childRng
 }

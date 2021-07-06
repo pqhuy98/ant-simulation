@@ -1,0 +1,2 @@
+cd shared
+npm start

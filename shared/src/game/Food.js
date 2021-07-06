@@ -29,6 +29,11 @@ class Food extends GameObject {
         }
     }
 
+    preGameLoop() {
+        this.putBuffer = {}
+        this.takeBuffer = {}
+    }
+
     gameLoop() {
         for (let i = 0; i < this.rawMap.length; i++) {
             if (this.rawMap[i] > 0) {
@@ -118,8 +123,6 @@ class Food extends GameObject {
                 bitmap.set(colorEmpty, parseInt(pos) * 4)
             }
         }
-        this.putBuffer = {}
-        this.takeBuffer = {}
     }
 
     randomShape() {
