@@ -1,27 +1,53 @@
+// Solution for WebWorker on Create-React-App: https://github.com/facebook/create-react-app/issues/3660#issuecomment-603922095
 import World from "antworld-shared/src/game/World"
 import { Random } from "antworld-shared/src/game/Random"
 import { encapsulate } from "antworld-shared/src/game/GameObject/serializer"
-import { Themes } from "../../../shared/src/game/Themes"
-import { exposeWorker } from "react-hooks-worker"
+import * as Comlink from "comlink"
+import { Profiler } from "antworld-shared/src/lib/performance"
+// import { GameObject } from "antworld-shared/src/game/GameObject"
 
-const world = new World({
-    width: 1110,
-    height: 370,
-    specs: {
-        ...Themes.Lava,
-        // ...DevelopmentThemes.Tiny,
-        antSpeedMin: 1,
-        antSpeedMax: 2,
-    },
-    rng: new Random(3, 0, 1),
-    postProcessFn: null
-})
-
-function getState() {
-    for (let i = 0; i < 3; i++) {
-        world.gameLoop({ profiler: null })
+class GameWorker {
+    constructor({ theme, width, height }) {
+        this.world = new World({
+            width,
+            height,
+            specs: {
+                ...theme,
+                // ...DevelopmentThemes.Tiny,
+                antSpeedMin: 20,
+                antSpeedMax: 40,
+            },
+            rng: new Random(3, 0, 1),
+            postProcessFn: null
+        })
+        this.package = {
+            data: null,
+            transferables: [],
+        }
+        this.produce()
+        setInterval(() => {
+            this.produce()
+        }, 1000 / 10)
     }
-    return encapsulate(world)
+
+    next() {
+        return Comlink.transfer(this.package.data, this.package.transferable)
+    }
+
+    produce() {
+        let profiler = new Profiler()
+        this.world.gameLoop({ profiler })
+        let encap = encapsulate(this.world)
+        profiler.tick("encap_time")
+        let data = {
+            profiler: profiler.values,
+            data: encap.data,
+        }
+        this.package = {
+            data,
+            transferables: encap.transferables
+        }
+    }
 }
 
-exposeWorker(getState)
+Comlink.expose(GameWorker)
