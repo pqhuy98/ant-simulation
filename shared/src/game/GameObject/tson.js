@@ -1,13 +1,13 @@
-
 const Typeson = require('typeson');
-const Ant = require('../Ant');
+const Ant = require('../Ant/Ant');
+const AntPropertyCollection = require('../Ant/AntPropertyCollection');
 const ChemicalMap3x3 = require('../ChemicalMap-fast3x3');
 const { Food } = require('../Food');
 const Home = require('../Home');
 const { Random } = require('../Random');
 const Wall = require('../Wall');
 const World = require('../World');
-const ndarray = require("ndarray")
+const ndarray = require("ndarray");
 
 const ndarrayMap = {
     "int8": Int8Array,
@@ -42,24 +42,39 @@ function reviveNdarray(data) {
     return placeholder
 }
 
-
-class Link {
-    constructor(obj) {
-        this._id = obj._id;
-    }
+function newLink(obj) {
+    return "_l#" + obj._id
 }
 
+function idFromLink(link) {
+    return link.slice(3)
+}
+
+function isLink(obj) {
+    return (typeof obj === "string" && obj.startsWith("_l#"))
+}
+
+function isPrimitive(test) {
+    return test !== Object(test);
+}
+
+function isTypedArray(a) {
+    return !!(a.buffer instanceof ArrayBuffer && a.BYTES_PER_ELEMENT);
+}
+
+
+// @ts-ignore
 const typeson = new Typeson().register([
-    require('typeson-registry/dist/presets/builtin')
+    require('typeson-registry/dist/presets/socketio')
 ]).register({
     Ant,
+    AntPropertyCollection,
     ChemicalMap3x3,
     Food,
     Home,
     Random,
     Wall,
     World,
-    Link,
     ndarray: [
         testNdarray,
         replaceNdarray,
@@ -70,5 +85,9 @@ const typeson = new Typeson().register([
 module.exports = {
     typeson,
     testNdarray,
-    Link,
+    newLink,
+    idFromLink,
+    isLink,
+    isPrimitive,
+    isTypedArray
 }

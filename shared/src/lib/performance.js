@@ -25,10 +25,15 @@ class Timer {
 class Profiler {
     constructor() {
         this.values = {}
+        this.timer = new Timer()
     }
 
-    put(name, value) {
-        this.values[name] = value
+    tick(name) {
+        let res = this.timer.tick()
+        if (name) {
+            this.values[name] = (this.values[name] || 0) + res
+        }
+        return res
     }
 
     get(name) {
@@ -43,8 +48,21 @@ class Profiler {
         // })
     }
 
-    reset() {
-        this.values = {}
+    reset(name = null) {
+        if (name) {
+            delete this.values[name]
+        } else {
+            // reset all
+            this.values = {}
+        }
+    }
+
+    put(name, value) {
+        this.values[name] = value
+    }
+
+    elapse() {
+        return this.timer.dt0()
     }
 }
 

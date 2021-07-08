@@ -16,6 +16,7 @@ class GameWorker {
                 // ...DevelopmentThemes.Tiny,
                 antSpeedMin: 20,
                 antSpeedMax: 40,
+                // antCount: 10,
             },
             rng: new Random(3, 0, 1),
             postProcessFn: null
@@ -24,17 +25,14 @@ class GameWorker {
             data: null,
             transferables: [],
         }
-        this.produce()
-        setInterval(() => {
-            this.produce()
-        }, 1000 / 10)
+    }
+
+    nextAndGetFullState() {
+        this.next()
+        return Comlink.transfer(this.package.data, this.package.transferables)
     }
 
     next() {
-        return Comlink.transfer(this.package.data, this.package.transferable)
-    }
-
-    produce() {
         let profiler = new Profiler()
         this.world.gameLoop({ profiler })
         let encap = encapsulate(this.world)

@@ -4,21 +4,21 @@ import PropTypes from "prop-types"
 import { Profiler } from "antworld-shared/src/lib/performance"
 
 export default function Canvas({ width, height, draw, next, fpsCalculator }) {
-    const canvasRefBackground = useRef(null)
-    const canvasRefTrailFood = useRef(null)
-    const canvasRefTrailHome = useRef(null)
-    const canvasRefAnt = useRef(null)
-    const canvasRefFood = useRef(null)
-    const canvasRefWall = useRef(null)
+    const refBackground = useRef(null)
+    const refTrailFood = useRef(null)
+    const refTrailHome = useRef(null)
+    const refAnt = useRef(null)
+    const refFood = useRef(null)
+    const refWall = useRef(null)
 
     useEffect(() => {
         const ctxs = {
-            ctxBackground: canvasRefBackground.current.getContext("2d"),
-            ctxFoodTrail: canvasRefTrailFood.current.getContext("2d"),
-            ctxHomeTrail: canvasRefTrailHome.current.getContext("2d"),
-            ctxAnt: canvasRefAnt.current.getContext("2d"),
-            ctxFood: canvasRefFood.current.getContext("2d"),
-            ctxWall: canvasRefWall.current.getContext("2d"),
+            ctxBackground: refBackground.current.getContext("2d"),
+            ctxFoodTrail: refTrailFood.current.getContext("2d"),
+            ctxHomeTrail: refTrailHome.current.getContext("2d"),
+            ctxAnt: refAnt.current.getContext("2d"),
+            ctxFood: refFood.current.getContext("2d"),
+            ctxWall: refWall.current.getContext("2d"),
         }
 
         // first draw after construction
@@ -48,13 +48,13 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
         height: (height * window.innerWidth / width) + "px",
         ...style.container
     }} >
-        <canvas style={{ ...style.canvas, zIndex: 1 }} ref={canvasRefBackground} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 2 }} ref={canvasRefTrailFood} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 3 }} ref={canvasRefTrailHome} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 4 }} ref={canvasRefAnt} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 5 }} ref={canvasRefFood} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 6 }} ref={canvasRefWall} width={width} height={height} />
-    </div >
+        <canvas style={{ ...style.canvas, zIndex: 1 }} ref={refBackground} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 2 }} ref={refTrailFood} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 3 }} ref={refTrailHome} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 4 }} ref={refAnt} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 5 }} ref={refFood} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 6 }} ref={refWall} width={width} height={height} />
+    </div>
 }
 Canvas.propTypes = {
     width: PropTypes.number,

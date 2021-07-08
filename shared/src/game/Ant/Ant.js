@@ -1,34 +1,57 @@
-const { add, mul } = require("../lib/basic_math")
-const { getRGB } = require("../lib/color")
-const { GameObject } = require("./GameObject")
+const { add, mul } = require("../../lib/basic_math")
+const { getRGB } = require("../../lib/color")
+const { GameObject } = require("../GameObject")
 
 module.exports = class Ant extends GameObject {
-    constructor({ world, position, rotation, speed, color, foodColor }) {
+    constructor({ propertyCollection, world, position, rotation, speed }) {
         super(world)
-        this.color = color
-        this.foodColor = foodColor
-        this.position = position || {
-            x: this.r.random() * window.innerWidth,
-            y: this.r.random() * window.innerHeight,
-        }
+        this.pc = propertyCollection
+        this.pcId = this.pc.registerId()
+
+        this.position = position
         this.rotation = rotation || this.r.random() * 2 * Math.PI
+
         this.speed = speed || this.r.randomFloat(world.antSpeedMin, world.antSpeedMax)
-        this.size = 1
-
-        let diagonal = Math.sqrt(world.height * world.height + world.width * world.width) * 35
-        this.rand = Math.floor(this.r.random() * diagonal / world.antSpeedMax)
-
-        this.visionRange = 2
-        this.pickupRange = 2
-        this.storeRange = 3
 
         this.carryingFood = 0
+
         this.freshness = 1
+        this.freshnessDecay = this.r.randomExp(0.8, 0.9)
+
         this.decideIdx = undefined
         this.randomizeDecidePolicy()
-
-        this.freshnessDecay = this.r.randomExp(0.8, 0.9)
     }
+
+    // individual properties
+    get position() { return this.pc.getPosition(this.pcId) }
+    set position(pos) { return this.pc.setPosition(this.pcId, pos) }
+
+    get rotation() { return this.pc.getRotation(this.pcId) }
+    set rotation(rot) { return this.pc.setRotation(this.pcId, rot) }
+
+    get speed() { return this.pc.getSpeed(this.pcId) }
+    set speed(speed) { return this.pc.setSpeed(this.pcId, speed) }
+
+    get carryingFood() { return this.pc.getCarryingFood(this.pcId) }
+    set carryingFood(carryingFood) { return this.pc.setCarryingFood(this.pcId, carryingFood) }
+
+    get freshness() { return this.pc.getFreshness(this.pcId) }
+    set freshness(freshness) { return this.pc.setFreshness(this.pcId, freshness) }
+
+
+    get freshnessDecay() { return this.pc.getFreshnessDecay(this.pcId) }
+    set freshnessDecay(freshnessDecay) { return this.pc.setFreshnessDecay(this.pcId, freshnessDecay) }
+
+    get decideIdx() { return this.pc.getDecideIdx(this.pcId) }
+    set decideIdx(decideIdx) { return this.pc.setDecideIdx(this.pcId, decideIdx) }
+
+    // static properties
+    get color() { return this.world.antColor }
+    get foodColor() { return this.world.foodColor }
+    get size() { return 1 }
+    get visionRange() { return 2 }
+    get pickupRange() { return 2 }
+    get storeRange() { return 3 }
 
     randomizeDecidePolicy() {
         this.decideIdx = undefined
@@ -66,14 +89,15 @@ module.exports = class Ant extends GameObject {
 
     think() {
         let world = this.world
-        if (this.position.x === 0 || this.position.x === world.width - 1) {
+        let { x, y } = this.position
+        if (x === 0 || x === world.width - 1) {
             this.rotation = Math.PI - this.rotation
         }
-        if (this.position.y === 0 || this.position.y === world.height - 1) {
+        if (y === 0 || y === world.height - 1) {
             this.rotation = 2 * Math.PI - this.rotation
         }
 
-        if ((this.rand + world.version) % 2 > 0) {
+        if (this.r.prob(0.5)) {
             let trail, dest
             if (this.isCarryingFood()) {
                 trail = world.homeTrail
@@ -84,10 +108,10 @@ module.exports = class Ant extends GameObject {
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
-            this.rotation += this.r.randomFloat(-0.08, 0.08)
+            this.rotation = this.rotation + this.r.randomFloat(-0.08, 0.08)
         }
 
-        this.rotation %= 2 * Math.PI
+        this.rotation = this.rotation % (2 * Math.PI)
     }
 
     findWay({ trail, dest }) {
@@ -139,7 +163,7 @@ module.exports = class Ant extends GameObject {
         if (!this.world.wall.allowPoint(this.position)) {
             // revert the move
             this.position = oldPos
-            this.rotation += this.r.randomFloat(-Math.PI / 2, Math.PI / 2)
+            this.rotation = this.rotation + this.r.randomFloat(-Math.PI / 2, Math.PI / 2)
         }
 
         if (!this.isCarryingFood()) {
@@ -148,8 +172,8 @@ module.exports = class Ant extends GameObject {
             if (foodPos) {
                 world.food.take(foodPos[0], foodPos[1], 1)
                 this.world.pickedFood++
-                this.carryingFood += 1
-                this.rotation *= -1
+                this.carryingFood = this.carryingFood + 1
+                this.rotation = -this.rotation
                 this.freshness = 1
             }
             // near home, refresh itself
@@ -163,7 +187,7 @@ module.exports = class Ant extends GameObject {
                 world.home.give(this.carryingFood)
                 this.world.pickedFood -= this.carryingFood
                 this.carryingFood = 0
-                this.rotation *= -1
+                this.rotation = -this.rotation
                 this.freshness = 1
             }
             // near food, refresh itself
@@ -188,7 +212,7 @@ module.exports = class Ant extends GameObject {
             world.homeTrail.put(x, y, 1 * this.freshness)
             world.foodTrail.clean(x, y, 0.85)
         }
-        this.freshness *= this.freshnessDecay
+        this.freshness = this.freshness * this.freshnessDecay
     }
 
     /*
@@ -199,16 +223,7 @@ module.exports = class Ant extends GameObject {
         return this["decideAngle" + this.decideIdx](degs, vals)
     }
 
-    decideAngle0(degs, vals) {
-        let angle = 0, total = 0
-        for (let i = 0; i < degs.length; i++) {
-            let val = vals[i], deg = degs[i]
-            angle += val * deg
-            total += val
-        }
-        return (total != 0 ? angle / total : degs[0])
-    }
-
+    // Choose angle that has the maximum `vals`
     decideAngle1(degs, vals) {
         let angle = degs[0], maxVal = vals[0]
         for (let i = 0; i < degs.length; i++) {
@@ -219,25 +234,20 @@ module.exports = class Ant extends GameObject {
         return angle
     }
 
-    _decideAngle2(degs, vals) {
-        let total = 0
-        vals.forEach(v => total += v)
-        let dice = this.r.randomFloat(0, total)
-        let sum = 0
-        for (let i = 1; i < degs.length; i++) {
-            if (sum > dice) {
-                return degs[i - 1]
-            }
-            sum += vals[i]
+
+    // Choose the average of angles weighted by `vals` 
+    decideAngle2(degs, vals) {
+        let angle = 0, total = 0
+        for (let i = 0; i < degs.length; i++) {
+            let val = vals[i], deg = degs[i]
+            angle += val * deg
+            total += val
         }
-        return degs[degs.length - 1]
+        return (total != 0 ? angle / total : degs[0])
     }
 
-    _decideAngle3(degs, vals) {
-        return this._decideAngle2(degs, vals.map(v => v * v))
-    }
-
-    decideAngle4(degs, vals) {
-        return this.decideAngle0(degs, vals.map(v => v * v))
+    // Choose the average of angles weighted by `vals ^ 2` 
+    decideAngle3(degs, vals) {
+        return this.decideAngle2(degs, vals.map(v => v * v))
     }
 }

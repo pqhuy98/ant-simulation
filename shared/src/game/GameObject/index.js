@@ -1,13 +1,10 @@
 class GameObject {
     constructor(world) {
         if (world) {
-            // this is not root
+            // inherit special properties from world
             this.world = world
-            this._id = world.requestId()
+            this._id = world.registerId()
             this.r = world.r
-        } else {
-            // this is root
-            // noop
         }
     }
 

@@ -1,4 +1,5 @@
-const Ant = require("./Ant")
+const Ant = require("./Ant/Ant")
+const AntPropertyCollection = require("./Ant/AntPropertyCollection")
 const { Food } = require("./Food")
 const Home = require("./Home")
 const { directPixelManipulation } = require("../lib/canvas_optimizer")
@@ -14,12 +15,12 @@ const { GameObject } = require("./GameObject")
 console.log("VERSION:", "serializable")
 
 class World extends GameObject {
-    requestId() { return (this.currentId++).toString() }
+    registerId() { return (this.currentId++).toString() }
 
     constructor({ width, height, specs, rng, postProcessFn }) {
         super()
         this.currentId = 0
-        this._id = this.requestId()
+        this._id = this.registerId()
         this.width = width
         this.height = height
         this.version = 0
@@ -86,8 +87,9 @@ class World extends GameObject {
         this.antCount = specs.antCount
         this.antColor = specs.antColor
         this.foodColor = specs.foodColor
-        this.newAntPerFrame = this.antCount / 30 / 10
+        this.newAntPerFrame = 1000// this.antCount / 30 / 10
         this.ants = []
+        this.antPropertyCollection = new AntPropertyCollection({ world: this, capacity: this.antCount })
     }
 
     setSize({ width, height }) {
@@ -100,7 +102,6 @@ class World extends GameObject {
         let idx = 324173
         // if (this.version > 100) return
         let pf = profiler || new NullProfiler()
-        let tm = new Timer()
         this.version++
 
         // pre-gameLoop
@@ -111,6 +112,7 @@ class World extends GameObject {
         while (newCnt-- > 0 && this.ants.length < this.antCount) {
             this.ants.push(new Ant({
                 world: this,
+                propertyCollection: this.antPropertyCollection,
                 position: {
                     ...this.home.randomPosition(),
                 },
@@ -126,31 +128,31 @@ class World extends GameObject {
             ant.position.x = Math.max(0, Math.min(this.width - 1, ant.position.x))
             ant.position.y = Math.max(0, Math.min(this.height - 1, ant.position.y))
         })
-        pf.put("gameLoop : ants", tm.tick())
+        pf.tick("gameLoop : ants")
 
         // Food and home trail
         if (this.version % 2 === 1) {
             this.foodTrail.gameLoop()
-            pf.put("gameLoop : food trail", tm.tick())
+            pf.tick("gameLoop : food trail")
         } else {
             this.homeTrail.gameLoop()
-            pf.put("gameLoop : home trail", tm.tick())
+            pf.tick("gameLoop : home trail")
         }
 
         // Home and Food
         this.home.gameLoop()
         this.food.gameLoop()
-        pf.put("gameLoop : food & home", tm.tick())
+        pf.tick("gameLoop : food & home")
 
         // Wall
         this.wall.gameLoop()
-        pf.put("gameLoop : wall", tm.tick())
+        pf.tick("gameLoop : wall")
 
         // trigger post process
         if (typeof this.postProcessFn === "function") {
             this.postProcessFn(this)
         }
-        pf.put("gameLoop : TOTAL", tm.dt0())
+        pf.put("gameLoop : TOTAL", pf.elapse())
     }
 
     render({ profiler, ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall }) {
@@ -160,56 +162,53 @@ class World extends GameObject {
         // render background
         ctxBackground.fillStyle = this.backgroundColor
         ctxBackground.fillRect(0, 0, this.width, this.height)
-        pf.put("render : background", tm.tick())
+        pf.tick("render : background")
 
         // render trail
         if (this.version % 2 === 1) { // very expensive, so we want to do it infrequently
             directPixelManipulation(ctxFoodTrail, (ctx) => {
-                pf.put("render : food trail prepare", tm.tick())
+                pf.tick("render : food trail prepare")
 
                 this.foodTrail.render(ctx)
-                pf.put("render : food trail", tm.tick())
+                pf.tick("render : food trail")
             }, false, true)
-            pf.put("render : food trail post", tm.tick())
+            pf.tick("render : food trail post")
         } else {
             directPixelManipulation(ctxHomeTrail, (ctx) => {
-                pf.put("render : home trail prepare", tm.tick())
+                pf.tick("render : home trail prepare")
 
                 this.homeTrail.render(ctx)
-                pf.put("render : home trail", tm.tick())
+                pf.tick("render : home trail")
             }, false, true)
-            pf.put("render : food trail post", tm.tick())
+            pf.tick("render : food trail post")
         }
 
         // render ant
         ctxAnt.clearRect(0, 0, this.width, this.height)
         directPixelManipulation(ctxAnt, (ctxAnt) => {
-            pf.put("render : canvasAnt prepare", tm.tick())
+            pf.tick("render : canvasAnt prepare")
 
             Ant.bulkRender(ctxAnt, this.ants)
-            pf.put("render : ants", tm.tick())
+            pf.tick("render : ants")
         })
-        pf.put("render : canvasAnt post", tm.tick())
+        pf.tick("render : canvasAnt post")
 
         // render food
         directPixelManipulation(ctxFood, (ctxFood) => {
-            pf.put("render : canvasFood prepare", tm.tick())
+            pf.tick("render : canvasFood prepare")
 
             this.food.render(ctxFood)
-            pf.put("render : food", tm.tick())
+            pf.tick("render : food")
         })
-        pf.put("render : canvasFood post", tm.tick())
+        pf.tick("render : canvasFood post")
 
         // render home
         this.home.render(ctxFood)
-        pf.put("render : home", tm.tick())
+        pf.tick("render : home")
 
         // render wall
         this.wall.render(ctxWall)
-        pf.put("render : wall", tm.tick())
-
-        // finalize
-        pf.put("render : TOTAL", tm.dt0())
+        pf.tick("render : wall")
     }
 }
 

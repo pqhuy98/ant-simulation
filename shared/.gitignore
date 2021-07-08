@@ -1,4 +1,5 @@
-*.json
+w1.json
+w2.json
 # Logs
 logs
 *.log
