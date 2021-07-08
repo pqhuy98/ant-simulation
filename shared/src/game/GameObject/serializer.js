@@ -53,7 +53,7 @@ class Serializer {
             this.objMap[node._id] = 1 // mark as visited, use 1 as a "temporary value"
             // @ts-ignore
             result = node.constructor.createNull()
-            keys = Object.keys(node)
+            keys = node.serializableKeys()
         } else {
             // is normal object
             keys = Object.keys(node)
@@ -100,6 +100,9 @@ class Deserializer {
             }
             this.deserialize(node[key])
         }
+        if (node instanceof GameObject) {
+            node.postDeserialize()
+        }
     }
 
     root() {
@@ -122,21 +125,13 @@ function encapsulate(obj) {
 }
 
 function revive(encapsulatedObjMap) {
-    let timer = new Timer()
+    // let timer = new Timer()
     let objMap = typeson.revive(encapsulatedObjMap)
-    console.log("typeson.revive", timer.tick())
+    // console.log("typeson.revive", timer.tick())
     let des = new Deserializer(objMap)
-    console.log("Deserializer", timer.tick())
+    // console.log("Deserializer", timer.tick())
     return des.root()
 }
-
-// function stringify(obj) {
-//     return JSON.stringify(encapsulate(obj))
-// }
-
-// function parse(str) {
-//     return revive(JSON.parse(str))
-// }
 
 module.exports = {
     encapsulate, revive, //, stringify, parse

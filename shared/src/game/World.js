@@ -88,9 +88,10 @@ class World extends GameObject {
         this.antColor = specs.antColor
         this.foodColor = specs.foodColor
         this.newAntPerFrame = 1000// this.antCount / 30 / 10
-        this.ants = []
-        this.antPropertyCollection = new AntPropertyCollection({ world: this, capacity: this.antCount })
+        this.apc = new AntPropertyCollection({ world: this, capacity: this.antCount })
     }
+
+    get ants() { return this.apc.ants }
 
     setSize({ width, height }) {
         this.width = width
@@ -110,24 +111,15 @@ class World extends GameObject {
         // Create new ants
         let newCnt = this.newAntPerFrame
         while (newCnt-- > 0 && this.ants.length < this.antCount) {
-            this.ants.push(new Ant({
-                world: this,
-                propertyCollection: this.antPropertyCollection,
+            this.apc.createAnt({
                 position: {
                     ...this.home.randomPosition(),
                 },
-                color: this.antColor, foodColor: this.foodColor,
-                rotation: undefined, speed: undefined,
-            }))
+            })
         }
 
         // Game loop for ants
-        this.ants.forEach(ant => {
-            ant.gameLoop({ world: this, deltaT: this.deltaT })
-            // Ants cannot leave screen
-            ant.position.x = Math.max(0, Math.min(this.width - 1, ant.position.x))
-            ant.position.y = Math.max(0, Math.min(this.height - 1, ant.position.y))
-        })
+        this.apc.gameLoop()
         pf.tick("gameLoop : ants")
 
         // Food and home trail
@@ -188,7 +180,7 @@ class World extends GameObject {
         directPixelManipulation(ctxAnt, (ctxAnt) => {
             pf.tick("render : canvasAnt prepare")
 
-            Ant.bulkRender(ctxAnt, this.ants)
+            this.apc.render(ctxAnt)
             pf.tick("render : ants")
         })
         pf.tick("render : canvasAnt post")

@@ -1,6 +1,6 @@
 // Solution for WebWorker on Create-React-App: https://github.com/facebook/create-react-app/issues/3660#issuecomment-603922095
 import World from "antworld-shared/src/game/World"
-import { Random } from "antworld-shared/src/game/Random"
+import { freshRNG } from "antworld-shared/src/game/Random"
 import { encapsulate } from "antworld-shared/src/game/GameObject/serializer"
 import * as Comlink from "comlink"
 import { Profiler } from "antworld-shared/src/lib/performance"
@@ -14,11 +14,11 @@ class GameWorker {
             specs: {
                 ...theme,
                 // ...DevelopmentThemes.Tiny,
-                antSpeedMin: 20,
-                antSpeedMax: 40,
-                // antCount: 10,
+                antSpeedMin: 40,
+                antSpeedMax: 80,
+                // antCount: 10000,
             },
-            rng: new Random(3, 0, 1),
+            rng: freshRNG(),
             postProcessFn: null
         })
         this.package = {

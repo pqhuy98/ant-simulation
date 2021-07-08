@@ -12,7 +12,6 @@ module.exports = class Wall extends GameObject {
         scale = scale || null
         this.scale = scale
         if (!isNaN(this.scale) && scale !== null) {
-            console.log(this.scale, isNaN(this.scale))
             this.map = generate({ width, height, scale, border, rng: this.r })
             if (flip) {
                 for (let i = 0; i < this.map.shape[0]; i++)

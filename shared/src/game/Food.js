@@ -113,16 +113,31 @@ class Food extends GameObject {
         let colorEmpty = [0, 0, 0, 0]
 
         let bitmap = ctx.bitmap
-        for (const pos in this.putBuffer) {
-            if (this.putBuffer[pos]) {
-                bitmap.set(colorFood, parseInt(pos) * 4)
+        if (ctx.worldVersion + 1 === this.world.version) {
+            // only update 
+            for (const pos in this.putBuffer) {
+                if (this.putBuffer[pos]) {
+                    bitmap.set(colorFood, parseInt(pos) * 4)
+                }
+            }
+            for (const pos in this.takeBuffer) {
+                if (this.takeBuffer[pos]) {
+                    bitmap.set(colorEmpty, parseInt(pos) * 4)
+                }
+            }
+        } else if (ctx.worldVersion === this.world.version) {
+            // canvas is already up-to-date, do not render
+        }
+        else { // canvas is too out-of-date
+            for (let i = 0; i < this.rawMap.length; i++) {
+                if (this.rawMap[i] > 0) {
+                    bitmap.set(colorFood, i * 4)
+                } else {
+                    bitmap.set(colorEmpty, i * 4)
+                }
             }
         }
-        for (const pos in this.takeBuffer) {
-            if (this.takeBuffer[pos]) {
-                bitmap.set(colorEmpty, parseInt(pos) * 4)
-            }
-        }
+        ctx.worldVersion = this.world.version
     }
 
     randomShape() {

@@ -6,7 +6,8 @@ module.exports = class Ant extends GameObject {
     constructor({ propertyCollection, world, position, rotation, speed }) {
         super(world)
         this.pc = propertyCollection
-        this.pcId = this.pc.registerId()
+
+        this.pcId = this.pc.registerId(this._id)
 
         this.position = position
         this.rotation = rotation || this.r.random() * 2 * Math.PI
@@ -18,11 +19,21 @@ module.exports = class Ant extends GameObject {
         this.freshness = 1
         this.freshnessDecay = this.r.randomExp(0.8, 0.9)
 
-        this.decideIdx = undefined
         this.randomizeDecidePolicy()
     }
 
+    static reviveAnt({ _id, r, pc, pcId, }) {
+        let res = Ant.createNull()
+        res._id = _id
+        res.r = r
+        res.pc = pc
+        res.pcId = pcId
+        return res
+    }
+
     // individual properties
+    get world() { return this.pc.world }
+
     get position() { return this.pc.getPosition(this.pcId) }
     set position(pos) { return this.pc.setPosition(this.pcId, pos) }
 
@@ -54,30 +65,9 @@ module.exports = class Ant extends GameObject {
     get storeRange() { return 3 }
 
     randomizeDecidePolicy() {
-        this.decideIdx = undefined
+        this.decideIdx = 11
         while (!this["decideAngle" + this.decideIdx]) {
             this.decideIdx = this.r.randomInt(0, 10)
-        }
-    }
-
-    static bulkRender(ctx, ants) {
-        let width = ctx.canvas.width
-        var bitmap = ctx.bitmap
-        const colorCache = {}
-
-        for (let i = 0; i < ants.length; i++) {
-            let color = ants[i].isCarryingFood() ? ants[i].foodColor : ants[i].color
-            let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
-
-            let { x, y } = ants[i].position
-            x = Math.floor(x)
-            y = Math.floor(y)
-            let offset = (x + y * width) * 4
-
-            bitmap[offset] = colorArr[0]
-            bitmap[offset + 1] = colorArr[1]
-            bitmap[offset + 2] = colorArr[2]
-            bitmap[offset + 3] = colorArr[3]
         }
     }
 

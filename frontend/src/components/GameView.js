@@ -45,16 +45,18 @@ export default function GameView({ theme, width, height }) {
         async function run() {
             while (!canceled && gameWorker) {
                 cycleTimer.tick()
-                let t = new Timer()
-                let { data, profiler } = await gameWorker.nextAndGetFullState()
-                console.log("next():", t.tick())
+                // let t = new Timer()
+                let res = await gameWorker.nextAndGetFullState()
+                let data = res.data
+                // let profiler = res.profiler
+                // console.log("next():", t.tick())
 
+                // console.log(JSON.stringify(data))
                 let revived = revive(data)
-                console.log("revive():", t.tick())
-                console.log("full cycle:", cycleTimer.tick(), t.dt0())
-                console.log(profiler)
+                // console.log("revive():", t.tick())
+                // console.log("full cycle:", cycleTimer.tick(), t.dt0())
+                // console.log(profiler)
 
-                revived._AXS = true
                 worldRef.current = revived
                 workerFpsCalculator.tick()
             }

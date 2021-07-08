@@ -1,9 +1,12 @@
+const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
+const Ant = require("./Ant")
 
 module.exports = class AntPropertyCollection extends GameObject {
     constructor({ world, capacity, color }) {
         super(world)
         this.currentId = 0
+        this.ants = []
         this.antId = new Uint16Array(capacity)
         this.positionX = new Float32Array(capacity)
         this.positionY = new Float32Array(capacity)
@@ -15,7 +18,10 @@ module.exports = class AntPropertyCollection extends GameObject {
         this.decideIdx = new Uint8Array(capacity)
     }
 
-    registerId() { return this.currentId++ }
+    registerId(_id) {
+        this.antId[this.currentId] = _id
+        return this.currentId++
+    }
 
     getPosition(id) { return { x: this.positionX[id], y: this.positionY[id] } }
     setPosition(id, pos) {
@@ -40,4 +46,61 @@ module.exports = class AntPropertyCollection extends GameObject {
 
     getDecideIdx(id) { return this.decideIdx[id] }
     setDecideIdx(id, decideIdx) { this.decideIdx[id] = decideIdx }
+
+    createAnt({ position, rotation, speed }) {
+        this.ants.push(new Ant({
+            propertyCollection: this,
+            world: this.world, position, rotation, speed
+        }))
+    }
+
+    gameLoop() {
+        this.ants.forEach(ant => {
+            ant.gameLoop()
+            // Ants cannot leave screen
+            let { x, y } = ant.position
+            ant.position = {
+                x: Math.max(0, Math.min(this.world.width - 1, x)),
+                y: Math.max(0, Math.min(this.world.height - 1, y))
+            }
+        })
+    }
+
+    render(ctx) {
+        let width = ctx.canvas.width
+        var bitmap = ctx.bitmap
+        const colorCache = {}
+
+        for (let i = 0; i < this.ants.length; i++) {
+            let ant = this.ants[i]
+            let color = ant.isCarryingFood() ? ant.foodColor : ant.color
+            let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
+
+            let { x, y } = ant.position
+            x = Math.floor(x)
+            y = Math.floor(y)
+            let offset = (x + y * width) * 4
+
+            bitmap[offset] = colorArr[0]
+            bitmap[offset + 1] = colorArr[1]
+            bitmap[offset + 2] = colorArr[2]
+            bitmap[offset + 3] = colorArr[3]
+        }
+    }
+
+    serializableKeys() {
+        return Object.keys(this).filter(k => k !== "ants")
+    }
+
+    postDeserialize() {
+        this.ants = []
+        for (let id = 0; id < this.currentId; id++) {
+            this.ants.push(Ant.reviveAnt({
+                _id: this.antId[id],
+                r: this.r,
+                pc: this,
+                pcId: id
+            }))
+        }
+    }
 }

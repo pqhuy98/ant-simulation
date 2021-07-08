@@ -2,11 +2,23 @@ class GameObject {
     constructor(world) {
         if (world) {
             // inherit special properties from world
-            this.world = world
-            this._id = world.registerId()
-            this.r = world.r
+            if (!("world" in this)) {
+                this.world = world
+            }
+            if (world && !("_id" in this)) {
+                this._id = world.registerId()
+            }
+            if (world && !("r" in this)) {
+                this.r = world.r
+            }
         }
     }
+
+    serializableKeys() {
+        return Object.keys(this)
+    }
+
+    postDeserialize() { }
 
     static isGameObject(obj) {
         return "_id" in Object(obj)

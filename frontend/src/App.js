@@ -8,7 +8,7 @@ import GameView from "./components/GameView"
 import { Themes } from "antworld-shared/src/game/Themes"
 
 function App() {
-    let w = 1110, h = 370
+    let w = 1200, h = 400
     return <Router>
         <Switch>
             <Route exact path="/">

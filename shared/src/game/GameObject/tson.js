@@ -67,7 +67,6 @@ function isTypedArray(a) {
 const typeson = new Typeson().register([
     require('typeson-registry/dist/presets/socketio')
 ]).register({
-    Ant,
     AntPropertyCollection,
     ChemicalMap3x3,
     Food,

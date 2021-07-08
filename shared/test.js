@@ -5,6 +5,7 @@ const { FpsCalculator } = require("./src/lib/fps")
 const { stringify, parse, revive, encapsulate } = require("./src/game/GameObject/serializer")
 const { Timer } = require("./src/lib/performance")
 const { compareWorld } = require("./src/test/compare")
+const fs = require("fs")
 
 const specs = {
     ...Themes.Lava,
@@ -21,7 +22,7 @@ const world = new World({
     rng: new Random(3, 0, 1)
 })
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
     world.gameLoop({})
 }
 
@@ -31,10 +32,14 @@ let encap = encapsulate(w1).data
 if (specs.antCount < 15) {
     console.log(JSON.stringify(encap, null, 2))
 }
-console.log("Encap time:", clk.tick(), "ms")
+console.log("   Encap time:", clk.tick(), "ms")
 
 let w2 = revive(encap)
-console.log("Revive time:", clk.tick(), "ms")
+console.log("   Revive time:", clk.tick(), "ms")
+
+let encapJson = JSON.stringify(encap)
+console.log(encapJson.length / 1000 + "kB of non-TypedArray data.")
+fs.writeFileSync("w1.json", encapJson)
 
 
 if (w2 !== w2.wall.world || !compareWorld(w1, w2)) {
