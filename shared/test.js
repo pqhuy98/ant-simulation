@@ -44,18 +44,18 @@ fs.writeFileSync("w1.json", encapJson)
 
 if (w2 !== w2.wall.world || !compareWorld(w1, w2)) {
     console.log("w1 and w2 don't match!")
-    return -1
+    process.exit(-1)
 }
 
 
-for (let i = 0; i < 1000; i++) {
-    if (!compareWorld(w1, w2)) {
-        console.log("step", i)
-        break
-    }
+for (let i = 0; i < 100; i++) {
     w1.gameLoop({})
     w2.gameLoop({})
-    if (i % 100 === 0) {
+    if (!compareWorld(w1, w2)) {
+        console.log("step", i)
+        process.exit(-1)
+    }
+    if (i % 10 === 0) {
         console.log("iter " + i + ":", "OK")
         // let s1 = stringify(w1)
         // let s2 = stringify(w2)
