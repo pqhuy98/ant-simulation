@@ -6,6 +6,7 @@ import * as Comlink from "comlink"
 import { Profiler } from "antworld-shared/src/lib/performance"
 // import { GameObject } from "antworld-shared/src/game/GameObject"
 
+const scale = 2
 class GameWorker {
     constructor({ theme, width, height }) {
         this.world = new World({
@@ -14,9 +15,9 @@ class GameWorker {
             specs: {
                 ...theme,
                 // ...DevelopmentThemes.Tiny,
-                antSpeedMin: 40,
-                antSpeedMax: 80,
-                // antCount: 10000,
+                antSpeedMin: 20 * scale,
+                antSpeedMax: 40 * scale,
+                antCount: 50000,
             },
             rng: freshRNG(),
             postProcessFn: null

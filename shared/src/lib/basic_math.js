@@ -18,6 +18,9 @@ function normalize(a) {
     let angle = Math.atan2(a.y, a.x)
     return { x: Math.cos(angle), y: Math.sin(angle) }
 }
+function clip(x, l, r) {
+    return Math.max(l, Math.min(r, x))
+}
 
 // random functions
 function randomFloat(l, r) {
@@ -68,7 +71,7 @@ function circle(x, y, sz, width, height, callback) {
 }
 
 module.exports = {
-    add, sub, mul, zero, magnitude, normalize,
+    add, sub, mul, zero, magnitude, normalize, clip,
     randomFloat, randomInt, randomExp, randomColor, pickRandom,
     square, circle,
 }

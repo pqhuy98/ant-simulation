@@ -43,7 +43,6 @@ class ChemicalMap3x3 extends GameObject {
         let bitmap = ctx.bitmap
         bitmap.set(this.placeholder)
 
-        let pos = 0
         //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
@@ -53,6 +52,7 @@ class ChemicalMap3x3 extends GameObject {
         let evaPow = 0.25 / this.evaporate
         let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
         let minMaxDiff = (this.max - this.min)
+        let pos = 0
         for (let i = 0; i < data.length; i++) {
             if (data[i] >= valZeroThreshold) {
                 // let val = 100

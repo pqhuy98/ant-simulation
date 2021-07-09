@@ -39,6 +39,10 @@ module.exports = class Ant extends GameObject {
 
     get rotation() { return this.pc.getRotation(this.pcId) }
     set rotation(rot) { return this.pc.setRotation(this.pcId, rot) }
+    get rotationCos() { return this.pc.getRotationCos(this.pcId) }
+    set rotationCos(cos) { return this.pc.setRotationCos(this.pcId, cos) }
+    get rotationSin() { return this.pc.getRotationSin(this.pcId) }
+    set rotationSin(sin) { return this.pc.setRotationSin(this.pcId, sin) }
 
     get speed() { return this.pc.getSpeed(this.pcId) }
     set speed(speed) { return this.pc.setSpeed(this.pcId, speed) }
@@ -55,6 +59,7 @@ module.exports = class Ant extends GameObject {
 
     get decideIdx() { return this.pc.getDecideIdx(this.pcId) }
     set decideIdx(decideIdx) { return this.pc.setDecideIdx(this.pcId, decideIdx) }
+
 
     // static properties
     get color() { return this.world.antColor }
@@ -75,6 +80,8 @@ module.exports = class Ant extends GameObject {
         this.think()
         this.releaseChemicals()
         this.move()
+        this.rotationCos = Math.cos(this.rotation)
+        this.rotationSin = Math.sin(this.rotation)
     }
 
     think() {

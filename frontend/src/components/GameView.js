@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useMemo, useState } from "react"
 import PropTypes from "prop-types"
 import Canvas from "./Canvas"
 import { FpsDisplay } from "./Fps"
@@ -11,9 +11,9 @@ import { GithubLink, Header, ThemeLinks } from "./Header"
 import { FpsCalculator } from "antworld-shared/src/lib/fps"
 import RawGameWorker from "worker-loader!../worker/game.worker"
 import * as Comlink from "comlink"
-import { useAsyncMemo } from "lib/custom_react_hooks"
-import { revive } from "antworld-shared/src/game/GameObject/serializer"
+import { useAsyncMemo, useWorldRefFromGameWorker } from "lib/custom_react_hooks"
 import { Timer } from "antworld-shared/src/lib/performance"
+import Renderer from "renderer/Renderer"
 
 console.log(RawGameWorker)
 const GameWorker = Comlink.wrap(RawGameWorker())
@@ -38,37 +38,26 @@ export default function GameView({ theme, width, height }) {
         return () => worker
     }, [width, height, theme])
 
-    const worldRef = useRef(null)
-    useEffect(() => {
-        let canceled = false
-        run()
-        async function run() {
-            while (!canceled && gameWorker) {
-                cycleTimer.tick()
-                // let t = new Timer()
-                let res = await gameWorker.nextAndGetFullState()
-                let data = res.data
-                // let profiler = res.profiler
-                // console.log("next():", t.tick())
-
-                // console.log(JSON.stringify(data))
-                let revived = revive(data)
-                // console.log("revive():", t.tick())
-                // console.log("full cycle:", cycleTimer.tick(), t.dt0())
-                // console.log(profiler)
-
-                worldRef.current = revived
-                workerFpsCalculator.tick()
-            }
+    const worldRef = useWorldRefFromGameWorker({
+        gameWorker,
+        postIteration: ({ profiler }) => {
+            cycleTimer?.tick()
+            workerFpsCalculator?.tick()
+            // false && 
+            console.log(profiler)
         }
-        return () => {
-            canceled = false
+    })
+
+    const renderer = useMemo(() => new Renderer({
+        worldRef,
+        postRender: ({ profiler }) => {
+            fpsCalculator.tick()
+            // false &&
+            profiler.print("total_render")
         }
-    }, [gameWorker])
+    }), [worldRef])
 
-    const draw = useMemo(() => (...args) => worldRef.current?.render(...args), [])
-    const next = useMemo(() => () => { }, [])
-
+    const draw = useMemo(() => (...args) => renderer.render(...args), [])
 
     let world = worldRef.current
     // Resize detection
@@ -83,7 +72,6 @@ export default function GameView({ theme, width, height }) {
             width={width}
             height={height}
             draw={draw}
-            next={next}
             fpsCalculator={fpsCalculator}
         />
         <div style={style.infoContainer}>

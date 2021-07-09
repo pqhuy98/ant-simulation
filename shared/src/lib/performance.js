@@ -40,12 +40,22 @@ class Profiler {
         return this.values[name] || 0
     }
 
-    print() {
-        // console.log("--------------------------------")
-        // Object.keys(this.values).forEach(k => {
-        //     let percent = (this.values["TOTAL"] ? Math.floor(this.values[k] / this.values["TOTAL"] * 100) : "--")
-        //     console.log(k, "\t", percent, this.values[k])
-        // })
+    print(totalName) {
+        console.log("--------------------------------")
+        let mxLen = 0
+        Object.keys(this.values).forEach(k => (mxLen = Math.max(mxLen, k.length)))
+        Object.keys(this.values).forEach(k => {
+            if (!k.startsWith("#")) return
+            console.log(k, "   ", this.values[k])
+        })
+
+        Object.keys(this.values).forEach(k => {
+            if (k.startsWith("#")) return
+            let percent = (this.values[totalName] ? Math.floor(this.values[k] / this.values[totalName] * 100) : "--")
+            let formattedKey = k
+            while (formattedKey.length < mxLen) formattedKey += " "
+            console.log(formattedKey, "\t", percent, "%\t", this.values[k], "ms")
+        })
     }
 
     reset(name = null) {

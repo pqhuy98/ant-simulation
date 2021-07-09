@@ -1,9 +1,8 @@
 // @ts-nocheck
 import React, { useRef, useEffect } from "react"
 import PropTypes from "prop-types"
-import { Profiler } from "antworld-shared/src/lib/performance"
 
-export default function Canvas({ width, height, draw, next, fpsCalculator }) {
+export default function Canvas({ width, height, draw }) {
     const refBackground = useRef(null)
     const refTrailFood = useRef(null)
     const refTrailHome = useRef(null)
@@ -22,26 +21,20 @@ export default function Canvas({ width, height, draw, next, fpsCalculator }) {
         }
 
         // first draw after construction
-        draw({ profiler: null, ...ctxs })
+        draw(ctxs)
 
         let animationFrameId
         const render = () => {
             animationFrameId = window.requestAnimationFrame(render)
-            fpsCalculator?.tick()
 
-            let profiler = new Profiler()
+            draw(ctxs)
 
-            next({ profiler })
-            draw({ profiler, ...ctxs })
-
-            profiler.put("TOTAL", (profiler.get("gameLoop : TOTAL") || 0) + (profiler.get("render : TOTAL") || 0))
-            profiler.print()
         }
         render()
         return () => {
             window.cancelAnimationFrame(animationFrameId)
         }
-    }, [draw, next])
+    }, [draw])
 
     return <div style={{
         width: window.innerWidth + "px",

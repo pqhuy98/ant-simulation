@@ -87,7 +87,7 @@ class World extends GameObject {
         this.antCount = specs.antCount
         this.antColor = specs.antColor
         this.foodColor = specs.foodColor
-        this.newAntPerFrame = 1000// this.antCount / 30 / 10
+        this.newAntPerFrame = this.antCount / 30 / 10
         this.apc = new AntPropertyCollection({ world: this, capacity: this.antCount })
     }
 
@@ -123,13 +123,13 @@ class World extends GameObject {
         pf.tick("gameLoop : ants")
 
         // Food and home trail
-        if (this.version % 2 === 1) {
-            this.foodTrail.gameLoop()
-            pf.tick("gameLoop : food trail")
-        } else {
-            this.homeTrail.gameLoop()
-            pf.tick("gameLoop : home trail")
-        }
+        // if (this.version % 2 === 1) {
+        this.foodTrail.gameLoop()
+        pf.tick("gameLoop : food trail")
+        // } else {
+        this.homeTrail.gameLoop()
+        pf.tick("gameLoop : home trail")
+        // }
 
         // Home and Food
         this.home.gameLoop()
@@ -139,15 +139,15 @@ class World extends GameObject {
         // Wall
         this.wall.gameLoop()
         pf.tick("gameLoop : wall")
+        pf.put("total_gameLoop", pf.elapse())
 
         // trigger post process
         if (typeof this.postProcessFn === "function") {
             this.postProcessFn(this)
         }
-        pf.put("gameLoop : TOTAL", pf.elapse())
     }
 
-    render({ profiler, ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall }) {
+    render({ profiler, step, extraTime, ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall }) {
         let pf = profiler || new NullProfiler()
         let tm = new Timer()
 
@@ -156,14 +156,14 @@ class World extends GameObject {
         ctxBackground.fillRect(0, 0, this.width, this.height)
         pf.tick("render : background")
 
-        // render trail
-        if (this.version % 2 === 1) { // very expensive, so we want to do it infrequently
+        if (step % 2 === 0) {
+            // render trail
             directPixelManipulation(ctxFoodTrail, (ctx) => {
                 pf.tick("render : food trail prepare")
 
                 this.foodTrail.render(ctx)
                 pf.tick("render : food trail")
-            }, false, true)
+            })
             pf.tick("render : food trail post")
         } else {
             directPixelManipulation(ctxHomeTrail, (ctx) => {
@@ -171,7 +171,7 @@ class World extends GameObject {
 
                 this.homeTrail.render(ctx)
                 pf.tick("render : home trail")
-            }, false, true)
+            })
             pf.tick("render : food trail post")
         }
 
@@ -180,7 +180,7 @@ class World extends GameObject {
         directPixelManipulation(ctxAnt, (ctxAnt) => {
             pf.tick("render : canvasAnt prepare")
 
-            this.apc.render(ctxAnt)
+            this.apc.render(ctxAnt, extraTime)
             pf.tick("render : ants")
         })
         pf.tick("render : canvasAnt post")
@@ -201,6 +201,7 @@ class World extends GameObject {
         // render wall
         this.wall.render(ctxWall)
         pf.tick("render : wall")
+        pf.put("total_render", pf.elapse())
     }
 }
 

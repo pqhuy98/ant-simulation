@@ -1,3 +1,4 @@
+const { add, clip } = require("../../lib/basic_math")
 const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 const Ant = require("./Ant")
@@ -16,6 +17,8 @@ module.exports = class AntPropertyCollection extends GameObject {
         this.freshness = new Float32Array(capacity)
         this.freshnessDecay = new Float32Array(capacity)
         this.decideIdx = new Uint8Array(capacity)
+        this.rotationCos = new Float32Array(capacity)
+        this.rotationSin = new Float32Array(capacity)
     }
 
     registerId(_id) {
@@ -31,6 +34,11 @@ module.exports = class AntPropertyCollection extends GameObject {
 
     getRotation(id) { return this.rotation[id] }
     setRotation(id, rotation) { this.rotation[id] = rotation }
+    getRotationCos(id) { return this.rotationCos[id] }
+    setRotationCos(id, value) { this.rotationCos[id] = value }
+    getRotationSin(id) { return this.rotationSin[id] }
+    setRotationSin(id, value) { this.rotationSin[id] = value }
+
 
     getSpeed(id) { return this.speed[id] }
     setSpeed(id, speed) { this.speed[id] = speed }
@@ -66,7 +74,7 @@ module.exports = class AntPropertyCollection extends GameObject {
         })
     }
 
-    render(ctx) {
+    render(ctx, extraTime) {
         let width = ctx.canvas.width
         var bitmap = ctx.bitmap
         const colorCache = {}
@@ -77,8 +85,13 @@ module.exports = class AntPropertyCollection extends GameObject {
             let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
 
             let { x, y } = ant.position
-            x = Math.floor(x)
-            y = Math.floor(y)
+            // x = Math.floor(x)
+            // y = Math.floor(y)
+
+            // interpolate to predict transitting position
+            let dSpeed = extraTime * this.world.deltaT * ant.speed
+            x = ~~clip(x + dSpeed * ant.rotationCos, 0, this.world.width - 1)
+            y = ~~clip(y + dSpeed * ant.rotationSin, 0, this.world.height - 1)
             let offset = (x + y * width) * 4
 
             bitmap[offset] = colorArr[0]
