@@ -10,7 +10,7 @@ export function FpsDisplay({ text, fpsValue, right }) {
     }
     return (
         <span style={style}>{text + ": " + fpsValue} </span >
-        // <span style={style}>{Math.floor(1000 / fpsValue)}ms {fpsValue} </span >
+        // <span style={style}>{~~(1000 / fpsValue)}ms {fpsValue} </span >
     )
 }
 FpsDisplay.propTypes = {

@@ -46,7 +46,7 @@ class ChemicalMap extends GameObject {
         bitmap.set(this.placeholder)
 
         let pos = 0
-        //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
+        //      ~~(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
@@ -60,7 +60,7 @@ class ChemicalMap extends GameObject {
                 // let val = 100
                 let val = (data[i] - this.min) / minMaxDiff
                 val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
-                val = ~~(val * 200) // quicker Math.floor
+                val = ~~(val * 200) // quicker ~~
                 bitmap[pos + 3] = val
             }
             pos += 4
@@ -68,13 +68,13 @@ class ChemicalMap extends GameObject {
     }
 
     get(x, y) {
-        x = Math.floor(x)
-        y = Math.floor(y)
+        x = ~~(x)
+        y = ~~(y)
         return this.rawMap[x + y * this.width]
     }
 
     put(x, y, value) {
-        let idx = Math.floor(x) + Math.floor(y) * this.width
+        let idx = ~~(x) + ~~(y) * this.width
         this.rawMap[idx] = Math.max(0, Math.min(255, this.rawMap[idx] + value))
     }
 
@@ -83,13 +83,13 @@ class ChemicalMap extends GameObject {
     }
 
     clean(x, y, coeff = 0.99) {
-        let idx = Math.floor(x) + Math.floor(y) * this.width
+        let idx = ~~(x) + ~~(y) * this.width
         this.rawMap[idx] *= coeff
     }
 
     sum(xc, yc, sz) {
-        xc = Math.floor(xc)
-        yc = Math.floor(yc)
+        xc = ~~(xc)
+        yc = ~~(yc)
         let res = 0
         for (let i = xc - sz + 1; i < xc + sz; i++) {
             if (i < 0 || i >= this.width) continue

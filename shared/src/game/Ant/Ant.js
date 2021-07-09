@@ -67,7 +67,7 @@ module.exports = class Ant extends GameObject {
     get size() { return 1 }
     get visionRange() { return 2 }
     get pickupRange() { return 2 }
-    get storeRange() { return 3 }
+    get storeRange() { return 5 }
 
     randomizeDecidePolicy() {
         this.decideIdx = 11
@@ -76,25 +76,23 @@ module.exports = class Ant extends GameObject {
         }
     }
 
-    gameLoop() {
-        this.think()
-        this.releaseChemicals()
+    gameLoop(profiler) {
+        // profiler.tick()
         this.move()
+        // profiler.tick("ant.move")
+        this.think()
+        // profiler.tick("ant.think")
+        this.releaseChemicals()
+        // profiler.tick("ant.releaseChemical")
         this.rotationCos = Math.cos(this.rotation)
         this.rotationSin = Math.sin(this.rotation)
+        // profiler.tick("ant.rotationSinCos")
     }
 
     think() {
         let world = this.world
-        let { x, y } = this.position
-        if (x === 0 || x === world.width - 1) {
-            this.rotation = Math.PI - this.rotation
-        }
-        if (y === 0 || y === world.height - 1) {
-            this.rotation = 2 * Math.PI - this.rotation
-        }
 
-        if (this.r.prob(0.5)) {
+        if (this.r.prob(0.9)) {
             let trail, dest
             if (this.isCarryingFood()) {
                 trail = world.homeTrail
@@ -118,15 +116,18 @@ module.exports = class Ant extends GameObject {
         let { x, y } = this.position
 
         // sampled lines of sight
+        // let deviant = 2 * Math.PI / 3
         let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 3)
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]
+        let degCos = degs.map(d => Math.cos(d))
+        let degSin = degs.map(d => Math.sin(d))
         // find destination within vision
         for (let i = 0; i < degs.length; i++) {
             let pos = dest.has(
-                x + Math.cos(degs[i]) * vision,
-                y + Math.sin(degs[i]) * vision,
+                x + degCos[i] * vision,
+                y + degSin[i] * vision,
                 vision
             )
             if (pos) {
@@ -135,9 +136,9 @@ module.exports = class Ant extends GameObject {
         }
 
         // No destination saw, use trail
-        let vals = degs.map(deg => trail.sum(
-            x + Math.cos(deg) * vision * 2,
-            y + Math.sin(deg) * vision * 2,
+        let vals = degs.map((_, i) => trail.sum(
+            x + degCos[i] * vision,
+            y + degSin[i] * vision,
             vision,
             this._id
         ))
@@ -153,14 +154,29 @@ module.exports = class Ant extends GameObject {
         this.position = add(
             this.position,
             mul(
-                { x: Math.cos(this.rotation), y: Math.sin(this.rotation) },
+                { x: this.rotationCos, y: this.rotationSin },
                 this.speed * deltaT
             )
         )
-        if (!this.world.wall.allowPoint(this.position)) {
+        let { x, y } = this.position
+        x = ~~x
+        y = ~~y
+        let revert = false
+        if (x <= 0 || x >= world.width - 1) {
+            this.rotation = Math.PI - this.rotation
+            revert = true
+        }
+        if (y <= 0 || y >= world.height - 1) {
+            this.rotation = 2 * Math.PI - this.rotation
+            revert = true
+        }
+        if (!this.world.wall.allowPoint(this.position) || revert) {
             // revert the move
             this.position = oldPos
-            this.rotation = this.rotation + this.r.randomFloat(-Math.PI / 2, Math.PI / 2)
+            if (!revert) {
+                this.rotation = -this.rotation + this.r.randomFloat(-Math.PI / 2, Math.PI / 2)
+            }
+            return
         }
 
         if (!this.isCarryingFood()) {
@@ -174,10 +190,10 @@ module.exports = class Ant extends GameObject {
                 this.freshness = 1
             }
             // near home, refresh itself
-            let homePos = world.home.has(this.position.x, this.position.y, this.visionRange / 2)
-            if (homePos) {
-                this.freshness = 1
-            }
+            // let homePos = world.home.has(this.position.x, this.position.y, this.visionRange / 2)
+            // if (homePos) {
+            //     this.freshness = 1
+            // }
         } else {
             let homePos = world.home.has(this.position.x, this.position.y, this.storeRange)
             if (homePos) {
@@ -188,10 +204,10 @@ module.exports = class Ant extends GameObject {
                 this.freshness = 1
             }
             // near food, refresh itself
-            let foodPos = world.food.has(this.position.x, this.position.y, this.visionRange * 2)
-            if (foodPos) {
-                this.freshness = 1
-            }
+            // let foodPos = world.food.has(this.position.x, this.position.y, this.visionRange * 2)
+            // if (foodPos) {
+            //     this.freshness = 1
+            // }
         }
     }
 

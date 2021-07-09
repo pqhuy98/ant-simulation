@@ -53,7 +53,7 @@ function generate(array, opts) {
     if (shouldFill) {
         for (let i = 0; i < array.data.length; i++) {
             let x = i % width
-            let y = Math.floor(i / width)
+            let y = ~~(i / width)
             if (rng.random() <= density || x <= 1 || x >= width - 2 || y <= 1 || y >= height - 2) {
                 array.data[i] = 1
             }

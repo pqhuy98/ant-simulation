@@ -47,7 +47,7 @@ class ChemicalMapNdArray extends GameObject {
         bitmap.set(this.placeholder)
 
         let pos = 0
-        //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
+        //      ~~(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
@@ -62,7 +62,7 @@ class ChemicalMapNdArray extends GameObject {
                 if (dataValue >= valZeroThreshold) {
                     let val = (dataValue - this.min) / minMaxDiff
                     val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
-                    val = ~~(val * 200) // quicker Math.floor
+                    val = ~~(val * 200) // quicker ~~
                     bitmap[pos + 3] = val
                 }
                 pos += 4
@@ -77,7 +77,7 @@ class ChemicalMapNdArray extends GameObject {
 
     putIdx(idx, value) {
         let x = idx % this.width
-        let y = Math.floor(idx / this.width)
+        let y = ~~(idx / this.width)
         this.put(x, y, value)
     }
 
@@ -87,8 +87,8 @@ class ChemicalMapNdArray extends GameObject {
     }
 
     sum(xc, yc, sz) {
-        xc = Math.floor(xc)
-        yc = Math.floor(yc)
+        xc = ~~(xc)
+        yc = ~~(yc)
         let res = 0
         for (let i = xc - sz + 1; i < xc + sz; i++) {
             if (i < 0 || i >= this.width) continue

@@ -4,10 +4,6 @@ import PropTypes from "prop-types"
 import Canvas from "./Canvas"
 import { FpsDisplay } from "./Fps"
 import { GithubLink, Header, ThemeLinks } from "./Header"
-// import config from "../config"
-
-// import World from "antworld-shared/src/game/World"
-// import { freshRNG } from "antworld-shared/src/game/Random"
 import { FpsCalculator } from "antworld-shared/src/lib/fps"
 import RawGameWorker from "worker-loader!../worker/game.worker"
 import * as Comlink from "comlink"
@@ -41,10 +37,9 @@ export default function GameView({ theme, width, height }) {
     const worldRef = useWorldRefFromGameWorker({
         gameWorker,
         postIteration: ({ profiler }) => {
-            cycleTimer?.tick()
             workerFpsCalculator?.tick()
-            // false && 
-            console.log(profiler)
+            false && cycleTimer?.tick()
+            false && console.log(profiler)
         }
     })
 
@@ -52,8 +47,7 @@ export default function GameView({ theme, width, height }) {
         worldRef,
         postRender: ({ profiler }) => {
             fpsCalculator.tick()
-            // false &&
-            profiler.print("total_render")
+            false && profiler.print("total_render")
         }
     }), [worldRef])
 

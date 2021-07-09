@@ -6,7 +6,7 @@ module.exports = class Renderer {
         this.postRender = postRender
         this.lastVersion = Number.NEGATIVE_INFINITY
         this.lastTime = Number.NEGATIVE_INFINITY
-        this.latestDeltaT = 1000
+        this.latestDeltaT = 1000 / 60
         this.step = 0
     }
 

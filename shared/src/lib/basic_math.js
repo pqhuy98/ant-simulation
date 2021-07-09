@@ -28,7 +28,7 @@ function randomFloat(l, r) {
 }
 
 function randomInt(l, r) {
-    return Math.floor(randomFloat(l, r))
+    return ~~(randomFloat(l, r))
 }
 
 function randomExp(l, r) {
@@ -39,7 +39,7 @@ function randomColor() {
     var letters = "0123456789ABCDEF"
     var color = "#"
     for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)]
+        color += letters[~~(Math.random() * 16)]
     }
     return color
 }
@@ -65,7 +65,7 @@ function circle(x, y, sz, width, height, callback) {
         let yspan = sz * Math.sin(Math.acos((x - i) / sz))
         for (let j = y - yspan; j < y + yspan; j++) {
             if (j < 0 || j >= height) continue
-            callback(Math.floor(i), Math.floor(j))
+            callback(~~(i), ~~(j))
         }
     }
 }

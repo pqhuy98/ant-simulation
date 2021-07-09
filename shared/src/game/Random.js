@@ -6,7 +6,7 @@ const MAX_VALUE = 2147483647
 
 function freshRNG() {
     return new Random(
-        Math.max(1, Math.floor(Math.random() * MAX_VALUE)),
+        Math.max(1, ~~(Math.random() * MAX_VALUE)),
         randomInt(0, primes.length),
         randomInt(0, primes.length),
     )
@@ -42,7 +42,7 @@ class Random extends GameObject {
     }
 
     randomInt(l, r) {
-        return Math.floor(this.randomFloat(l, r))
+        return ~~(this.randomFloat(l, r))
     }
 
     randomExp(l, r) {

@@ -62,15 +62,16 @@ module.exports = class AntPropertyCollection extends GameObject {
         }))
     }
 
-    gameLoop() {
+    gameLoop(profiler) {
         this.ants.forEach(ant => {
-            ant.gameLoop()
+            ant.gameLoop(profiler)
             // Ants cannot leave screen
             let { x, y } = ant.position
             ant.position = {
                 x: Math.max(0, Math.min(this.world.width - 1, x)),
                 y: Math.max(0, Math.min(this.world.height - 1, y))
             }
+            // profiler.tick("ant.posClip")
         })
     }
 
@@ -85,8 +86,8 @@ module.exports = class AntPropertyCollection extends GameObject {
             let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
 
             let { x, y } = ant.position
-            // x = Math.floor(x)
-            // y = Math.floor(y)
+            // x = ~~(x)
+            // y = ~~(y)
 
             // interpolate to predict transitting position
             let dSpeed = extraTime * this.world.deltaT * ant.speed

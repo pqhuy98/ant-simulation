@@ -51,7 +51,7 @@ class Profiler {
 
         Object.keys(this.values).forEach(k => {
             if (k.startsWith("#")) return
-            let percent = (this.values[totalName] ? Math.floor(this.values[k] / this.values[totalName] * 100) : "--")
+            let percent = (this.values[totalName] ? ~~(this.values[k] / this.values[totalName] * 100) : "--")
             let formattedKey = k
             while (formattedKey.length < mxLen) formattedKey += " "
             console.log(formattedKey, "\t", percent, "%\t", this.values[k], "ms")

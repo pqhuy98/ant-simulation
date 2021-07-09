@@ -28,8 +28,8 @@ module.exports = class Wall extends GameObject {
 
     allowPoint({ x, y }) {
         if (this.disabled) return true
-        x = Math.floor(x)
-        y = Math.floor(y)
+        x = ~~(x)
+        y = ~~(y)
         return this.map.get(x, y) === 0
     }
 
@@ -63,8 +63,8 @@ module.exports = class Wall extends GameObject {
 
 
 function generate({ width, height, scale, border, rng }) {
-    let scaledWidth = Math.floor(width / scale)
-    let scaledHeight = Math.floor(height / scale)
+    let scaledWidth = ~~(width / scale)
+    let scaledHeight = ~~(height / scale)
     // @ts-ignore
     let grid = ndarray(new Uint8Array(scaledWidth * scaledHeight), [scaledWidth, scaledHeight])
     let iterate = cave(grid, {
@@ -77,7 +77,7 @@ function generate({ width, height, scale, border, rng }) {
     })
     iterate(5)
     let result = scaleArray(grid, scaledWidth, scaledHeight, width, height)
-    smoothen(result, width, height, Math.min(Math.floor(scale), 5), rng)
+    smoothen(result, width, height, Math.min(~~(scale), 5), rng)
     for (let d = 0; d <= Math.max(scale, border || 0); d++) {
         for (let i = 0; i < result.shape[0]; i++) {
             result.set(i, d, 1)
@@ -98,10 +98,10 @@ function scaleArray(array, oldWidth, oldHeight, newWidth, newHeight) {
     for (var x0 = 0; x0 < oldWidth; x0++) {
         for (var y0 = 0; y0 < oldHeight; y0++) {
             for (var dx = 0; dx < scaleX; dx++) {
-                var x1 = Math.floor(x0 * scaleX + dx)
+                var x1 = ~~(x0 * scaleX + dx)
                 if (x1 >= newWidth) break
                 for (var dy = 0; dy < scaleY; dy++) {
-                    var y1 = Math.floor(y0 * scaleY + dy)
+                    var y1 = ~~(y0 * scaleY + dy)
                     if (y1 >= newHeight) break
                     result.set(x1, y1, array.get(x0, y0))
                 }

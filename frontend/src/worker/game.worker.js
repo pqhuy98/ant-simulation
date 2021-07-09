@@ -17,7 +17,7 @@ class GameWorker {
                 // ...DevelopmentThemes.Tiny,
                 antSpeedMin: 20 * scale,
                 antSpeedMax: 40 * scale,
-                antCount: 50000,
+                antCount: 30000,
             },
             rng: freshRNG(),
             postProcessFn: null

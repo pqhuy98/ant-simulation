@@ -99,6 +99,13 @@ class World extends GameObject {
         this.version++
     }
 
+    spawnMoreAnt() {
+        return (this.ants.length < 100) || (
+            this.ants.length < this.antCount &&
+            this.ants.length * 0.1 < 3 + Math.min(this.antCount, this.storedFood)
+        )
+    }
+
     gameLoop({ profiler }) {
         let idx = 324173
         // if (this.version > 100) return
@@ -108,9 +115,9 @@ class World extends GameObject {
         // pre-gameLoop
         this.food.preGameLoop()
 
+        pf.tick()
         // Create new ants
-        let newCnt = this.newAntPerFrame
-        while (newCnt-- > 0 && this.ants.length < this.antCount) {
+        while (this.spawnMoreAnt()) {
             this.apc.createAnt({
                 position: {
                     ...this.home.randomPosition(),
@@ -119,17 +126,21 @@ class World extends GameObject {
         }
 
         // Game loop for ants
-        this.apc.gameLoop()
+        this.apc.gameLoop(pf)
         pf.tick("gameLoop : ants")
 
         // Food and home trail
-        // if (this.version % 2 === 1) {
-        this.foodTrail.gameLoop()
-        pf.tick("gameLoop : food trail")
-        // } else {
-        this.homeTrail.gameLoop()
-        pf.tick("gameLoop : home trail")
-        // }
+        if (this.version % 2 === 1) {
+            this.foodTrail.gameLoop({
+                checkIsCovered: (i) => {
+                    return this.food.hasAtIdx(i)
+                }
+            })
+            pf.tick("gameLoop : food trail")
+        } else {
+            this.homeTrail.gameLoop({})
+            pf.tick("gameLoop : home trail")
+        }
 
         // Home and Food
         this.home.gameLoop()
@@ -157,32 +168,32 @@ class World extends GameObject {
         pf.tick("render : background")
 
         if (step % 2 === 0) {
-            // render trail
+            // render food trail
             directPixelManipulation(ctxFoodTrail, (ctx) => {
                 pf.tick("render : food trail prepare")
 
                 this.foodTrail.render(ctx)
                 pf.tick("render : food trail")
-            })
+            }, false, true) // do not reset and reuse bitmap
             pf.tick("render : food trail post")
         } else {
+            // render home trail
             directPixelManipulation(ctxHomeTrail, (ctx) => {
                 pf.tick("render : home trail prepare")
 
                 this.homeTrail.render(ctx)
                 pf.tick("render : home trail")
-            })
-            pf.tick("render : food trail post")
+            }, false, true) // do not reset and reuse bitmap
+            pf.tick("render : home trail post")
         }
 
         // render ant
-        ctxAnt.clearRect(0, 0, this.width, this.height)
         directPixelManipulation(ctxAnt, (ctxAnt) => {
             pf.tick("render : canvasAnt prepare")
 
             this.apc.render(ctxAnt, extraTime)
             pf.tick("render : ants")
-        })
+        }, true)
         pf.tick("render : canvasAnt post")
 
         // render food
@@ -191,7 +202,7 @@ class World extends GameObject {
 
             this.food.render(ctxFood)
             pf.tick("render : food")
-        })
+        }, false, true)
         pf.tick("render : canvasFood post")
 
         // render home

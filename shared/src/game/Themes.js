@@ -4,6 +4,7 @@ const { randomColor, randomExp, randomInt } = require("../lib/basic_math")
 const Themes = {
     Black: {
         antColor: "#000",
+        homeColor: "#000",
         antCount: 3301,
         backgroundColor: "#fff",
         colonyCount: 10,
@@ -11,7 +12,6 @@ const Themes = {
         foodClusters: 14,
         foodColor: "#000",
         foodSize: [80, 100],
-        homeColor: "#000",
     },
     White: {
         antColor: "#fff",
@@ -40,19 +40,19 @@ const Themes = {
     },
     FelColony: {
         antColor: "#72F82A",
+        homeColor: "#ffff7f",
         antCount: 2000,
         colonyCount: 6,
         foodCapacity: [1, 3],
         foodClusters: 123,
         foodColor: "#78F126",
         foodSize: [1, 11],
-        homeColor: "#ffff7f",
     },
     Violet: {
         antColor: "#7BE5EC",
         antCount: 2801,
         backgroundColor: "#7B39D3",
-        colonyCount: 4,
+        colonyCount: 30,
         foodCapacity: [1, 2],
         foodClusters: 5576,
         foodColor: "#E49FF7",

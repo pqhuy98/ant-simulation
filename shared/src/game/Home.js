@@ -29,7 +29,7 @@ module.exports = class Home extends GameObject {
                 let yspan = radius * Math.sin(Math.acos((xc - x) / radius))
                 for (let y = yc - yspan; y < yc + yspan; y++) {
                     if (x < 0 || x > this.width || y < 0 || y > this.height) continue
-                    this.world.homeTrail.put(x, y, 1)
+                    this.world.homeTrail.put(x, y, 5)
                 }
             }
         })
@@ -40,10 +40,12 @@ module.exports = class Home extends GameObject {
     }
 
     has(x, y, sz) {
-        x = Math.floor(x)
-        y = Math.floor(y)
+        x = ~~(x)
+        y = ~~(y)
         for (let i = 0; i < this.locations.length; i++) {
-            if (Math.abs(x - this.locations[i].x) <= sz && Math.abs(y - this.locations[i].y) <= sz) {
+            let dx = x - this.locations[i].x
+            let dy = y - this.locations[i].y
+            if (dx * dx + dy * dy <= sz * sz) {
                 return [this.locations[i].x, this.locations[i].y]
             }
         }

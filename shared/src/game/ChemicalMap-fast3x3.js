@@ -9,6 +9,7 @@ class ChemicalMap3x3 extends GameObject {
         this.width = width
         this.height = height
         this.rawMap = new Float32Array(width * height)
+        this.renderMap = new Uint8ClampedArray(width * height)
         this.min = 0
         this.evaporate = evaporate
         this.max = 1e-9
@@ -24,7 +25,7 @@ class ChemicalMap3x3 extends GameObject {
         }
     }
 
-    gameLoop() {
+    gameLoop({ checkIsCovered }) {
         let map = this.rawMap
         let width = this.width
         let height = this.height
@@ -35,44 +36,56 @@ class ChemicalMap3x3 extends GameObject {
         this.rawMap = result
         this.min = (this.min * 0.9 + min * 0.1)
         this.max = (this.max * 0.9 + max * 0.1)
-    }
 
-    render(ctx) {
-        let data = this.rawMap
-
-        let bitmap = ctx.bitmap
-        bitmap.set(this.placeholder)
-
-        //      Math.floor(((data[i]-min)/(max-min))^evaPow * 255) > 0
+        // pre-calculate render map
+        //      ~~(((data[i]-min)/(max-min))^evaPow * 255) > 0
         // <=>  ((data[i]-min)/(max-min))^evaPow * 255 >= 1
         // <=>  ((data[i]-min)/(max-min))^evaPow >= 1/255
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
         // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min)
         // <=>  data[i] >= Math.pow(1/255, 1/evaPow) * (max-min) + min
-        let evaPow = 0.25 / this.evaporate
+        let evaPow = 0.5 / this.evaporate
         let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
         let minMaxDiff = (this.max - this.min)
         let pos = 0
+        let data = this.rawMap
         for (let i = 0; i < data.length; i++) {
+            // if (checkIsCovered && checkIsCovered(i)) {
+            //     this.renderMap[i] = 0
+            //     continue
+            // }
             if (data[i] >= valZeroThreshold) {
-                // let val = 100
                 let val = (data[i] - this.min) / minMaxDiff
                 val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
-                val = ~~(val * 200) // quicker Math.floor
-                bitmap[pos + 3] = val
+                val = ~~(val * 200) // quicker ~~
+                this.renderMap[i] = val
+            } else {
+                this.renderMap[i] = 0
             }
+        }
+    }
+
+    render(ctx, checkIsCovered) {
+        let data = this.rawMap
+
+        let bitmap = ctx.bitmap
+        bitmap.set(this.placeholder)
+
+        let pos = 0
+        for (let i = 0; i < data.length; i++) {
+            bitmap[pos + 3] = this.renderMap[i]
             pos += 4
         }
     }
 
     get(x, y) {
-        x = Math.floor(x)
-        y = Math.floor(y)
+        x = ~~(x)
+        y = ~~(y)
         return this.rawMap[x + y * this.width]
     }
 
     put(x, y, value) {
-        let idx = Math.floor(x) + Math.floor(y) * this.width
+        let idx = ~~(x) + ~~(y) * this.width
         this.rawMap[idx] = Math.max(0, Math.min(255, this.rawMap[idx] + value))
     }
 
@@ -81,13 +94,13 @@ class ChemicalMap3x3 extends GameObject {
     }
 
     clean(x, y, coeff = 0.99) {
-        let idx = Math.floor(x) + Math.floor(y) * this.width
+        let idx = ~~(x) + ~~(y) * this.width
         this.rawMap[idx] *= coeff
     }
 
     sum(xc, yc, sz) {
-        xc = Math.floor(xc)
-        yc = Math.floor(yc)
+        xc = ~~(xc)
+        yc = ~~(yc)
         let res = 0
         for (let i = xc - sz + 1; i < xc + sz; i++) {
             if (i < 0 || i >= this.width) continue

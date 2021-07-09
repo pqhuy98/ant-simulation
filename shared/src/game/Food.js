@@ -37,16 +37,16 @@ class Food extends GameObject {
     gameLoop() {
         for (let i = 0; i < this.rawMap.length; i++) {
             if (this.rawMap[i] > 0) {
-                this.world.foodTrail.putIdx(i, 1)
+                this.world.foodTrail.putIdx(i, 5)
             }
         }
     }
 
     put(x, y, sz, shape, min = this.capacity[0], max = this.capacity[1]) {
         if (!shape) shape = this.randomShape()
-        x = Math.floor(x)
-        y = Math.floor(y)
-        sz = Math.floor(sz)
+        x = ~~(x)
+        y = ~~(y)
+        sz = ~~(sz)
         let drawer
         if (shape === SHAPE_SQUARE) {
             drawer = square
@@ -60,7 +60,7 @@ class Food extends GameObject {
             if (!this.world.wall.allowPoint({ x: i, y: j })) return
 
             let oldAmount = this.rawMap[i + j * this.width]
-            let newAmount = Math.floor(this.r.random() * (max - min) + min)
+            let newAmount = ~~(this.r.random() * (max - min) + min)
             this.rawMap[i + j * this.width] = newAmount
             this.world.unpickedFood += newAmount - oldAmount
 
@@ -70,8 +70,8 @@ class Food extends GameObject {
     }
 
     take(x, y, amount = 1) {
-        x = Math.floor(x)
-        y = Math.floor(y)
+        x = ~~(x)
+        y = ~~(y)
         this.rawMap[x + y * this.width] -= amount
         this.world.unpickedFood -= amount
 
@@ -82,8 +82,8 @@ class Food extends GameObject {
     }
 
     has(x, y, sz) {
-        x = Math.floor(x)
-        y = Math.floor(y)
+        x = ~~(x)
+        y = ~~(y)
         for (let _ = 0; _ < 2; _++) {
             let i = this.r.randomInt(x - sz + 1, x + sz)
             let j = this.r.randomInt(y - sz + 1, y + sz)
@@ -106,6 +106,10 @@ class Food extends GameObject {
             }
         }
         return null
+    }
+
+    hasAtIdx(idx) {
+        return this.rawMap[idx] > 0
     }
 
     render(ctx) {
