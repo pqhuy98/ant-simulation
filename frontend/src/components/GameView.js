@@ -59,7 +59,7 @@ export default function GameView({ theme, width, height }) {
         <Header>
             <ThemeLinks />
             <GithubLink />
-            <FpsDisplay text="wFPS" fpsValue={workerFps} right="100px" />
+            <FpsDisplay text="wf" fpsValue={workerFps} right="100px" />
             <FpsDisplay text="FPS" fpsValue={fps} right="20px" />
         </Header>
         <Canvas
