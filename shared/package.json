@@ -18,7 +18,6 @@
     "cwise": "^1.0.10",
     "deep-diff": "^1.0.2",
     "ndarray": "^1.0.19",
-    "perf_hooks": "0.0.1",
     "performance-now": "^2.1.0",
     "typeson": "^6.1.0",
     "typeson-registry": "^1.0.0-alpha.39"
