@@ -1,13 +1,15 @@
 const Typeson = require('typeson');
 const Ant = require('../Ant/Ant');
-const AntPropertyCollection = require('../Ant/AntPropertyCollection');
-const ChemicalMap3x3 = require('../ChemicalMap-fast3x3');
+const PropertyCollection = require('../Ant/PropertyCollection');
+const ChemicalMap3x3 = require('../ChemicalMap/ChemicalMap_3x3');
+const ChemicalMap2x2 = require('../ChemicalMap/ChemicalMap_2x2');
 const { Food } = require('../Food');
 const Home = require('../Home');
 const { Random } = require('../Random');
 const Wall = require('../Wall');
 const World = require('../World');
 const ndarray = require("ndarray");
+const Colony = require('../Ant/Colony');
 
 const ndarrayMap = {
     "int8": Int8Array,
@@ -62,12 +64,13 @@ function isTypedArray(a) {
     return !!(a.buffer instanceof ArrayBuffer && a.BYTES_PER_ELEMENT);
 }
 
-
 // @ts-ignore
 const typeson = new Typeson().register([
     require('typeson-registry/dist/presets/socketio')
 ]).register({
-    AntPropertyCollection,
+    Colony,
+    PropertyCollection,
+    ChemicalMap2x2,
     ChemicalMap3x3,
     Food,
     Home,

@@ -1,16 +1,15 @@
 const Ant = require("./Ant/Ant")
-const AntPropertyCollection = require("./Ant/AntPropertyCollection")
 const { Food } = require("./Food")
 const Home = require("./Home")
 const { directPixelManipulation } = require("../lib/canvas_optimizer")
-const { NullProfiler, Profiler, Timer } = require("../lib/performance")
+const { NullProfiler, Profiler } = require("../lib/performance")
 const Wall = require("./Wall")
 const { freshRNG } = require("./Random")
 
-// const ChemicalMap = require("./ChemicalMap-fast3x3")
-const ChemicalMap = require("./ChemicalMap")
-const ChemicalMap3x3 = require("./ChemicalMap-fast3x3")
+const ChemicalMap2x2 = require("./ChemicalMap/ChemicalMap_2x2")
+const ChemicalMap3x3 = require("./ChemicalMap/ChemicalMap_3x3")
 const { GameObject } = require("./GameObject")
+const Colony = require("./Ant/Colony")
 
 console.log("VERSION:", "serializable")
 
@@ -24,9 +23,6 @@ class World extends GameObject {
         this.width = width
         this.height = height
         this.version = 0
-        this.pickedFood = 0
-        this.unpickedFood = 0
-        this.storedFood = 0
         this.postProcessFn = postProcessFn || (() => { })
         this.deltaT = 1 / 30 // ms
         this.backgroundColor = specs.backgroundColor
@@ -46,32 +42,12 @@ class World extends GameObject {
             border: specs.caveBorder
         })
 
-        let CM
-        if (this.r.prob(0)) {
-            CM = ChemicalMap
-        } else {
-            CM = ChemicalMap3x3
-        }
-
-        // Home
-        this.homeTrail = new CM({
-            world: this, name: "home",
-            width, height,
-            color: specs.homeColor,
-            evaporate: 0.995
-        })
-        this.home = new Home({
-            world: this, width, height,
-            colonyCount: specs.colonyCount,
-            color: specs.homeColor
-        })
-
         // Food
-        this.foodTrail = new CM({
+        this.foodTrail = new ChemicalMap3x3({
             world: this, name: "food",
             width, height,
             color: specs.foodColor,
-            evaporate: 0.95
+            evaporate: 0.8
         })
         this.food = new Food({
             world: this,
@@ -82,75 +58,67 @@ class World extends GameObject {
             color: specs.foodColor,
             shape: specs.foodShape
         })
+        this.foodColor = specs.foodColor
 
         // Ant
-        this.antCount = specs.antCount
-        this.antColor = specs.antColor
-        this.foodColor = specs.foodColor
-        this.newAntPerFrame = this.antCount / 30 / 10
-        this.apc = new AntPropertyCollection({ world: this, capacity: this.antCount })
+        this.colonyCount = specs.colonyCount
+        this.colonies = []
+        for (let i = 0; i < this.colonyCount; i++) {
+            this.colonies.push(new Colony({
+                world: this,
+                capacity: specs.antCount / this.colonyCount,
+                color: Array.isArray(specs.antColor) ? specs.antColor[i] : specs.antColor,
+            }))
+        }
     }
 
-    get ants() { return this.apc.ants }
-
-    setSize({ width, height }) {
-        this.width = width
-        this.height = height
-        this.version++
+    get totalAnts() {
+        let sum = 0
+        this.colonies.forEach((c) => sum += c.ants.length)
+        return sum
     }
-
-    spawnMoreAnt() {
-        return (this.ants.length < 100) || (
-            this.ants.length < this.antCount &&
-            this.ants.length * 0.1 < 3 + Math.min(this.antCount, this.storedFood)
-        )
+    get storedFood() {
+        let sum = 0
+        this.colonies.forEach((c) => sum += c.storedFood)
+        return sum
+    }
+    get unpickedFood() { return this.food.remaining }
+    get pickedFood() {
+        let sum = 0
+        this.colonies.forEach((c) => sum += c.pickedFood)
+        return sum
     }
 
     gameLoop({ profiler }) {
-        let idx = 324173
-        // if (this.version > 100) return
-        let pf = profiler || new NullProfiler()
+        profiler = profiler || new NullProfiler()
         this.version++
 
         // pre-gameLoop
         this.food.preGameLoop()
+        profiler.tick()
 
-        pf.tick()
-        // Create new ants
-        while (this.spawnMoreAnt()) {
-            this.apc.createAnt({
-                position: {
-                    ...this.home.randomPosition(),
-                },
-            })
-        }
+        // Game loop for colonies
+        this.colonies.forEach((colony, i) => {
+            colony.gameLoop(profiler)
+        })
+        profiler.tick("gameLoop : colonies")
 
-        // Game loop for ants
-        this.apc.gameLoop(pf)
-        pf.tick("gameLoop : ants")
-
-        // Food and home trail
+        // Food and food trail
+        this.food.gameLoop()
+        profiler.tick("gameLoop : food")
         if (this.version % 2 === 1) {
             this.foodTrail.gameLoop({
                 checkIsCovered: (i) => {
                     return this.food.hasAtIdx(i)
                 }
             })
-            pf.tick("gameLoop : food trail")
-        } else {
-            this.homeTrail.gameLoop({})
-            pf.tick("gameLoop : home trail")
+            profiler.tick("gameLoop : food trail")
         }
-
-        // Home and Food
-        this.home.gameLoop()
-        this.food.gameLoop()
-        pf.tick("gameLoop : food & home")
 
         // Wall
         this.wall.gameLoop()
-        pf.tick("gameLoop : wall")
-        pf.put("total_gameLoop", pf.elapse())
+        profiler.tick("gameLoop : wall")
+        profiler.put("total_gameLoop", profiler.elapse())
 
         // trigger post process
         if (typeof this.postProcessFn === "function") {
@@ -158,61 +126,52 @@ class World extends GameObject {
         }
     }
 
-    render({ profiler, step, extraTime, ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall }) {
-        let pf = profiler || new NullProfiler()
-        let tm = new Timer()
+    render({
+        profiler, step, extraTime,
+        ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall
+    }) {
+        profiler = profiler || new NullProfiler()
 
         // render background
         ctxBackground.fillStyle = this.backgroundColor
         ctxBackground.fillRect(0, 0, this.width, this.height)
-        pf.tick("render : background")
+        profiler.tick("render : background")
+
+        // render ant colony
+        ctxAnt.clearRect(0, 0, ctxAnt.canvas.width, ctxAnt.canvas.height)
+        delete ctxAnt.bitmap
+        this.colonies.forEach((colony, i) => {
+            colony.render({
+                ctxAnt, extraTime,
+                ctxHomeTrail: ctxHomeTrail[i],
+                ctxHome: ctxHomeTrail[i]
+            })
+        })
 
         if (step % 2 === 0) {
             // render food trail
             directPixelManipulation(ctxFoodTrail, (ctx) => {
-                pf.tick("render : food trail prepare")
+                profiler.tick("render : food trail prepare")
 
                 this.foodTrail.render(ctx)
-                pf.tick("render : food trail")
+                profiler.tick("render : food trail")
             }, false, true) // do not reset and reuse bitmap
-            pf.tick("render : food trail post")
-        } else {
-            // render home trail
-            directPixelManipulation(ctxHomeTrail, (ctx) => {
-                pf.tick("render : home trail prepare")
-
-                this.homeTrail.render(ctx)
-                pf.tick("render : home trail")
-            }, false, true) // do not reset and reuse bitmap
-            pf.tick("render : home trail post")
+            profiler.tick("render : food trail post")
         }
-
-        // render ant
-        directPixelManipulation(ctxAnt, (ctxAnt) => {
-            pf.tick("render : canvasAnt prepare")
-
-            this.apc.render(ctxAnt, extraTime)
-            pf.tick("render : ants")
-        }, true)
-        pf.tick("render : canvasAnt post")
 
         // render food
         directPixelManipulation(ctxFood, (ctxFood) => {
-            pf.tick("render : canvasFood prepare")
+            profiler.tick("render : canvasFood prepare")
 
             this.food.render(ctxFood)
-            pf.tick("render : food")
+            profiler.tick("render : food")
         }, false, true)
-        pf.tick("render : canvasFood post")
-
-        // render home
-        this.home.render(ctxFood)
-        pf.tick("render : home")
+        profiler.tick("render : canvasFood post")
 
         // render wall
         this.wall.render(ctxWall)
-        pf.tick("render : wall")
-        pf.put("total_render", pf.elapse())
+        profiler.tick("render : wall")
+        profiler.put("total_render", profiler.elapse())
     }
 }
 

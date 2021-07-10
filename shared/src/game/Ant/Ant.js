@@ -3,10 +3,9 @@ const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 
 module.exports = class Ant extends GameObject {
-    constructor({ propertyCollection, world, position, rotation, speed }) {
+    constructor({ world, pc, position, rotation, speed }) {
         super(world)
-        this.pc = propertyCollection
-
+        this.pc = pc
         this.pcId = this.pc.registerId(this._id)
 
         this.position = position
@@ -33,6 +32,11 @@ module.exports = class Ant extends GameObject {
 
     // individual properties
     get world() { return this.pc.world }
+    get colony() { return this.pc.colony }
+    get home() { return this.colony.home }
+    get food() { return this.world.food }
+    get homeTrail() { return this.colony.homeTrail }
+    get foodTrail() { return this.world.foodTrail }
 
     get position() { return this.pc.getPosition(this.pcId) }
     set position(pos) { return this.pc.setPosition(this.pcId, pos) }
@@ -58,13 +62,13 @@ module.exports = class Ant extends GameObject {
     set freshnessDecay(freshnessDecay) { return this.pc.setFreshnessDecay(this.pcId, freshnessDecay) }
 
     get decideIdx() { return this.pc.getDecideIdx(this.pcId) }
-    set decideIdx(decideIdx) { return this.pc.setDecideIdx(this.pcId, decideIdx) }
-
+    set decideIdx(decideIdx) {
+        return this.pc.setDecideIdx(this.pcId, decideIdx)
+    }
 
     // static properties
-    get color() { return this.world.antColor }
+    get color() { return this.colony.color }
     get foodColor() { return this.world.foodColor }
-    get size() { return 1 }
     get visionRange() { return 2 }
     get pickupRange() { return 2 }
     get storeRange() { return 5 }
@@ -90,16 +94,14 @@ module.exports = class Ant extends GameObject {
     }
 
     think() {
-        let world = this.world
-
         if (this.r.prob(0.9)) {
             let trail, dest
             if (this.isCarryingFood()) {
-                trail = world.homeTrail
-                dest = world.home
+                trail = this.homeTrail
+                dest = this.home
             } else {
-                trail = world.foodTrail
-                dest = world.food
+                trail = this.foodTrail
+                dest = this.food
             }
             this.rotation = this.findWay({ trail, dest })
         } else {
@@ -147,7 +149,6 @@ module.exports = class Ant extends GameObject {
     }
 
     move() {
-        let world = this.world
         let deltaT = this.world.deltaT
         // move forward
         let oldPos = this.position
@@ -162,11 +163,11 @@ module.exports = class Ant extends GameObject {
         x = ~~x
         y = ~~y
         let revert = false
-        if (x <= 0 || x >= world.width - 1) {
+        if (x <= 0 || x >= this.world.width - 1) {
             this.rotation = Math.PI - this.rotation
             revert = true
         }
-        if (y <= 0 || y >= world.height - 1) {
+        if (y <= 0 || y >= this.world.height - 1) {
             this.rotation = 2 * Math.PI - this.rotation
             revert = true
         }
@@ -181,33 +182,23 @@ module.exports = class Ant extends GameObject {
 
         if (!this.isCarryingFood()) {
             // search for very close food
-            let foodPos = world.food.has(this.position.x, this.position.y, this.pickupRange)
+            let foodPos = this.food.has(this.position.x, this.position.y, this.pickupRange)
             if (foodPos) {
-                world.food.take(foodPos[0], foodPos[1], 1)
-                this.world.pickedFood++
+                this.food.take(foodPos[0], foodPos[1], 1)
+                this.colony.pickedFood++
                 this.carryingFood = this.carryingFood + 1
                 this.rotation = -this.rotation
                 this.freshness = 1
             }
-            // near home, refresh itself
-            // let homePos = world.home.has(this.position.x, this.position.y, this.visionRange / 2)
-            // if (homePos) {
-            //     this.freshness = 1
-            // }
         } else {
-            let homePos = world.home.has(this.position.x, this.position.y, this.storeRange)
+            let homePos = this.home.has(this.position.x, this.position.y, this.storeRange)
             if (homePos) {
-                world.home.give(this.carryingFood)
-                this.world.pickedFood -= this.carryingFood
+                this.home.give(this.carryingFood)
+                this.colony.pickedFood -= this.carryingFood
                 this.carryingFood = 0
                 this.rotation = -this.rotation
                 this.freshness = 1
             }
-            // near food, refresh itself
-            // let foodPos = world.food.has(this.position.x, this.position.y, this.visionRange * 2)
-            // if (foodPos) {
-            //     this.freshness = 1
-            // }
         }
     }
 
@@ -216,14 +207,13 @@ module.exports = class Ant extends GameObject {
     }
 
     releaseChemicals() {
-        let world = this.world
         let { x, y } = this.position
         if (this.isCarryingFood()) {
-            world.foodTrail.put(x, y, 1 * this.freshness)
-            world.homeTrail.clean(x, y, 0.95)
+            this.foodTrail.put(x, y, 1 * this.freshness)
+            this.homeTrail.clean(x, y, 0.95)
         } else {
-            world.homeTrail.put(x, y, 1 * this.freshness)
-            world.foodTrail.clean(x, y, 0.85)
+            this.homeTrail.put(x, y, 1 * this.freshness)
+            this.foodTrail.clean(x, y, 0.85)
         }
         this.freshness = this.freshness * this.freshnessDecay
     }

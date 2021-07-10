@@ -19,6 +19,7 @@ class Food extends GameObject {
         this.size = size
         this.capacity = capacity
         this.color = color
+        this.remaining = 0
         for (let i = 0; i < clustersCount; i++) {
             this.put(
                 this.r.random() * width,
@@ -37,7 +38,7 @@ class Food extends GameObject {
     gameLoop() {
         for (let i = 0; i < this.rawMap.length; i++) {
             if (this.rawMap[i] > 0) {
-                this.world.foodTrail.putIdx(i, 5)
+                this.world.foodTrail.putIdx(i, 1)
             }
         }
     }
@@ -62,7 +63,7 @@ class Food extends GameObject {
             let oldAmount = this.rawMap[i + j * this.width]
             let newAmount = ~~(this.r.random() * (max - min) + min)
             this.rawMap[i + j * this.width] = newAmount
-            this.world.unpickedFood += newAmount - oldAmount
+            this.remaining += newAmount - oldAmount
 
             this.putBuffer[i + j * this.width] = true
             this.takeBuffer[i + j * this.width] = false
@@ -73,7 +74,7 @@ class Food extends GameObject {
         x = ~~(x)
         y = ~~(y)
         this.rawMap[x + y * this.width] -= amount
-        this.world.unpickedFood -= amount
+        this.remaining -= amount
 
         if (this.rawMap[x + y * this.width] <= 0) {
             this.putBuffer[x + y * this.width] = false

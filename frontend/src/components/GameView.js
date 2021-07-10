@@ -66,13 +66,13 @@ export default function GameView({ theme, width, height }) {
             width={width}
             height={height}
             draw={draw}
-            fpsCalculator={fpsCalculator}
+            homeTrailCount={world?.colonies.length}
         />
         <div style={style.infoContainer}>
             <table style={style.table}><tbody>
                 <tr>
                     <td style={style.leftCell}>Ant population:</td>
-                    <td style={style.rightCell}> {world?.ants.length}</td>
+                    <td style={style.rightCell}> {world?.totalAnts}</td>
                 </tr>
                 <tr>
                     <td style={style.leftCell}>Gathered food: </td>

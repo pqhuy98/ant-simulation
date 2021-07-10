@@ -3,9 +3,10 @@ const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 const Ant = require("./Ant")
 
-module.exports = class AntPropertyCollection extends GameObject {
-    constructor({ world, capacity, color }) {
+module.exports = class PropertyCollection extends GameObject {
+    constructor({ world, colony, capacity }) {
         super(world)
+        this.colony = colony
         this.currentId = 0
         this.ants = []
         this.antId = new Uint16Array(capacity)
@@ -57,8 +58,9 @@ module.exports = class AntPropertyCollection extends GameObject {
 
     createAnt({ position, rotation, speed }) {
         this.ants.push(new Ant({
-            propertyCollection: this,
-            world: this.world, position, rotation, speed
+            world: this.world,
+            pc: this,
+            position, rotation, speed
         }))
     }
 
@@ -75,7 +77,7 @@ module.exports = class AntPropertyCollection extends GameObject {
         })
     }
 
-    render(ctx, extraTime) {
+    render({ ctx, extraTime }) {
         let width = ctx.canvas.width
         var bitmap = ctx.bitmap
         const colorCache = {}
