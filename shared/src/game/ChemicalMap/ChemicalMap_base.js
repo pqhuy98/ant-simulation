@@ -1,4 +1,5 @@
 // @ts-nocheck
+const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 
@@ -20,6 +21,7 @@ module.exports = class ChemicalMapBase extends GameObject {
         this.evaporate = evaporate
         this.max = 1e-9
         this.evaporate = evaporate
+        this.constrast = world.specs.constrast
 
         this.color = getRGB(color)
         this.color[3] = 0
@@ -50,7 +52,7 @@ module.exports = class ChemicalMapBase extends GameObject {
         // <=>  (data[i]-min)/(max-min) >= Math.pow(1/255, 1/evaPow)
         // <=>  (data[i]-min) >= Math.pow(1/255, 1/evaPow) * (max-min)
         // <=>  data[i] >= Math.pow(1/255, 1/evaPow) * (max-min) + min
-        let evaPow = 0.2 / this.evaporate
+        let evaPow = this.constrast / this.evaporate
         let valZeroThreshold = Math.pow(2 / 255, 1 / evaPow) * (this.max - this.min) + this.min
         let minMaxDiff = (this.max - this.min)
         let pos = 0
@@ -67,21 +69,30 @@ module.exports = class ChemicalMapBase extends GameObject {
         }
     }
 
-    render(ctx, checkIsCovered) {
-        let data = this.rawMap
+    render({ profiler, ctx }) {
+        if (!ctx) return
+        directPixelManipulation(ctx, (ctx) => {
+            profiler.tick("render : " + this.name + " trail prepare")
 
-        let bitmap = ctx.bitmap
-        bitmap.set(this.placeholder)
+            let data = this.rawMap
 
-        if (ctx.canvas.width * ctx.canvas.height !== this.width * this.height) {
-            throw new Error("!!!")
-        }
+            let bitmap = ctx.bitmap
+            bitmap.set(this.placeholder)
 
-        let pos = 0
-        for (let i = 0; i < data.length; i++) {
-            bitmap[pos + 3] = this.renderMap[i]
-            pos += 4
-        }
+            if (ctx.canvas.width * ctx.canvas.height !== this.width * this.height) {
+                throw new Error("!!!")
+            }
+
+            let pos = 0
+            for (let i = 0; i < data.length; i++) {
+                bitmap[pos + 3] = this.renderMap[i]
+                pos += 4
+            }
+
+            profiler.tick("render : " + this.name + " trail")
+        }, false, true) // do not reset and reuse bitmap
+        ctx.filter = 'blur(100px)';
+        profiler.tick("render : " + this.name + " trail post")
     }
 
     get(x, y) {

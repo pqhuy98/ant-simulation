@@ -95,9 +95,37 @@ function cosApprox(angle) {
     return cos[angle]
 }
 
+// Game graphic
+
+function rasterizeOnePixel(bitmap, x, y, colorArr, width) {
+    let value = colorArr[3]
+    let dx1 = x - (~~x)
+    let dy1 = y - (~~y)
+    let dx0 = 1 - dx1
+    let dy0 = 1 - dy1
+    let p00 = dx0 * dy0 * value
+    let p01 = dx0 * dy1 * value
+    let p10 = dx1 * dy0 * value
+    let p11 = dx1 * dy1 * value
+    x = ~~x
+    y = ~~y
+    fillPixel(bitmap, x, y, colorArr, p00, width)
+    fillPixel(bitmap, x, y + 1, colorArr, p01, width)
+    fillPixel(bitmap, x + 1, y, colorArr, p10, width)
+    fillPixel(bitmap, x + 1, y + 1, colorArr, p11, width)
+}
+
+function fillPixel(bitmap, x, y, colorArr, value, width) {
+    let offset = (x + y * width) * 4
+    bitmap[offset] = colorArr[0]
+    bitmap[offset + 1] = colorArr[1]
+    bitmap[offset + 2] = colorArr[2]
+    bitmap[offset + 3] += ~~value
+}
+
 
 module.exports = {
     add, sub, mul, zero, magnitude, normalize, clip, sinApprox, cosApprox,
     randomFloat, randomInt, randomExp, randomColor, pickRandom,
-    square, circle,
+    square, circle, rasterizeOnePixel,
 }

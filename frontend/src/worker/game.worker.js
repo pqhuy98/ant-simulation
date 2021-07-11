@@ -6,7 +6,7 @@ import * as Comlink from "comlink"
 import { Profiler } from "antworld-shared/src/lib/performance"
 // import { GameObject } from "antworld-shared/src/game/GameObject"
 
-const scale = 2
+const scale = 3
 class GameWorker {
     constructor({ theme, width, height, trailScale }) {
         this.world = new World({

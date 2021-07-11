@@ -16,7 +16,7 @@ module.exports = class Ant extends GameObject {
         this.carryingFood = 0
 
         this.freshness = 1
-        this.freshnessDecay = this.r.randomExp(0.8, 0.9)
+        this.freshnessDecay = this.r.randomExp(0.8, 0.85)
 
         this.randomizeDecidePolicy()
     }
@@ -71,7 +71,7 @@ module.exports = class Ant extends GameObject {
     get foodColor() { return this.world.foodColor }
     get visionRange() { return 2 }
     get pickupRange() { return 2 }
-    get storeRange() { return 5 }
+    get storeRange() { return this.colony.home.size }
 
     randomizeDecidePolicy() {
         this.decideIdx = 11
@@ -119,7 +119,7 @@ module.exports = class Ant extends GameObject {
 
         // sampled lines of sight
         // let deviant = 2 * Math.PI / 3
-        let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 7)
+        let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 6)
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]
@@ -128,8 +128,8 @@ module.exports = class Ant extends GameObject {
         // find destination within vision
         for (let i = 0; i < degs.length; i++) {
             let pos = dest.has(
-                x + degCos[i] * vision,
-                y + degSin[i] * vision,
+                x + degCos[i] * vision * this.world.trailScale,
+                y + degSin[i] * vision * this.world.trailScale,
                 vision
             )
             if (pos) {
@@ -206,11 +206,11 @@ module.exports = class Ant extends GameObject {
     releaseChemicals() {
         let { x, y } = this.position
         if (this.isCarryingFood()) {
-            this.foodTrail.put(x, y, 1 * this.freshness)
+            this.foodTrail.put(x, y, 5 * this.freshness)
             this.homeTrail.clean(x, y, 0.995)
         } else {
-            this.homeTrail.put(x, y, 1 * this.freshness)
-            this.foodTrail.clean(x, y, 0.99)
+            this.homeTrail.put(x, y, 5 * this.freshness)
+            this.foodTrail.clean(x, y, 0.96)
         }
         this.freshness = this.freshness * this.freshnessDecay
     }

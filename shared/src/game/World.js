@@ -104,21 +104,22 @@ class World extends GameObject {
         this.colonies.forEach((colony, i) => {
             colony.gameLoop(profiler)
         })
-        profiler.tick("gameLoop : colonies")
+        profiler.tick("gameLoop::colonies")
 
         // Food and food trail
         this.food.gameLoop()
-        profiler.tick("gameLoop : food")
+        profiler.tick("gameLoop::food")
+
         this.foodTrail.gameLoop({
             checkIsCovered: (i) => {
                 return this.food.hasAtIdx(i)
             }
         })
-        profiler.tick("gameLoop : food trail")
+        profiler.tick("gameLoop::food trail")
 
         // Wall
         this.wall.gameLoop()
-        profiler.tick("gameLoop : wall")
+        profiler.tick("gameLoop::wall")
         profiler.put("total_gameLoop", profiler.elapse())
 
         // trigger post process
@@ -149,23 +150,10 @@ class World extends GameObject {
             })
         })
 
-        // render food trail
-        directPixelManipulation(ctxFoodTrail, (ctx) => {
-            profiler.tick("render : food trail prepare")
-
-            this.foodTrail.render(ctx)
-            profiler.tick("render : food trail")
-        }, false, true) // do not reset and reuse bitmap
-        profiler.tick("render : food trail post")
+        this.foodTrail.render({ profiler, ctx: ctxFoodTrail })
 
         // render food
-        directPixelManipulation(ctxFood, (ctxFood) => {
-            profiler.tick("render : canvasFood prepare")
-
-            this.food.render(ctxFood)
-            profiler.tick("render : food")
-        }, false, true)
-        profiler.tick("render : canvasFood post")
+        this.food.render({ profiler, ctx: ctxFood })
 
         // render wall
         this.wall.render(ctxWall)

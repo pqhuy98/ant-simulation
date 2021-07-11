@@ -7,6 +7,7 @@ const { NullProfiler } = require("../../lib/performance")
 
 module.exports = class Colony extends GameObject {
     constructor({ world, capacity, antColor, homeColor, homeCount }) {
+        capacity = Math.round(capacity)
         super(world)
         this.pc = new PropertyCollection({ world, colony: this, capacity })
         this.home = new Home({
@@ -46,16 +47,16 @@ module.exports = class Colony extends GameObject {
 
     gameLoop(profiler) {
         this.spawnAntsIfPossible()
-        profiler.tick("gameLoop : colonies.spawnAntsIfPossible")
+        profiler.tick("gameLoop::colonies.spawnAntsIfPossible")
 
         this.home.gameLoop()
-        profiler.tick("gameLoop : colonies.home")
+        profiler.tick("gameLoop::colonies.home")
 
         this.homeTrail.gameLoop({})
-        profiler.tick("gameLoop : colonies.homeTrail")
+        profiler.tick("gameLoop::colonies.homeTrail")
 
         this.pc.gameLoop(profiler)
-        profiler.tick("gameLoop : colonies.pc")
+        profiler.tick("gameLoop::colonies.pc")
     }
 
     render({ profiler, extraTime, ctxAnt, ctxHomeTrail, ctxHome }) {
@@ -65,14 +66,7 @@ module.exports = class Colony extends GameObject {
         profiler.tick("render : ants")
 
         // render home trail
-        if (!ctxHomeTrail) return
-        directPixelManipulation(ctxHomeTrail, (ctx) => {
-            profiler.tick("render : home trail prepare")
-
-            this.homeTrail.render(ctx)
-            profiler.tick("render : home trail")
-        }, false, true) // do not reset and reuse bitmap
-        profiler.tick("render : home trail post")
+        this.homeTrail.render({ profiler, ctx: ctxHomeTrail })
 
         // render home
         this.home.render(ctxHome)

@@ -7,7 +7,7 @@ module.exports = class Home extends GameObject {
         this.width = width
         this.height = height
         this.locations = []
-        this.size = 5
+        this.size = 10
         this.color = color
         let _cnt = 1000
         while (this.locations.length < homeCount && _cnt-- > 0) {

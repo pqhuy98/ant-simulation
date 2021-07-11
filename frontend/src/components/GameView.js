@@ -11,7 +11,6 @@ import { useAsyncMemo, useWorldRefFromGameWorker } from "lib/custom_react_hooks"
 import { Timer } from "antworld-shared/src/lib/performance"
 import Renderer from "renderer/Renderer"
 
-console.log(RawGameWorker)
 const GameWorker = Comlink.wrap(RawGameWorker())
 
 let cycleTimer = new Timer()
@@ -30,9 +29,9 @@ export default function GameView({ theme, width, height, trailScale }) {
 
     const [savedProfiler, setSavedProfiler] = useState("")
 
-
     // https://stackoverflow.com/a/66071205
     const gameWorker = useAsyncMemo(async () => {
+        console.log(theme)
         let worker = await new GameWorker({ theme, width, height, trailScale })
         return () => worker
     }, [width, height, theme, trailScale])

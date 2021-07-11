@@ -3,18 +3,22 @@ const { randomColor, randomExp, randomInt } = require("../lib/basic_math")
 
 const Themes = {
     Classic: {
+        antCount: 30000,
+
         colonyCount: 1,
         antColor: "#000000",
         homeColor: "brown",
         foodColor: "orange",
-        backgroundColor: "#ffffff",
-        antCount: 30000,
         colonyHomeCount: 3,
         foodClusters: 100,
         foodSize: [10, 20],
         foodCapacity: [1, 5],
-        caveScale: 1.5,
+
+        caveScale: 2,
         caveBorder: 3,
+        backgroundColor: "#ffffff",
+
+        constrast: 0.2,
     },
     Black: {
         colonyCount: 1,
@@ -27,6 +31,7 @@ const Themes = {
         foodClusters: 14,
         foodColor: "#000",
         foodSize: [80, 100],
+        constrast: 0.4,
     },
     White: {
         colonyCount: 1,
@@ -39,6 +44,7 @@ const Themes = {
         foodColor: "#fff",
         foodSize: [80, 100],
         homeColor: "#fff",
+        constrast: 0.4,
     },
     Lava: {
         colonyCount: 1,
@@ -54,15 +60,16 @@ const Themes = {
         foodColor: "#FC9E10",
         foodShape: SHAPE_CIRCLE,
         foodSize: [1, 2],
-        caveScale: 3,
+        caveScale: 4,
         caveBorder: 2,
+        constrast: 0.4,
     },
     FelColony: {
         antCount: 20000,
 
         colonyCount: 1,
         colonyHomeCount: 6,
-        antColor: "#32A82A",
+        antColor: "#000",//"#32A82A",
         homeColor: "#ffff7f",
 
 
@@ -70,6 +77,7 @@ const Themes = {
         foodSize: [1, 11],
         foodCapacity: [1, 3],
         foodColor: "#78FF26",
+        constrast: 0.3,
     },
     Violet: {
         antCount: 28010,
@@ -85,6 +93,7 @@ const Themes = {
         foodColor: "#E49FF7",
 
         backgroundColor: "#7B39D3",
+        constrast: 0.3,
     },
     StarWar: {
         antCount: 20000,
@@ -96,11 +105,12 @@ const Themes = {
 
         foodClusters: 2216,
         foodSize: [1, 1],
-        foodCapacity: [1, 4],
+        foodCapacity: [1, 20],
         foodColor: "#ddffdd",
         foodShape: SHAPE_CIRCLE,
 
         backgroundColor: "#000",
+        constrast: 0.5,
     },
     SpaceDesert: {
         antCount: 20000,
@@ -116,9 +126,10 @@ const Themes = {
         foodColor: "#BD8C41",
 
         backgroundColor: "#101000",
+        constrast: 0.4,
     },
     Forest: {
-        antCount: 33010,
+        antCount: 23010,
 
         colonyCount: 1,
         colonyHomeCount: 10,
@@ -132,9 +143,10 @@ const Themes = {
         foodShape: SHAPE_CIRCLE,
 
         backgroundColor: "#7b46a1",
+        constrast: 0.3,
     },
     Underground: {
-        antCount: 50010,
+        antCount: 24010,
 
         colonyCount: 1,
         colonyHomeCount: 2,
@@ -146,9 +158,10 @@ const Themes = {
         foodCapacity: [1, 1],
         foodColor: "#684132",
 
-        caveScale: 1,
+        caveScale: 1.5,
         caveBorder: 2,
         backgroundColor: "#fff",
+        constrast: 0.35,
     },
     Bricks: {
         antCount: 12930,
@@ -165,6 +178,7 @@ const Themes = {
         foodShape: SHAPE_SQUARE,
 
         backgroundColor: "#339BF2",
+        constrast: 0.2,
     },
     Underwater: {
         antCount: 34940,
@@ -183,26 +197,31 @@ const Themes = {
         caveScale: 10,
         // caveFlip: true,
         backgroundColor: "#0C0147",
+        constrast: 0.2,
     },
     PathFinding: {},
-    RANDOM: {
-        antCount: randomExp(1000, 50000),
+    RANDOM: (() => {
+        let colonyCount = randomInt(1, 5)
+        return {
+            antCount: Math.round(randomExp(5000, 30000)),
 
-        colonyCount: randomInt(1, 4),
-        colonyHomeCount: randomInt(1, 10),
-        antColor: randomColor(),
-        homeColor: randomColor(),
+            colonyCount,
+            colonyHomeCount: randomInt(1, 10),
+            antColor: Array(colonyCount).fill(0).map(() => randomColor()),
+            homeColor: Array(colonyCount).fill(0).map(() => randomColor()),
 
-        foodClusters: Math.round(randomExp(5, 10000)),
-        foodSize: [1, Math.round(randomExp(1, 200))],
-        foodCapacity: [1, Math.round(randomExp(1, 20))],
-        foodColor: randomColor(),
-        foodShape: SHAPE_RANDOM,
+            foodClusters: Math.round(randomExp(5, 10000)),
+            foodSize: [1, Math.round(randomExp(1, 200))],
+            foodCapacity: [1, Math.round(randomExp(1, 20))],
+            foodColor: randomColor(),
+            foodShape: SHAPE_RANDOM,
 
-        caveScale: Math.random() > 0.5 ? randomExp(1, 15) : 0,
-        caveBorder: Math.random() > 0.5 ? 2 : 0,
-        backgroundColor: randomColor(),
-    }
+            caveScale: Math.random() > 0.5 ? randomExp(1, 15) : 0,
+            caveBorder: Math.random() > 0.5 ? 2 : 0,
+            backgroundColor: randomColor(),
+            constrast: randomExp(0.25, 0.5),
+        }
+    })(),
 }
 Themes.PathFinding = {
     ...Themes.Classic,

@@ -8,8 +8,8 @@ import GameView from "./components/GameView"
 import { Themes } from "antworld-shared/src/game/Themes"
 
 function App() {
-    let trailScale = 2
-    let w = 1300
+    let trailScale = 3
+    let w = 1620
     let h = (~~(w / 3 / trailScale)) * trailScale
     if (w % trailScale !== 0 || h % trailScale !== 0) {
         throw new Error("Width (" + w + ") and height (" + h + ") must be divisible by " + trailScale)

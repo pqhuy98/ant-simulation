@@ -1,4 +1,4 @@
-const { add, clip } = require("../../lib/basic_math")
+const { add, clip, rasterizeOnePixel } = require("../../lib/basic_math")
 const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
@@ -65,6 +65,22 @@ module.exports = class PropertyCollection extends GameObject {
         }))
     }
 
+    serializableKeys() {
+        return Object.keys(this).filter(k => k !== "ants")
+    }
+
+    postDeserialize() {
+        this.ants = []
+        for (let id = 0; id < this.currentId; id++) {
+            this.ants.push(Ant.reviveAnt({
+                _id: this.antId[id],
+                r: this.r,
+                pc: this,
+                pcId: id
+            }))
+        }
+    }
+
     gameLoop(profiler) {
         this.ants.forEach(ant => {
             ant.gameLoop(profiler)
@@ -81,7 +97,7 @@ module.exports = class PropertyCollection extends GameObject {
     render({ profiler, ctx, extraTime }) {
         profiler = profiler || new NullProfiler()
         directPixelManipulation(ctx, (ctx) => {
-            profiler.tick("render : canvasAnt prepare")
+            profiler.tick("render : ant prepare")
             var bitmap = ctx.bitmap
             let width = ctx.canvas.width
             const colorCache = {}
@@ -98,34 +114,18 @@ module.exports = class PropertyCollection extends GameObject {
                 x = x + dSpeed * ant.rotationCos
                 y = y + dSpeed * ant.rotationSin
 
-                //     ctx.fillStyle = color
-                //     ctx.fillRect(x, y, 1, 1)
-                // }
-                x = clip(Math.round(x), 0, this.world.width - 1)
-                y = clip(Math.round(y), 0, this.world.height - 1)
-                let offset = (x + y * width) * 4
-                bitmap[offset] = colorArr[0]
-                bitmap[offset + 1] = colorArr[1]
-                bitmap[offset + 2] = colorArr[2]
-                bitmap[offset + 3] = colorArr[3]
+                // x = clip(Math.round(x), 0, this.world.width - 1)
+                // y = clip(Math.round(y), 0, this.world.height - 1)
+                // let offset = (x + y * width) * 4
+                // bitmap[offset] = colorArr[0]
+                // bitmap[offset + 1] = colorArr[1]
+                // bitmap[offset + 2] = colorArr[2]
+                // bitmap[offset + 3] = colorArr[3]
+
+                // rasterization rendering
+                rasterizeOnePixel(bitmap, x, y, colorArr, this.world.width)
             }
         }, false, true)
-        profiler.tick("render : canvasAnt post")
-    }
-
-    serializableKeys() {
-        return Object.keys(this).filter(k => k !== "ants")
-    }
-
-    postDeserialize() {
-        this.ants = []
-        for (let id = 0; id < this.currentId; id++) {
-            this.ants.push(Ant.reviveAnt({
-                _id: this.antId[id],
-                r: this.r,
-                pc: this,
-                pcId: id
-            }))
-        }
+        profiler.tick("render : ant post")
     }
 }

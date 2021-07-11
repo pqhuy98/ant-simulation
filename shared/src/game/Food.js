@@ -1,4 +1,5 @@
 const { circle, square } = require("../lib/basic_math")
+const { directPixelManipulation } = require("../lib/canvas_optimizer")
 const { getRGB } = require("../lib/color")
 const { GameObject } = require("./GameObject")
 
@@ -85,7 +86,7 @@ class Food extends GameObject {
     has(x, y, sz) {
         x = ~~(x)
         y = ~~(y)
-        for (let _ = 0; _ < 2; _++) {
+        for (let _ = 0; _ < 4; _++) {
             let i = this.r.randomInt(x - sz + 1, x + sz)
             let j = this.r.randomInt(y - sz + 1, y + sz)
             if (i < 0 || i >= this.width || j < 0 || j >= this.height) {
@@ -113,36 +114,43 @@ class Food extends GameObject {
         return this.rawMap[idx] > 0
     }
 
-    render(ctx) {
-        let colorFood = getRGB(this.color)
-        let colorEmpty = [0, 0, 0, 0]
+    render({ profiler, ctx }) {
+        directPixelManipulation(ctx, (ctx) => {
+            profiler.tick("render : food prepare")
 
-        let bitmap = ctx.bitmap
-        if (ctx.worldVersion + 1 === this.world.version) {
-            // only update 
-            for (const pos in this.putBuffer) {
-                if (this.putBuffer[pos]) {
-                    bitmap.set(colorFood, parseInt(pos) * 4)
+
+            let colorFood = getRGB(this.color)
+            let colorEmpty = [0, 0, 0, 0]
+
+            let bitmap = ctx.bitmap
+            if (ctx.worldVersion + 1 === this.world.version) {
+                // only update 
+                for (const pos in this.putBuffer) {
+                    if (this.putBuffer[pos]) {
+                        bitmap.set(colorFood, parseInt(pos) * 4)
+                    }
+                }
+                for (const pos in this.takeBuffer) {
+                    if (this.takeBuffer[pos]) {
+                        bitmap.set(colorEmpty, parseInt(pos) * 4)
+                    }
+                }
+            } else if (ctx.worldVersion === this.world.version) {
+                // canvas is already up-to-date, do not render
+            }
+            else { // canvas is too out-of-date
+                for (let i = 0; i < this.rawMap.length; i++) {
+                    if (this.rawMap[i] > 0) {
+                        bitmap.set(colorFood, i * 4)
+                    } else {
+                        bitmap.set(colorEmpty, i * 4)
+                    }
                 }
             }
-            for (const pos in this.takeBuffer) {
-                if (this.takeBuffer[pos]) {
-                    bitmap.set(colorEmpty, parseInt(pos) * 4)
-                }
-            }
-        } else if (ctx.worldVersion === this.world.version) {
-            // canvas is already up-to-date, do not render
-        }
-        else { // canvas is too out-of-date
-            for (let i = 0; i < this.rawMap.length; i++) {
-                if (this.rawMap[i] > 0) {
-                    bitmap.set(colorFood, i * 4)
-                } else {
-                    bitmap.set(colorEmpty, i * 4)
-                }
-            }
-        }
-        ctx.worldVersion = this.world.version
+            ctx.worldVersion = this.world.version
+            profiler.tick("render : food")
+        }, false, true)
+        profiler.tick("render : food post")
     }
 
     randomShape() {
