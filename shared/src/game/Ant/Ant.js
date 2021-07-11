@@ -130,7 +130,7 @@ module.exports = class Ant extends GameObject {
             let pos = dest.has(
                 x + degCos[i] * vision * this.world.trailScale,
                 y + degSin[i] * vision * this.world.trailScale,
-                vision
+                (dest === this.home ? vision * 4 : vision)
             )
             if (pos) {
                 return Math.atan2(pos.y - y, pos.x - x)

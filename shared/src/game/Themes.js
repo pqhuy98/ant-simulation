@@ -24,7 +24,7 @@ const Themes = {
         colonyCount: 1,
         antColor: "#000",
         homeColor: "#000",
-        antCount: 33010,
+        antCount: 25010,
         backgroundColor: "#fff",
         colonyHomeCount: 10,
         foodCapacity: [1, 1],
