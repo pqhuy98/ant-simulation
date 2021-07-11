@@ -70,8 +70,34 @@ function circle(x, y, sz, width, height, callback) {
     }
 }
 
+
+const fullAngle = Math.PI * 2
+const sin = {}, cos = {}
+const resolution = 1000
+for (let i = 0; i < resolution; i++) {
+    let deg = i / resolution * Math.PI * 2
+    sin[i] = Math.sin(deg)
+    cos[i] = Math.cos(deg)
+}
+
+
+function sinApprox(angle) {
+    while (angle < 0) angle += fullAngle
+    while (angle > fullAngle) angle -= fullAngle
+    angle = ~~(angle / fullAngle * resolution)
+    return sin[angle]
+}
+
+function cosApprox(angle) {
+    while (angle < 0) angle += fullAngle
+    while (angle > fullAngle) angle -= fullAngle
+    angle = ~~(angle / fullAngle * resolution)
+    return cos[angle]
+}
+
+
 module.exports = {
-    add, sub, mul, zero, magnitude, normalize, clip,
+    add, sub, mul, zero, magnitude, normalize, clip, sinApprox, cosApprox,
     randomFloat, randomInt, randomExp, randomColor, pickRandom,
     square, circle,
 }

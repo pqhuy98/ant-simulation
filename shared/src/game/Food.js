@@ -93,7 +93,7 @@ class Food extends GameObject {
             }
             let idx = i + j * this.width
             if (this.rawMap[idx] > 0) {
-                return [i, j]
+                return { x: i, y: j }
             }
         }
         for (let i = x - sz + 1; i < x + sz; i++) {
@@ -102,7 +102,7 @@ class Food extends GameObject {
                 if (j < 0 || j >= this.height) continue
                 let idx = i + j * this.width
                 if (this.rawMap[idx] > 0) {
-                    return [i, j]
+                    return { x: i, y: j }
                 }
             }
         }

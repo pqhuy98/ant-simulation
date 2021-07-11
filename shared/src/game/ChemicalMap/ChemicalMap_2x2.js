@@ -24,7 +24,8 @@ class ChemicalMap2x2 extends ChemicalMapBase {
                 y++
             }
 
-            if (!wall.allowPoint({ x, y })) {
+            if (!wall.allowPoint({ x: x * this.scale, y: y * this.scale }) ||
+                !wall.allowPoint({ x: x * this.scale + this.scale, y: y * this.scale + this.scale })) {
                 result[i] = 0
                 continue
             }

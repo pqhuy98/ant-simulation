@@ -16,7 +16,7 @@ console.log("VERSION:", "serializable")
 class World extends GameObject {
     registerId() { return (this.currentId++).toString() }
 
-    constructor({ width, height, specs, rng, postProcessFn }) {
+    constructor({ width, height, specs, trailScale, rng, postProcessFn }) {
         super()
         this.currentId = 0
         this._id = this.registerId()
@@ -29,6 +29,7 @@ class World extends GameObject {
         this.antSpeedMin = specs.antSpeedMin
         this.antSpeedMax = specs.antSpeedMax
         this.specs = specs
+        this.trailScale = trailScale
 
         // Random
         this.r = rng || freshRNG()
@@ -67,7 +68,9 @@ class World extends GameObject {
             this.colonies.push(new Colony({
                 world: this,
                 capacity: specs.antCount / this.colonyCount,
-                color: Array.isArray(specs.antColor) ? specs.antColor[i] : specs.antColor,
+                antColor: Array.isArray(specs.antColor) ? specs.antColor[i] : specs.antColor,
+                homeColor: Array.isArray(specs.homeColor) ? specs.homeColor[i] : specs.homeColor,
+                homeCount: specs.colonyHomeCount,
             }))
         }
     }
@@ -106,14 +109,12 @@ class World extends GameObject {
         // Food and food trail
         this.food.gameLoop()
         profiler.tick("gameLoop : food")
-        if (this.version % 2 === 1) {
-            this.foodTrail.gameLoop({
-                checkIsCovered: (i) => {
-                    return this.food.hasAtIdx(i)
-                }
-            })
-            profiler.tick("gameLoop : food trail")
-        }
+        this.foodTrail.gameLoop({
+            checkIsCovered: (i) => {
+                return this.food.hasAtIdx(i)
+            }
+        })
+        profiler.tick("gameLoop : food trail")
 
         // Wall
         this.wall.gameLoop()
@@ -128,7 +129,7 @@ class World extends GameObject {
 
     render({
         profiler, step, extraTime,
-        ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxFood, ctxWall
+        ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxHome, ctxFood, ctxWall
     }) {
         profiler = profiler || new NullProfiler()
 
@@ -142,22 +143,20 @@ class World extends GameObject {
         delete ctxAnt.bitmap
         this.colonies.forEach((colony, i) => {
             colony.render({
-                ctxAnt, extraTime,
-                ctxHomeTrail: ctxHomeTrail[i],
-                ctxHome: ctxHomeTrail[i]
+                profiler, extraTime,
+                ctxAnt, ctxHomeTrail: ctxHomeTrail[i],
+                ctxHome,
             })
         })
 
-        if (step % 2 === 0) {
-            // render food trail
-            directPixelManipulation(ctxFoodTrail, (ctx) => {
-                profiler.tick("render : food trail prepare")
+        // render food trail
+        directPixelManipulation(ctxFoodTrail, (ctx) => {
+            profiler.tick("render : food trail prepare")
 
-                this.foodTrail.render(ctx)
-                profiler.tick("render : food trail")
-            }, false, true) // do not reset and reuse bitmap
-            profiler.tick("render : food trail post")
-        }
+            this.foodTrail.render(ctx)
+            profiler.tick("render : food trail")
+        }, false, true) // do not reset and reuse bitmap
+        profiler.tick("render : food trail post")
 
         // render food
         directPixelManipulation(ctxFood, (ctxFood) => {

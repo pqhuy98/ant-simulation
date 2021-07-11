@@ -3,12 +3,12 @@ const { randomColor, randomExp, randomInt } = require("../lib/basic_math")
 
 const Themes = {
     Classic: {
-        colonyCount: 2,
-        antColor: ["#000000", "#881111"],
+        colonyCount: 1,
+        antColor: "#000000",
         homeColor: "brown",
         foodColor: "orange",
         backgroundColor: "#ffffff",
-        antCount: 3000,
+        antCount: 30000,
         colonyHomeCount: 3,
         foodClusters: 100,
         foodSize: [10, 20],
@@ -20,7 +20,7 @@ const Themes = {
         colonyCount: 1,
         antColor: "#000",
         homeColor: "#000",
-        antCount: 3301,
+        antCount: 33010,
         backgroundColor: "#fff",
         colonyHomeCount: 10,
         foodCapacity: [1, 1],
@@ -31,7 +31,7 @@ const Themes = {
     White: {
         colonyCount: 1,
         antColor: "#fff",
-        antCount: 2301,
+        antCount: 23010,
         backgroundColor: "#000",
         colonyHomeCount: 10,
         foodCapacity: [1, 3],
@@ -41,10 +41,10 @@ const Themes = {
         homeColor: "#fff",
     },
     Lava: {
-        colonyCount: 2,
+        colonyCount: 1,
         antColor: "#F8F08B",
         homeColor: "#7F0B34",
-        antCount: 4481,
+        antCount: 44810,
 
         colonyHomeCount: 1,
 
@@ -58,7 +58,7 @@ const Themes = {
         caveBorder: 2,
     },
     FelColony: {
-        antCount: 2000,
+        antCount: 20000,
 
         colonyCount: 1,
         colonyHomeCount: 6,
@@ -72,7 +72,7 @@ const Themes = {
         foodColor: "#78FF26",
     },
     Violet: {
-        antCount: 2801,
+        antCount: 28010,
 
         colonyCount: 1,
         colonyHomeCount: 30,
@@ -87,7 +87,7 @@ const Themes = {
         backgroundColor: "#7B39D3",
     },
     StarWar: {
-        antCount: 2000,
+        antCount: 20000,
 
         colonyCount: 1,
         colonyHomeCount: 3,
@@ -103,7 +103,7 @@ const Themes = {
         backgroundColor: "#000",
     },
     SpaceDesert: {
-        antCount: 2000,
+        antCount: 20000,
 
         colonyCount: 1,
         colonyHomeCount: 2,
@@ -118,7 +118,7 @@ const Themes = {
         backgroundColor: "#101000",
     },
     Forest: {
-        antCount: 3301,
+        antCount: 33010,
 
         colonyCount: 1,
         colonyHomeCount: 10,
@@ -134,7 +134,7 @@ const Themes = {
         backgroundColor: "#7b46a1",
     },
     Underground: {
-        antCount: 5001,
+        antCount: 50010,
 
         colonyCount: 1,
         colonyHomeCount: 2,
@@ -151,7 +151,7 @@ const Themes = {
         backgroundColor: "#fff",
     },
     Bricks: {
-        antCount: 1293,
+        antCount: 12930,
 
         colonyCount: 1,
         colonyHomeCount: 1,
@@ -167,7 +167,7 @@ const Themes = {
         backgroundColor: "#339BF2",
     },
     Underwater: {
-        antCount: 3494,
+        antCount: 34940,
 
         colonyCount: 1,
         colonyHomeCount: 1,
@@ -186,7 +186,7 @@ const Themes = {
     },
     PathFinding: {},
     RANDOM: {
-        antCount: randomInt(1000, 5000),
+        antCount: randomExp(1000, 50000),
 
         colonyCount: randomInt(1, 4),
         colonyHomeCount: randomInt(1, 10),

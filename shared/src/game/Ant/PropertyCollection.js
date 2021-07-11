@@ -1,4 +1,5 @@
 const { add, clip } = require("../../lib/basic_math")
+const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 const Ant = require("./Ant")
@@ -77,31 +78,39 @@ module.exports = class PropertyCollection extends GameObject {
         })
     }
 
-    render({ ctx, extraTime }) {
-        let width = ctx.canvas.width
-        var bitmap = ctx.bitmap
-        const colorCache = {}
+    render({ profiler, ctx, extraTime }) {
+        profiler = profiler || new NullProfiler()
+        directPixelManipulation(ctx, (ctx) => {
+            profiler.tick("render : canvasAnt prepare")
+            var bitmap = ctx.bitmap
+            let width = ctx.canvas.width
+            const colorCache = {}
 
-        for (let i = 0; i < this.ants.length; i++) {
-            let ant = this.ants[i]
-            let color = ant.isCarryingFood() ? ant.foodColor : ant.color
-            let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
+            for (let i = 0; i < this.ants.length; i++) {
+                let ant = this.ants[i]
+                let color = ant.isCarryingFood() ? ant.foodColor : ant.color
+                let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
 
-            let { x, y } = ant.position
-            // x = ~~(x)
-            // y = ~~(y)
+                let { x, y } = ant.position
 
-            // interpolate to predict transitting position
-            let dSpeed = extraTime * this.world.deltaT * ant.speed
-            x = ~~clip(x + dSpeed * ant.rotationCos, 0, this.world.width - 1)
-            y = ~~clip(y + dSpeed * ant.rotationSin, 0, this.world.height - 1)
-            let offset = (x + y * width) * 4
+                // interpolate to predict transitting position
+                let dSpeed = extraTime * this.world.deltaT * ant.speed
+                x = x + dSpeed * ant.rotationCos
+                y = y + dSpeed * ant.rotationSin
 
-            bitmap[offset] = colorArr[0]
-            bitmap[offset + 1] = colorArr[1]
-            bitmap[offset + 2] = colorArr[2]
-            bitmap[offset + 3] = colorArr[3]
-        }
+                //     ctx.fillStyle = color
+                //     ctx.fillRect(x, y, 1, 1)
+                // }
+                x = clip(Math.round(x), 0, this.world.width - 1)
+                y = clip(Math.round(y), 0, this.world.height - 1)
+                let offset = (x + y * width) * 4
+                bitmap[offset] = colorArr[0]
+                bitmap[offset + 1] = colorArr[1]
+                bitmap[offset + 2] = colorArr[2]
+                bitmap[offset + 3] = colorArr[3]
+            }
+        }, false, true)
+        profiler.tick("render : canvasAnt post")
     }
 
     serializableKeys() {

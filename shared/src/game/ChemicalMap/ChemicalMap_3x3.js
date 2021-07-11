@@ -16,7 +16,8 @@ module.exports = class ChemicalMap3x3 extends ChemicalMapBase {
                 x = 0
                 y++
             }
-            if (!wall.allowPoint({ x, y })) {
+            if (!wall.allowPoint({ x: x * this.scale, y: y * this.scale }) ||
+                !wall.allowPoint({ x: x * this.scale + this.scale, y: y * this.scale + this.scale })) {
                 result[i] = 0
             } else if (x === 0) {
                 result[i] = (arr[i] + arr[i + 1]) / 2 * evaporate
@@ -37,7 +38,7 @@ module.exports = class ChemicalMap3x3 extends ChemicalMapBase {
                 y++
             }
 
-            if (wall.allowPoint({ x, y })) {
+            if (wall.allowPoint({ x: x * this.scale, y: y * this.scale })) {
                 if (y === 0) {
                     result[i] = (result[i] + result[i + width]) / 2
                 } else if (y === height - 1) {

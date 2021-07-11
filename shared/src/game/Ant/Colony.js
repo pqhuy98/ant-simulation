@@ -6,20 +6,20 @@ const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { NullProfiler } = require("../../lib/performance")
 
 module.exports = class Colony extends GameObject {
-    constructor({ world, capacity, color }) {
+    constructor({ world, capacity, antColor, homeColor, homeCount }) {
         super(world)
         this.pc = new PropertyCollection({ world, colony: this, capacity })
         this.home = new Home({
             world, colony: this,
             width: world.width, height: world.height,
-            color, entranceCount: 1
+            color: homeColor, homeCount: homeCount
         })
         this.homeTrail = new ChemicalMap3x3({
             world, name: "home",
             width: world.width, height: world.height,
-            color, evaporate: 0.995,
+            color: homeColor, evaporate: 0.995,
         })
-        this.color = color
+        this.color = antColor
         this.capacity = capacity
         this.storedFood = 0
         this.pickedFood = 0
@@ -46,25 +46,23 @@ module.exports = class Colony extends GameObject {
 
     gameLoop(profiler) {
         this.spawnAntsIfPossible()
+        profiler.tick("gameLoop : colonies.spawnAntsIfPossible")
 
         this.home.gameLoop()
-        this.homeTrail.gameLoop({})
+        profiler.tick("gameLoop : colonies.home")
 
-        profiler.tick("gameLoop : home trail")
+        this.homeTrail.gameLoop({})
+        profiler.tick("gameLoop : colonies.homeTrail")
+
         this.pc.gameLoop(profiler)
+        profiler.tick("gameLoop : colonies.pc")
     }
 
     render({ profiler, extraTime, ctxAnt, ctxHomeTrail, ctxHome }) {
         profiler = profiler || new NullProfiler()
         // render ants
-        ctxAnt.clearRea
-        directPixelManipulation(ctxAnt, (ctxAnt) => {
-            profiler.tick("render : canvasAnt prepare")
-
-            this.pc.render({ ctx: ctxAnt, extraTime })
-            profiler.tick("render : ants")
-        }, false, true)
-        profiler.tick("render : canvasAnt post")
+        this.pc.render({ profiler, ctx: ctxAnt, extraTime })
+        profiler.tick("render : ants")
 
         // render home trail
         if (!ctxHomeTrail) return

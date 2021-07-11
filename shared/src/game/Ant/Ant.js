@@ -1,4 +1,4 @@
-const { add, mul } = require("../../lib/basic_math")
+const { add, mul, sinApprox, cosApprox } = require("../../lib/basic_math")
 const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 
@@ -88,8 +88,8 @@ module.exports = class Ant extends GameObject {
         // profiler.tick("ant.think")
         this.releaseChemicals()
         // profiler.tick("ant.releaseChemical")
-        this.rotationCos = Math.cos(this.rotation)
-        this.rotationSin = Math.sin(this.rotation)
+        this.rotationCos = cosApprox(this.rotation)
+        this.rotationSin = sinApprox(this.rotation)
         // profiler.tick("ant.rotationSinCos")
     }
 
@@ -119,12 +119,12 @@ module.exports = class Ant extends GameObject {
 
         // sampled lines of sight
         // let deviant = 2 * Math.PI / 3
-        let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 3)
+        let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 7)
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]
-        let degCos = degs.map(d => Math.cos(d))
-        let degSin = degs.map(d => Math.sin(d))
+        let degCos = degs.map(d => cosApprox(d))
+        let degSin = degs.map(d => sinApprox(d))
         // find destination within vision
         for (let i = 0; i < degs.length; i++) {
             let pos = dest.has(
@@ -133,16 +133,15 @@ module.exports = class Ant extends GameObject {
                 vision
             )
             if (pos) {
-                return Math.atan2(pos[1] - y, pos[0] - x)
+                return Math.atan2(pos.y - y, pos.x - x)
             }
         }
 
         // No destination saw, use trail
         let vals = degs.map((_, i) => trail.sum(
-            x + degCos[i] * vision,
-            y + degSin[i] * vision,
+            x + degCos[i] * vision * this.world.trailScale,
+            y + degSin[i] * vision * this.world.trailScale,
             vision,
-            this._id
         ))
 
         return this.decide(degs, vals)
@@ -152,16 +151,14 @@ module.exports = class Ant extends GameObject {
         let deltaT = this.world.deltaT
         // move forward
         let oldPos = this.position
-        this.position = add(
-            this.position,
-            mul(
-                { x: this.rotationCos, y: this.rotationSin },
-                this.speed * deltaT
-            )
-        )
         let { x, y } = this.position
-        x = ~~x
-        y = ~~y
+        this.position = {
+            x: x + this.rotationCos * this.speed * deltaT,
+            y: y + this.rotationSin * this.speed * deltaT
+        }
+
+        x = ~~this.position.x
+        y = ~~this.position.y
         let revert = false
         if (x <= 0 || x >= this.world.width - 1) {
             this.rotation = Math.PI - this.rotation
@@ -184,7 +181,7 @@ module.exports = class Ant extends GameObject {
             // search for very close food
             let foodPos = this.food.has(this.position.x, this.position.y, this.pickupRange)
             if (foodPos) {
-                this.food.take(foodPos[0], foodPos[1], 1)
+                this.food.take(foodPos.x, foodPos.y, 1)
                 this.colony.pickedFood++
                 this.carryingFood = this.carryingFood + 1
                 this.rotation = -this.rotation
@@ -210,10 +207,10 @@ module.exports = class Ant extends GameObject {
         let { x, y } = this.position
         if (this.isCarryingFood()) {
             this.foodTrail.put(x, y, 1 * this.freshness)
-            this.homeTrail.clean(x, y, 0.95)
+            this.homeTrail.clean(x, y, 0.995)
         } else {
             this.homeTrail.put(x, y, 1 * this.freshness)
-            this.foodTrail.clean(x, y, 0.85)
+            this.foodTrail.clean(x, y, 0.99)
         }
         this.freshness = this.freshness * this.freshnessDecay
     }

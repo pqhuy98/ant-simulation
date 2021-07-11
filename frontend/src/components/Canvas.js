@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useMemo } from "react"
 import PropTypes from "prop-types"
 
-export default function Canvas({ width, height, draw, homeTrailCount }) {
+export default function Canvas({ width, height, draw, homeTrailCount, trailScale }) {
     const refBackground = useRef(null)
     const refTrailFood = useRef(null)
     const refTrailHome = useMemo(() => {
@@ -13,6 +13,7 @@ export default function Canvas({ width, height, draw, homeTrailCount }) {
     const refAnt = useRef(null)
     const refFood = useRef(null)
     const refWall = useRef(null)
+    const refHome = useRef(null)
 
     useEffect(() => {
         const ctxs = {
@@ -22,6 +23,7 @@ export default function Canvas({ width, height, draw, homeTrailCount }) {
             ctxAnt: refAnt.current.getContext("2d"),
             ctxFood: refFood.current.getContext("2d"),
             ctxWall: refWall.current.getContext("2d"),
+            ctxHome: refHome.current.getContext("2d"),
         }
 
         // first draw after construction
@@ -36,7 +38,10 @@ export default function Canvas({ width, height, draw, homeTrailCount }) {
         return () => {
             window.cancelAnimationFrame(animationFrameId)
         }
-    }, [draw, homeTrailCount])
+    }, [draw, homeTrailCount, trailScale])
+
+    let trailWidth = ~~(width / trailScale)
+    let trailHeight = ~~(height / trailScale)
 
     return <div style={{
         width: window.innerWidth + "px",
@@ -44,13 +49,14 @@ export default function Canvas({ width, height, draw, homeTrailCount }) {
         ...style.container
     }} >
         <canvas style={{ ...style.canvas, zIndex: 1 }} ref={refBackground} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 2 }} ref={refTrailFood} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 2 }} ref={refTrailFood} width={trailWidth} height={trailHeight} />
         {Array(homeTrailCount).fill(0).map((_, i) =>
-            <canvas key={i} style={{ ...style.canvas, zIndex: 3 }} ref={refTrailHome[i]} width={width} height={height} />
+            <canvas key={i} ref={refTrailHome[i]} style={{ ...style.canvas, zIndex: 3 }} width={trailWidth} height={trailHeight} />
         )}
         <canvas style={{ ...style.canvas, zIndex: 4 }} ref={refAnt} width={width} height={height} />
         <canvas style={{ ...style.canvas, zIndex: 5 }} ref={refFood} width={width} height={height} />
-        <canvas style={{ ...style.canvas, zIndex: 6 }} ref={refWall} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 6 }} ref={refHome} width={width} height={height} />
+        <canvas style={{ ...style.canvas, zIndex: 7 }} ref={refWall} width={width} height={height} />
     </div>
 }
 Canvas.propTypes = {
@@ -58,6 +64,7 @@ Canvas.propTypes = {
     height: PropTypes.number,
     draw: PropTypes.func,
     homeTrailCount: PropTypes.number,
+    trailScale: PropTypes.number,
 }
 
 const style = {

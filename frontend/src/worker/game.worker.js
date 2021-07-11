@@ -8,19 +8,18 @@ import { Profiler } from "antworld-shared/src/lib/performance"
 
 const scale = 2
 class GameWorker {
-    constructor({ theme, width, height }) {
+    constructor({ theme, width, height, trailScale }) {
         this.world = new World({
-            width,
-            height,
+            width, height, trailScale,
             specs: {
                 ...theme,
                 // ...DevelopmentThemes.Tiny,
                 antSpeedMin: 20 * scale,
                 antSpeedMax: 40 * scale,
-                antCount: 30000,
+                // antCount: 50000,
             },
             rng: freshRNG(),
-            postProcessFn: null
+            postProcessFn: null,
         })
         this.package = {
             data: null,

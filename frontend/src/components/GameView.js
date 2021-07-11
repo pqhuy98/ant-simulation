@@ -16,7 +16,8 @@ const GameWorker = Comlink.wrap(RawGameWorker())
 
 let cycleTimer = new Timer()
 
-export default function GameView({ theme, width, height }) {
+var _t = performance.now()
+export default function GameView({ theme, width, height, trailScale }) {
     const [fps, setFps] = useState(0)
     const fpsCalculator = useMemo(() => new FpsCalculator({
         onTick: (fpsValue) => setFps(fpsValue)
@@ -27,19 +28,24 @@ export default function GameView({ theme, width, height }) {
         onTick: (fpsValue) => setWorkerFps(fpsValue)
     }), [])
 
+    const [savedProfiler, setSavedProfiler] = useState("")
+
 
     // https://stackoverflow.com/a/66071205
     const gameWorker = useAsyncMemo(async () => {
-        let worker = await new GameWorker({ theme, width, height })
+        let worker = await new GameWorker({ theme, width, height, trailScale })
         return () => worker
-    }, [width, height, theme])
+    }, [width, height, theme, trailScale])
 
     const worldRef = useWorldRefFromGameWorker({
         gameWorker,
         postIteration: ({ profiler }) => {
             workerFpsCalculator?.tick()
             false && cycleTimer?.tick()
-            false && console.log(profiler)
+            if (performance.now() - _t > 2000) {
+                _t = performance.now()
+                setSavedProfiler(profiler)
+            }
         }
     })
 
@@ -54,6 +60,10 @@ export default function GameView({ theme, width, height }) {
     const draw = useMemo(() => (...args) => renderer.render(...args), [])
 
     let world = worldRef.current
+
+    let profileJson = JSON.stringify(savedProfiler, null, 2)
+    profileJson = profileJson.substring(2, profileJson.length - 1)
+
     // Resize detection
     return <div style={style.container}>
         <Header>
@@ -67,6 +77,7 @@ export default function GameView({ theme, width, height }) {
             height={height}
             draw={draw}
             homeTrailCount={world?.colonies.length}
+            trailScale={world?.trailScale}
         />
         <div style={style.infoContainer}>
             <table style={style.table}><tbody>
@@ -87,6 +98,13 @@ export default function GameView({ theme, width, height }) {
                     <td style={style.rightCell}> {world?.pickedFood}</td>
                 </tr>
             </tbody></table>
+            <pre style={{
+                textAlign: "left", width: "400px",
+                margin: "auto",
+                marginLeft: "10px",
+            }}>
+                {profileJson}
+            </pre>
         </div>
     </div >
 }
@@ -95,6 +113,7 @@ GameView.propTypes = {
     theme: PropTypes.object,
     width: PropTypes.number,
     height: PropTypes.number,
+    trailScale: PropTypes.number,
 }
 
 const style = {
