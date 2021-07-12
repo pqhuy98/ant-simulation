@@ -3,9 +3,10 @@ import {
     BrowserRouter as Router,
     Redirect,
 } from "react-router-dom"
-import React from "react"
+import React, { useEffect } from "react"
 import GameView from "./components/GameView"
 import { Themes } from "antworld-shared/src/game/Themes"
+// import wasmWorker from "wasm-worker"
 
 function App() {
     let trailScale = 3
@@ -14,6 +15,14 @@ function App() {
     if (w % trailScale !== 0 || h % trailScale !== 0) {
         throw new Error("Width (" + w + ") and height (" + h + ") must be divisible by " + trailScale)
     }
+    useEffect(async () => {
+        const promise = await import("./wasm/main.wasm")
+        console.log(promise)
+        console.log(promise.formatJSON(JSON.stringify({
+            a: 1, b: "a",
+        })))
+    }, [])
+
     return <Router>
         <Switch>
             <Route exact path="/">
