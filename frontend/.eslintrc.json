@@ -6,7 +6,7 @@
         "es2021": true,
         "jest/globals": true
     },
-    "ignorePatterns": ["src/vendors/*"],
+    "ignorePatterns": ["src/vendors/*", "src/wasm/*"],
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",

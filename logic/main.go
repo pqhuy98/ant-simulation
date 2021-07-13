@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"syscall/js"
 )
+
+var cnt = 0
 
 func prettyJson(input string) (string, error) {
 	var raw interface{}
@@ -15,7 +18,8 @@ func prettyJson(input string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(pretty), nil
+	cnt = cnt + 1
+	return string(pretty) + strconv.Itoa(cnt), nil
 }
 
 func jsonWrapper() js.Func {
@@ -38,5 +42,5 @@ func jsonWrapper() js.Func {
 func main() {
 	fmt.Println("Go Web Assembly")
 	js.Global().Set("formatJSON", jsonWrapper())
-	// <-make(chan bool)
+	<-make(chan bool)
 }

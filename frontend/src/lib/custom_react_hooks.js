@@ -8,11 +8,9 @@ export function useAsyncMemo(factory, deps, initial = undefined) {
     useEffect(() => {
         let cancel = false
         const promise = factory()
-        console.log(promise)
         if (promise === undefined || promise === null) return
         promise.then((res) => {
             if (!cancel) {
-                console.log(res)
                 setVal(res)
             }
         })
@@ -32,12 +30,10 @@ export function useForceUpdate() {
     })
 }
 
-
 export function useWorldRefFromGameWorker({ gameWorker, postIteration }) {
     const worldRef = useRef(null)
     useEffect(() => {
         let canceled = false
-        console.log("useWorldRefFromGameWorker")
         run()
         async function run() {
             while (!canceled && gameWorker) {
@@ -66,3 +62,27 @@ export function useWorldRefFromGameWorker({ gameWorker, postIteration }) {
     }, [gameWorker])
     return worldRef
 }
+
+export function useGlobalFunction(funcName) {
+    const [fn, setFn] = useState(undefined)
+    useEffect(() => {
+        let canceled = false
+        watch()
+        async function watch() {
+            while (!canceled) {
+                if (global[funcName] !== undefined) {
+                    canceled = true
+                    setFn(() => global[funcName])
+                } else {
+                    await sleep(200)
+                }
+            }
+        }
+        return () => {
+            canceled = true
+        }
+    }, [funcName])
+    return fn
+}
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)) }
