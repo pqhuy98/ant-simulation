@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"syscall/js"
+
+	Game "github.com/pqhuy98/antworld-logic/game"
 )
 
 var cnt = 0
@@ -42,5 +44,6 @@ func jsonWrapper() js.Func {
 func main() {
 	fmt.Println("Go Web Assembly")
 	js.Global().Set("formatJSON", jsonWrapper())
+	js.Global().Set("sum", Game.Sum)
 	<-make(chan bool)
 }

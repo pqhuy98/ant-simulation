@@ -53,6 +53,7 @@ export function GithubLink() {
 const style = {
     header: {
         padding: "13px",
+        left: "10px",
     },
     link: {
         color: "white",
@@ -68,6 +69,5 @@ const style = {
     githubLink: {
         color: "white",
         padding: "10px",
-        marginLeft: "100px",
     }
 }

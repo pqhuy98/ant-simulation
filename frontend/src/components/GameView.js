@@ -68,8 +68,8 @@ export default function GameView({ theme, width, height, trailScale }) {
         <Header>
             <ThemeLinks />
             <GithubLink />
-            <FpsDisplay text="wf" fpsValue={workerFps} right="100px" />
-            <FpsDisplay text="FPS" fpsValue={fps} right="20px" />
+            {/* <FpsDisplay text="wf" fpsValue={workerFps} right="100px" /> */}
+            <FpsDisplay text="FPS" fpsValue={fps + "/" + workerFps} right="20px" />
         </Header>
         <Canvas
             width={width}

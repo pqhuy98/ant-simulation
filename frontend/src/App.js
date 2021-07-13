@@ -10,19 +10,22 @@ import { Themes } from "antworld-shared/src/game/Themes"
 import { useGlobalFunction } from "lib/custom_react_hooks"
 
 function App() {
-    let trailScale = 3
-    let w = 1620
-    let h = (~~(w / 3 / trailScale)) * trailScale
+    let trailScale = 2
+    let w = 1200
+    let h = (~~(w / 2.6 / trailScale)) * trailScale
     if (w % trailScale !== 0 || h % trailScale !== 0) {
         throw new Error("Width (" + w + ") and height (" + h + ") must be divisible by " + trailScale)
     }
     useEffect(async () => {
         const go = new Go()
-        let { instance } = await WebAssembly.instantiateStreaming(fetch("wasm/main.wasm"), go.importObject)
+        let { instance } = await WebAssembly.instantiateStreaming(
+            fetch("wasm/main.wasm", { cache: "no-cache" }),
+            go.importObject
+        )
         await go.run(instance)
     }, [])
-    const formatJSON = useGlobalFunction("formatJSON")
-    console.log(formatJSON && formatJSON(JSON.stringify({ a: 1 })))
+    const sum = useGlobalFunction("sum")
+    console.log(sum && sum([new Uint8Array([1, 2, 3]), new Uint8Array([1, 10, 100])]))
 
     return <Router>
         <Switch>

@@ -31,7 +31,7 @@ module.exports = class Colony extends GameObject {
     canSpawnMoreAnts() {
         return (this.ants.length < 100) || (
             this.ants.length < this.capacity &&
-            this.ants.length * 0.1 < this.storedFood
+            this.ants.length * 0.5 < this.storedFood
         )
     }
 

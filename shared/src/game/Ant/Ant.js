@@ -130,7 +130,7 @@ module.exports = class Ant extends GameObject {
             let pos = dest.has(
                 x + degCos[i] * vision * this.world.trailScale,
                 y + degSin[i] * vision * this.world.trailScale,
-                (dest === this.home ? vision * 4 : vision)
+                (dest === this.home ? vision * 20 : vision)
             )
             if (pos) {
                 return Math.atan2(pos.y - y, pos.x - x)
@@ -206,10 +206,10 @@ module.exports = class Ant extends GameObject {
     releaseChemicals() {
         let { x, y } = this.position
         if (this.isCarryingFood()) {
-            this.foodTrail.put(x, y, 5 * this.freshness)
+            this.foodTrail.put(x, y, 1 * this.freshness)
             this.homeTrail.clean(x, y, 0.995)
         } else {
-            this.homeTrail.put(x, y, 5 * this.freshness)
+            this.homeTrail.put(x, y, 1 * this.freshness)
             this.foodTrail.clean(x, y, 0.96)
         }
         this.freshness = this.freshness * this.freshnessDecay

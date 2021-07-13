@@ -6,7 +6,9 @@ import * as Comlink from "comlink"
 import { Profiler } from "antworld-shared/src/lib/performance"
 // import { GameObject } from "antworld-shared/src/game/GameObject"
 
-const scale = 3
+const speedScale = 4
+const FPS_LIMIT = 10
+var lastT = performance.now()
 class GameWorker {
     constructor({ theme, width, height, trailScale }) {
         this.world = new World({
@@ -14,8 +16,8 @@ class GameWorker {
             specs: {
                 ...theme,
                 // ...DevelopmentThemes.Tiny,
-                antSpeedMin: 20 * scale,
-                antSpeedMax: 40 * scale,
+                antSpeedMin: 20 * speedScale,
+                antSpeedMax: 40 * speedScale,
                 // antCount: 50000,
             },
             rng: freshRNG(),
@@ -27,8 +29,14 @@ class GameWorker {
         }
     }
 
-    nextAndGetFullState() {
+    async nextAndGetFullState() {
         this.next()
+        let expectedT = 1000 / FPS_LIMIT
+        let remainingT = expectedT - (performance.now() - lastT)
+        if (remainingT > 0) {
+            await sleep(remainingT)
+        }
+        lastT = performance.now()
         return Comlink.transfer(this.package.data, this.package.transferables)
     }
 
@@ -46,6 +54,10 @@ class GameWorker {
             transferables: encap.transferables
         }
     }
+}
+
+function sleep(time) {
+    return new Promise((resolve) => setTimeout(resolve, time))
 }
 
 Comlink.expose(GameWorker)
