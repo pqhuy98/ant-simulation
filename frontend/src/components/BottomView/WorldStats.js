@@ -1,8 +1,12 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-export default function WorldStats({ totalAnts, storedFood, unpickedFood, pickedFood }) {
+export default function WorldStats({ width, height, totalAnts, storedFood, unpickedFood, pickedFood }) {
     return (<table style={styles.table}><tbody>
+        <tr>
+            <td style={styles.leftCell}>World size:</td>
+            <td style={styles.rightCell}> {width}×{height} </td>
+        </tr>
         <tr>
             <td style={styles.leftCell}>Ant population:</td>
             <td style={styles.rightCell}> {totalAnts}</td>
@@ -22,6 +26,8 @@ export default function WorldStats({ totalAnts, storedFood, unpickedFood, picked
     </tbody></table>)
 }
 WorldStats.propTypes = {
+    width: PropTypes.number,
+    height: PropTypes.number,
     totalAnts: PropTypes.number,
     storedFood: PropTypes.number,
     unpickedFood: PropTypes.number,

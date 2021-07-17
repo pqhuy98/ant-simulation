@@ -6,8 +6,9 @@ import ControlPanel from "./ControlPanel"
 
 export default function BottomView({ world, profiler, renderFilters, renderFilterSetters }) {
     return (<div style={styles.container}>
-        <ControlPanel {...renderFilters} renderFilterSetters={renderFilterSetters} />
+        <ControlPanel filters={renderFilters} renderFilterSetters={renderFilterSetters} />
         <WorldStats
+            width={world?.width} height={world?.height}
             totalAnts={world?.totalAnts}
             storedFood={world?.storedFood}
             unpickedFood={world?.unpickedFood}

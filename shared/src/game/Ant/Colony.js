@@ -4,6 +4,7 @@ const Home = require("./Home")
 const { GameObject } = require("../GameObject")
 const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { NullProfiler } = require("../../lib/performance")
+const ChemicalMap2x2 = require("../ChemicalMap/ChemicalMap_2x2")
 
 module.exports = class Colony extends GameObject {
     constructor({ world, capacity, antColor, homeColor, homeCount }) {
@@ -15,7 +16,8 @@ module.exports = class Colony extends GameObject {
             width: world.width, height: world.height,
             color: homeColor, homeCount: homeCount
         })
-        this.homeTrail = new ChemicalMap3x3({
+        let CM = this.r.pickRandom([ChemicalMap2x2, ChemicalMap3x3])
+        this.homeTrail = new CM({
             world, name: "home",
             width: world.width, height: world.height,
             color: homeColor, evaporate: 0.995,
@@ -56,7 +58,7 @@ module.exports = class Colony extends GameObject {
         profiler.tick("gameLoop::colonies.homeTrail")
 
         this.pc.gameLoop(profiler)
-        profiler.tick("gameLoop::colonies.pc")
+        profiler.tick("gameLoop::colonies.ants")
     }
 
     render({ profiler, extraTime, ctxAnt, ctxHomeTrail, ctxHome }) {

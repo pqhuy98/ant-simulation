@@ -37,7 +37,6 @@ class Serializer {
         }
         if (testNdarray(node)) {
             let res = ndarray(new node.data.constructor(node.data), node.shape, node.stride)
-            // @ts-ignore
             this.transferables.push(res.data.buffer)
             return res
         }
@@ -51,7 +50,6 @@ class Serializer {
         let keys
         if (node instanceof GameObject) {
             this.objMap[node._id] = 1 // mark as visited, use 1 as a "temporary value"
-            // @ts-ignore
             result = node.constructor.createNull()
             keys = node.serializableKeys()
         } else {
@@ -101,7 +99,7 @@ class Deserializer {
             this.deserialize(node[key])
         }
         if (node instanceof GameObject) {
-            node.postDeserialize()
+            node.postConstruct()
         }
     }
 

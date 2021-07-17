@@ -1,4 +1,3 @@
-// @ts-nocheck
 const { getRGB } = require("../../lib/color")
 const ChemicalMapBase = require("./ChemicalMap_base")
 

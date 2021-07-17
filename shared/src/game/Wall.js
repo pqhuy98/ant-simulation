@@ -46,6 +46,7 @@ module.exports = class Wall extends GameObject {
 
     render(ctx) {
         if (this.renderIsDisabled()) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             return
         }
         if (this.disabled) return
@@ -70,10 +71,9 @@ module.exports = class Wall extends GameObject {
 function generate({ width, height, scale, border, rng }) {
     let scaledWidth = ~~(width / scale)
     let scaledHeight = ~~(height / scale)
-    // @ts-ignore
     let grid = ndarray(new Uint8Array(scaledWidth * scaledHeight), [scaledWidth, scaledHeight])
     let iterate = cave(grid, {
-        density: rng.randomExp(0.4, 0.47),
+        density: rng.randomExp(0.4, 0.46),
         threshold: 5,
         hood: 1,
         fill: true,

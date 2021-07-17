@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useRef, useEffect, useMemo } from "react"
 import PropTypes from "prop-types"
 

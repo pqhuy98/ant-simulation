@@ -64,7 +64,6 @@ function isTypedArray(a) {
     return !!(a.buffer instanceof ArrayBuffer && a.BYTES_PER_ELEMENT);
 }
 
-// @ts-ignore
 const typeson = new Typeson().register([
     require('typeson-registry/dist/presets/socketio')
 ]).register({

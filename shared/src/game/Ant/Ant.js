@@ -129,7 +129,7 @@ module.exports = class Ant extends GameObject {
 
         // sampled lines of sight
         // let deviant = 2 * Math.PI / 3
-        let deviant = this.r.randomFloat(Math.PI / 2, Math.PI / 3)
+        let deviant = this.r.randomFloat(Math.PI / 3, Math.PI / 4)
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]

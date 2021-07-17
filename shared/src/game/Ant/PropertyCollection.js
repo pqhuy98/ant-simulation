@@ -75,7 +75,7 @@ module.exports = class PropertyCollection extends GameObject {
         return Object.keys(this).filter(k => k !== "ants")
     }
 
-    postDeserialize() {
+    postConstruct() {
         this.ants = []
         for (let id = 0; id < this.currentId; id++) {
             this.ants.push(Ant.reviveAnt({

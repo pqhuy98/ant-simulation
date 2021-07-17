@@ -1,4 +1,5 @@
 const { Profiler } = require("antworld-shared/src/lib/performance")
+const World = require("antworld-shared/src/game/World")
 
 module.exports = class Renderer {
     constructor({ worldRef, renderFiltersRef, postRender }) {
@@ -44,19 +45,13 @@ module.exports = class Renderer {
     }
 
     buildFilterSetters() {
-        return {
-            wall: (val) => {
-                this.renderFiltersRef.current.wall = val
-            },
-            food: (val) => {
-                this.renderFiltersRef.current.food = val
-            },
-            antsToFood: (val) => {
-                this.renderFiltersRef.current.antsToFood = val
-            },
-            antsToHome: (val) => {
-                this.renderFiltersRef.current.antsToHome = val
-            },
+        let defaultFilters = World.defaultRenderFilters()
+        let setters = {}
+        for (const key in defaultFilters) {
+            setters[key] = (val) => {
+                this.renderFiltersRef.current[key] = val
+            }
         }
+        return setters
     }
 }

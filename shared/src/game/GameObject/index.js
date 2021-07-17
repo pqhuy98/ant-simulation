@@ -18,7 +18,7 @@ class GameObject {
         return Object.keys(this)
     }
 
-    postDeserialize() { }
+    postConstruct() { }
 
     static isGameObject(obj) {
         return "_id" in Object(obj)

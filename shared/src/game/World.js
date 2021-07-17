@@ -44,11 +44,12 @@ class World extends GameObject {
         })
 
         // Food
-        this.foodTrail = new ChemicalMap3x3({
+        let CM = this.r.pickRandom([ChemicalMap2x2, ChemicalMap3x3])
+        this.foodTrail = new CM({
             world: this, name: "food",
             width, height,
             color: specs.foodColor,
-            evaporate: 0.8
+            evaporate: 0.9
         })
         this.food = new Food({
             world: this,
@@ -136,6 +137,7 @@ class World extends GameObject {
         profiler, step, extraTime,
         ctxBackground, ctxFoodTrail, ctxHomeTrail, ctxAnt, ctxHome, ctxFood, ctxWall
     }) {
+        extraTime = Math.min(1, extraTime)
         profiler = profiler || new NullProfiler()
 
         // render background
@@ -145,6 +147,7 @@ class World extends GameObject {
 
         // render ant colony
         ctxAnt.clearRect(0, 0, ctxAnt.canvas.width, ctxAnt.canvas.height)
+        ctxHome.clearRect(0, 0, ctxAnt.canvas.width, ctxAnt.canvas.height)
         delete ctxAnt.bitmap
         this.colonies.forEach((colony, i) => {
             colony.render({
@@ -171,6 +174,7 @@ class World extends GameObject {
             antsToFood: false,
             food: false,
             wall: false,
+            home: false,
         }
     }
 }

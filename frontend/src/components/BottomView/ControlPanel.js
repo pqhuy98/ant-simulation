@@ -1,9 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-export default function ControlPanel({ renderFilterSetters, ...filters }) {
-    // const [filterSettings, setFilterSettings] = React.useState({ ...filters });
-
+export default function ControlPanel({ renderFilterSetters, filters }) {
     return (<div style={styles.container}>
         {Object.keys(filters).map((filterName) => {
             return <label key={filterName}>
@@ -21,6 +19,7 @@ export default function ControlPanel({ renderFilterSetters, ...filters }) {
 }
 ControlPanel.propTypes = {
     renderFilterSetters: PropTypes.object,
+    filters: PropTypes.object,
 }
 
 const styles = {

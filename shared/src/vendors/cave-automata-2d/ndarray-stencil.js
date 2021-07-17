@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use strict"
 
 var dup = require("./dup")
@@ -21,7 +20,6 @@ function generateCWiseLoop(n, d, func, options) {
     body_args.unshift("func")
 
     var loop = cwise({
-        // @ts-ignore
         args: args,
         body: Function.apply(undefined, body_args),
         funcName: "StencilOp"

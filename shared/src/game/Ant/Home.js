@@ -7,7 +7,7 @@ module.exports = class Home extends GameObject {
         this.width = width
         this.height = height
         this.locations = []
-        this.size = 10
+        this.size = 7
         this.color = color
         let _cnt = 1000
         while (this.locations.length < homeCount && _cnt-- > 0) {
@@ -23,14 +23,15 @@ module.exports = class Home extends GameObject {
     }
 
     gameLoop() {
-        let radius = this.size + 2
+        let radius = this.size + 1
         this.locations.forEach((loc) => {
             let { x: xc, y: yc } = loc
             for (let x = xc - radius; x < xc + radius; x++) {
                 let yspan = radius * Math.sin(Math.acos((xc - x) / radius))
                 for (let y = yc - yspan; y < yc + yspan; y++) {
                     if (x < 0 || x > this.width || y < 0 || y > this.height) continue
-                    this.colony.homeTrail.put(x, y, 3)
+                    let ratio = (((x - xc) * (x - xc) + (y - yc) * (y - yc)) / (radius * radius))
+                    this.colony.homeTrail.put(x, y, ratio * 1)
                 }
             }
         })
@@ -59,10 +60,11 @@ module.exports = class Home extends GameObject {
     }
 
     render(ctx) {
+        if (this.renderIsDisabled()) return
         this.locations.forEach((loc, i) => {
-            if (this.renderIsDisabled()) return
             ctx.beginPath()
             ctx.arc(loc.x, loc.y, this.size, 0, 2 * Math.PI, false)
+            ctx.strokeStyle = "black"
             ctx.fillStyle = this.color
             ctx.fill()
             ctx.stroke()

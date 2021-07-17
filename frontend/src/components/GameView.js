@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useMemo, useRef, useState } from "react"
 import PropTypes from "prop-types"
 import Canvas from "./Canvas"
@@ -62,7 +61,7 @@ export default function GameView({ theme, width, height, trailScale }) {
     }), [worldRef, renderFiltersRef])
     const draw = useMemo(() => (...args) => renderer.render(...args), [])
 
-    const renderFilterSetters = renderer.buildFilterSetters(renderFiltersRef)
+    const renderFilterSetters = useMemo(() => renderer.buildFilterSetters(renderFiltersRef), [renderer, renderFiltersRef])
     let world = worldRef.current
 
     return <div style={styles.container}>

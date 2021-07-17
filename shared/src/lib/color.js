@@ -39,7 +39,6 @@ exports.getRGB = function (color) {
             "0x" + h[2] + h[2],
             "0x" + h[3] + h[3],
             255,
-            // @ts-ignore
         ].map(value => parseInt(value))
     } else if (h.length == 7) {
         // 6 digits
@@ -48,7 +47,6 @@ exports.getRGB = function (color) {
             "0x" + h[3] + h[4],
             "0x" + h[5] + h[6],
             255,
-            // @ts-ignore
         ].map(value => parseInt(value))
     }
 }

@@ -19,7 +19,7 @@ class Food extends GameObject {
         this.clustersCount = clustersCount
         this.size = size
         this.capacity = capacity
-        this.color = color
+        this.color = getRGB(color)
         this.remaining = 0
         for (let i = 0; i < clustersCount; i++) {
             this.put(
@@ -29,6 +29,24 @@ class Food extends GameObject {
                 shape,
             )
         }
+
+        this.placeholder = null
+        this.postConstruct()
+    }
+
+    postConstruct() {
+        // Store [R, G, B, 0, R, G, B, 0, ...]
+        this.placeholder = new Uint8ClampedArray(4 * this.width * this.height)
+        for (let i = 0; i < this.placeholder.length; i += 4) {
+            this.placeholder[i] = this.color[0]
+            this.placeholder[i + 1] = this.color[1]
+            this.placeholder[i + 2] = this.color[2]
+            this.placeholder[i + 3] = this.color[3]
+        }
+    }
+
+    serializableKeys() {
+        return Object.keys(this).filter(k => k !== "placeholder")
     }
 
     preGameLoop() {
@@ -37,9 +55,14 @@ class Food extends GameObject {
     }
 
     gameLoop() {
+        this.remaining = 0
         for (let i = 0; i < this.rawMap.length; i++) {
             if (this.rawMap[i] > 0) {
-                this.world.foodTrail.putIdx(i, 1)
+                this.remaining += this.rawMap[i]
+                this.world.foodTrail.putIdx(i, 1.5)
+                if ((this.world.version + i) % 300 === 0) {
+                    this.rawMap[i]++
+                }
             }
         }
     }
@@ -64,7 +87,6 @@ class Food extends GameObject {
             let oldAmount = this.rawMap[i + j * this.width]
             let newAmount = ~~(this.r.random() * (max - min) + min)
             this.rawMap[i + j * this.width] = newAmount
-            this.remaining += newAmount - oldAmount
 
             this.putBuffer[i + j * this.width] = true
             this.takeBuffer[i + j * this.width] = false
@@ -75,7 +97,6 @@ class Food extends GameObject {
         x = ~~(x)
         y = ~~(y)
         this.rawMap[x + y * this.width] -= amount
-        this.remaining -= amount
 
         if (this.rawMap[x + y * this.width] <= 0) {
             this.putBuffer[x + y * this.width] = false
@@ -116,43 +137,31 @@ class Food extends GameObject {
 
     render({ profiler, ctx }) {
         if (this.renderIsDisabled()) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             return
         }
         directPixelManipulation(ctx, (ctx) => {
             profiler.tick("render : food prepare")
 
 
-            let colorFood = getRGB(this.color)
+            let colorFood = this.color
             let colorEmpty = [0, 0, 0, 0]
 
             let bitmap = ctx.bitmap
-            if (false && ctx.worldVersion + 1 === this.world.version) {
-                // only update 
-                for (const pos in this.putBuffer) {
-                    if (this.putBuffer[pos]) {
-                        bitmap.set(colorFood, parseInt(pos) * 4)
-                    }
-                }
-                for (const pos in this.takeBuffer) {
-                    if (this.takeBuffer[pos]) {
-                        bitmap.set(colorEmpty, parseInt(pos) * 4)
-                    }
-                }
-            } else if (false && ctx.worldVersion === this.world.version) {
-                // canvas is already up-to-date, do not render
+            if (!bitmap.foodPlaceholderSet) {
+                bitmap.set(this.placeholder, 0)
+                bitmap.foodPlaceholderSet = true
             }
-            else { // canvas is too out-of-date
+
+            if (ctx.worldVersion === this.world.version) {
+                // canvas is already up-to-date,do not render
+            } else {
+                // canvas is out-of-date
                 let pos = 0
                 for (let i = 0; i < this.rawMap.length; i++) {
                     if (this.rawMap[i] > 0) {
-                        bitmap[pos] = colorFood[0]
-                        bitmap[pos + 1] = colorFood[1]
-                        bitmap[pos + 2] = colorFood[2]
                         bitmap[pos + 3] = colorFood[3]
                     } else {
-                        bitmap[pos] = colorEmpty[0]
-                        bitmap[pos + 1] = colorEmpty[1]
-                        bitmap[pos + 2] = colorEmpty[2]
                         bitmap[pos + 3] = colorEmpty[3]
                     }
                     pos += 4

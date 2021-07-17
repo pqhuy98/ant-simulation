@@ -1,4 +1,3 @@
-// @ts-nocheck
 const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
@@ -26,11 +25,23 @@ module.exports = class ChemicalMapBase extends GameObject {
         this.color = getRGB(color)
         this.color[3] = 0
 
+        this.placeholder = null
+        this.postConstruct()
+    }
+
+    postConstruct() {
         // Store [R, G, B, 0, R, G, B, 0, ...]
         this.placeholder = new Uint8ClampedArray(4 * this.width * this.height)
         for (let i = 0; i < this.placeholder.length; i += 4) {
-            this.placeholder.set(this.color, i)
+            this.placeholder[i] = this.color[0]
+            this.placeholder[i + 1] = this.color[1]
+            this.placeholder[i + 2] = this.color[2]
+            this.placeholder[i + 3] = this.color[3]
         }
+    }
+
+    serializableKeys() {
+        return Object.keys(this).filter(k => k !== "placeholder")
     }
 
     gameLoop({ checkIsCovered }) {
@@ -61,7 +72,7 @@ module.exports = class ChemicalMapBase extends GameObject {
             if (data[i] >= valZeroThreshold) {
                 let val = (data[i] - this.min) / minMaxDiff
                 val = Math.exp(Math.log(val) * evaPow) // a^b = e^(log(a)*b)
-                val = ~~(val * 200) // quicker ~~
+                val = ~~(val * 255)
                 this.renderMap[i] = val
             } else {
                 this.renderMap[i] = 0
