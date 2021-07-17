@@ -1,4 +1,4 @@
-const { GameObject } = require("./GameObject")
+const { GameObject } = require("../GameObject")
 
 module.exports = class Home extends GameObject {
     constructor({ world, colony, width, height, homeCount, color }) {
@@ -30,7 +30,7 @@ module.exports = class Home extends GameObject {
                 let yspan = radius * Math.sin(Math.acos((xc - x) / radius))
                 for (let y = yc - yspan; y < yc + yspan; y++) {
                     if (x < 0 || x > this.width || y < 0 || y > this.height) continue
-                    this.colony.homeTrail.put(x, y, 1)
+                    this.colony.homeTrail.put(x, y, 3)
                 }
             }
         })
@@ -59,7 +59,8 @@ module.exports = class Home extends GameObject {
     }
 
     render(ctx) {
-        this.locations.forEach(loc => {
+        this.locations.forEach((loc, i) => {
+            if (this.renderIsDisabled()) return
             ctx.beginPath()
             ctx.arc(loc.x, loc.y, this.size, 0, 2 * Math.PI, false)
             ctx.fillStyle = this.color
@@ -67,4 +68,6 @@ module.exports = class Home extends GameObject {
             ctx.stroke()
         })
     }
+
+    renderIsDisabled() { return (this.world.disabledRenders.home) }
 }

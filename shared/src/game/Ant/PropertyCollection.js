@@ -4,6 +4,12 @@ const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 const Ant = require("./Ant")
 
+/**
+ * A collection class to store ants' atrributes in flatten JS TypedArrays.
+ * This allows super fast data serialization and data transfer between WebWorker and main thread.
+ * Without this class, it takes ~1000 ms to transfer 10000 ants.
+ * With this class, it only takes 5ms to transfer 100000 ants.
+ */
 module.exports = class PropertyCollection extends GameObject {
     constructor({ world, colony, capacity }) {
         super(world)
@@ -104,6 +110,11 @@ module.exports = class PropertyCollection extends GameObject {
 
             for (let i = 0; i < this.ants.length; i++) {
                 let ant = this.ants[i]
+
+                if (this.renderIsDisabled(ant)) {
+                    continue
+                }
+
                 let color = ant.isCarryingFood() ? ant.foodColor : ant.color
                 let colorArr = colorCache[color] || (colorCache[color] = getRGB(color))
 
@@ -127,5 +138,10 @@ module.exports = class PropertyCollection extends GameObject {
             }
         }, false, true)
         profiler.tick("render : ant post")
+    }
+
+    renderIsDisabled(ant) {
+        return (ant.isCarryingFood() && this.world.disabledRenders.antsToHome ||
+            !ant.isCarryingFood() && this.world.disabledRenders.antsToFood)
     }
 }

@@ -50,7 +50,7 @@ const Themes = {
         colonyCount: 1,
         antColor: "#F8F08B",
         homeColor: "#7F0B34",
-        antCount: 44810,
+        antCount: 24810,
 
         colonyHomeCount: 1,
 

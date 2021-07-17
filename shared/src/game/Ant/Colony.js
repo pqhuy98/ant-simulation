@@ -1,6 +1,6 @@
 const PropertyCollection = require("./PropertyCollection")
 const ChemicalMap3x3 = require("../ChemicalMap/ChemicalMap_3x3")
-const Home = require("../Home")
+const Home = require("./Home")
 const { GameObject } = require("../GameObject")
 const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { NullProfiler } = require("../../lib/performance")

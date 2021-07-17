@@ -127,6 +127,7 @@ module.exports = class ChemicalMapBase extends GameObject {
     sum(xc, yc, sz) {
         xc = ~~(xc / this.scale)
         yc = ~~(yc / this.scale)
+        sz = ~~(sz / this.scale)
         let res = 0
         for (let i = xc - sz + 1; i < xc + sz; i++) {
             if (i < 0 || i >= this.width) break

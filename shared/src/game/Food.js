@@ -115,6 +115,9 @@ class Food extends GameObject {
     }
 
     render({ profiler, ctx }) {
+        if (this.renderIsDisabled()) {
+            return
+        }
         directPixelManipulation(ctx, (ctx) => {
             profiler.tick("render : food prepare")
 
@@ -123,7 +126,7 @@ class Food extends GameObject {
             let colorEmpty = [0, 0, 0, 0]
 
             let bitmap = ctx.bitmap
-            if (ctx.worldVersion + 1 === this.world.version) {
+            if (false && ctx.worldVersion + 1 === this.world.version) {
                 // only update 
                 for (const pos in this.putBuffer) {
                     if (this.putBuffer[pos]) {
@@ -135,16 +138,24 @@ class Food extends GameObject {
                         bitmap.set(colorEmpty, parseInt(pos) * 4)
                     }
                 }
-            } else if (ctx.worldVersion === this.world.version) {
+            } else if (false && ctx.worldVersion === this.world.version) {
                 // canvas is already up-to-date, do not render
             }
             else { // canvas is too out-of-date
+                let pos = 0
                 for (let i = 0; i < this.rawMap.length; i++) {
                     if (this.rawMap[i] > 0) {
-                        bitmap.set(colorFood, i * 4)
+                        bitmap[pos] = colorFood[0]
+                        bitmap[pos + 1] = colorFood[1]
+                        bitmap[pos + 2] = colorFood[2]
+                        bitmap[pos + 3] = colorFood[3]
                     } else {
-                        bitmap.set(colorEmpty, i * 4)
+                        bitmap[pos] = colorEmpty[0]
+                        bitmap[pos + 1] = colorEmpty[1]
+                        bitmap[pos + 2] = colorEmpty[2]
+                        bitmap[pos + 3] = colorEmpty[3]
                     }
+                    pos += 4
                 }
             }
             ctx.worldVersion = this.world.version
@@ -152,6 +163,8 @@ class Food extends GameObject {
         }, false, true)
         profiler.tick("render : food post")
     }
+
+    renderIsDisabled() { return this.world.disabledRenders.food }
 
     randomShape() {
         return Shapes[this.r.randomInt(0, Shapes.length)]

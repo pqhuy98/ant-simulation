@@ -6,8 +6,8 @@ import * as Comlink from "comlink"
 import { Profiler } from "antworld-shared/src/lib/performance"
 // import { GameObject } from "antworld-shared/src/game/GameObject"
 
-const speedScale = 4
-const FPS_LIMIT = 10
+const speedScale = 3
+const FPS_LIMIT = 15
 var lastT = performance.now()
 class GameWorker {
     constructor({ theme, width, height, trailScale }) {
@@ -18,7 +18,7 @@ class GameWorker {
                 // ...DevelopmentThemes.Tiny,
                 antSpeedMin: 20 * speedScale,
                 antSpeedMax: 40 * speedScale,
-                // antCount: 50000,
+                antCount: theme.antCount / 1,
             },
             rng: freshRNG(),
             postProcessFn: null,

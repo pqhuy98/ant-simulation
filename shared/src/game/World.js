@@ -1,6 +1,5 @@
 const Ant = require("./Ant/Ant")
 const { Food } = require("./Food")
-const Home = require("./Home")
 const { directPixelManipulation } = require("../lib/canvas_optimizer")
 const { NullProfiler, Profiler } = require("../lib/performance")
 const Wall = require("./Wall")
@@ -30,6 +29,7 @@ class World extends GameObject {
         this.antSpeedMax = specs.antSpeedMax
         this.specs = specs
         this.trailScale = trailScale
+        this.disabledRenders = World.defaultRenderFilters()
 
         // Random
         this.r = rng || freshRNG()
@@ -73,6 +73,10 @@ class World extends GameObject {
                 homeCount: specs.colonyHomeCount,
             }))
         }
+    }
+
+    serializableKeys() {
+        return Object.keys(this).filter(k => k !== "disabledRenders")
     }
 
     get totalAnts() {
@@ -120,7 +124,7 @@ class World extends GameObject {
         // Wall
         this.wall.gameLoop()
         profiler.tick("gameLoop::wall")
-        profiler.put("total_gameLoop", profiler.elapse())
+        profiler.put("total", profiler.elapse())
 
         // trigger post process
         if (typeof this.postProcessFn === "function") {
@@ -159,6 +163,15 @@ class World extends GameObject {
         this.wall.render(ctxWall)
         profiler.tick("render : wall")
         profiler.put("total_render", profiler.elapse())
+    }
+
+    static defaultRenderFilters() {
+        return {
+            antsToHome: false,
+            antsToFood: false,
+            food: false,
+            wall: false,
+        }
     }
 }
 

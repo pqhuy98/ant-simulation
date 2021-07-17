@@ -45,6 +45,9 @@ module.exports = class Wall extends GameObject {
     }
 
     render(ctx) {
+        if (this.renderIsDisabled()) {
+            return
+        }
         if (this.disabled) return
         if (this.rendered) return; else this.rendered = true
         let img = new ImageData(this.width, this.height)
@@ -56,6 +59,8 @@ module.exports = class Wall extends GameObject {
         }
         ctx.putImageData(img, 0, 0)
     }
+
+    renderIsDisabled() { return this.world.disabledRenders.wall }
 
     gameLoop() {
     }

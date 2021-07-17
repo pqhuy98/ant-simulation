@@ -15,6 +15,6 @@ export function FpsDisplay({ text, fpsValue, right }) {
 }
 FpsDisplay.propTypes = {
     text: PropTypes.string,
-    fpsValue: PropTypes.number,
+    fpsValue: PropTypes.string,
     right: PropTypes.string,
 }

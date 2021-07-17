@@ -3,6 +3,10 @@ const { getRGB } = require("../../lib/color")
 const { GameObject } = require("../GameObject")
 
 module.exports = class Ant extends GameObject {
+    /**
+     * @param {World} world world object this ant lives in. 
+     * @param {PropertyCollection} pc object to store ants properties (attributes).
+     */
     constructor({ world, pc, position, rotation, speed }) {
         super(world)
         this.pc = pc
@@ -35,6 +39,7 @@ module.exports = class Ant extends GameObject {
     get colony() { return this.pc.colony }
     get home() { return this.colony.home }
     get food() { return this.world.food }
+
     get homeTrail() { return this.colony.homeTrail }
     get foodTrail() { return this.world.foodTrail }
 
@@ -69,9 +74,14 @@ module.exports = class Ant extends GameObject {
     // static properties
     get color() { return this.colony.color }
     get foodColor() { return this.world.foodColor }
-    get visionRange() { return 2 }
+
+    get visionRange() { return 2 * this.world.trailScale }
+
     get pickupRange() { return 2 }
     get storeRange() { return this.colony.home.size }
+
+    get foodDetectionRange() { return this.visionRange }
+    get homeDetectionRange() { return this.visionRange * 2 }
 
     randomizeDecidePolicy() {
         this.decideIdx = 11
@@ -119,28 +129,25 @@ module.exports = class Ant extends GameObject {
 
         // sampled lines of sight
         // let deviant = 2 * Math.PI / 3
-        let deviant = this.r.randomFloat(Math.PI / 4, Math.PI / 6)
+        let deviant = this.r.randomFloat(Math.PI / 2, Math.PI / 3)
         let degs = [
             this.rotation, this.rotation + deviant, this.rotation - deviant,
         ]
         let degCos = degs.map(d => cosApprox(d))
         let degSin = degs.map(d => sinApprox(d))
         // find destination within vision
-        for (let i = 0; i < degs.length; i++) {
-            let pos = dest.has(
-                x + degCos[i] * vision * this.world.trailScale,
-                y + degSin[i] * vision * this.world.trailScale,
-                (dest === this.home ? vision * 20 : vision)
-            )
-            if (pos) {
-                return Math.atan2(pos.y - y, pos.x - x)
-            }
+        let pos = dest.has(
+            x, y,
+            (dest === this.home ? this.homeDetectionRange : this.foodDetectionRange)
+        )
+        if (pos) {
+            return Math.atan2(pos.y - y, pos.x - x)
         }
 
         // No destination saw, use trail
         let vals = degs.map((_, i) => trail.sum(
-            x + degCos[i] * vision * this.world.trailScale,
-            y + degSin[i] * vision * this.world.trailScale,
+            x + degCos[i] * vision,
+            y + degSin[i] * vision,
             vision,
         ))
 
