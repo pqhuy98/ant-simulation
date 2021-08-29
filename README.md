@@ -12,3 +12,8 @@ Interesting technological facts:
 - Main thread renders the simulation and uses client prediction to achieve very high FPS.
 - Deterministic randomization.
 - Extremely optimized Canvas rendering algorithms.
+
+## Screenshots:
+![Classic](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/classic.png)
+![White](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/white.png)
+![FelColony](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/fel-colony.png)
