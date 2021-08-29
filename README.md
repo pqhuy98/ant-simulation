@@ -1,5 +1,6 @@
-# ant-simulation
-Ant Colony Simulation
+# Ant Colony Simulation
+
+![FelColony](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/fel-colony.png)
 
 Source code of https://ant.quangdel.com/
 
@@ -16,4 +17,3 @@ Interesting technological facts:
 ## Screenshots:
 ![Classic](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/classic.png)
 ![White](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/white.png)
-![FelColony](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/fel-colony.png)
