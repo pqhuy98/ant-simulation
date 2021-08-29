@@ -74,7 +74,6 @@ export function useGlobalFunction(funcName) {
                     canceled = true
                     setFn(() => global[funcName])
                 } else {
-                    console.log("wait")
                     await sleep(200)
                 }
             }
