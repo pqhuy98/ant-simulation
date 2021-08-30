@@ -17,3 +17,4 @@ Interesting technological facts:
 ## Screenshots:
 ![Classic](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/classic.png)
 ![White](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/white.png)
+![StarWar](https://github.com/pqhuy98/ant-simulation/blob/master/screenshots/starwar.png)
