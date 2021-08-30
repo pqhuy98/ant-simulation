@@ -4,7 +4,7 @@
 
 Source code of https://ant.quangdel.com/
 
-The code is optimized to achieve as highest frame-per-second as possible.
+The code is optimized to squeeze out every bit of miliseconds.
 
 Interesting technological facts:
 - HTML 5 Canvas to render simulation world.
