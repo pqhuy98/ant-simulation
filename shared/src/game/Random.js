@@ -61,6 +61,21 @@ class Random extends GameObject {
         return arr[this.randomInt(0, arr.length)]
     }
 
+    pickRandomWithProbabilities(arr, probs) {
+        if (probs.length !== arr.length - 1) {
+            throw new Error("probs.length must be equal to (arr.length - 1).")
+        }
+        let dice = this.random();
+        let accumProb = 0;
+        for (let i = 0; i < probs.length; i++) {
+            accumProb += probs[i];
+            if (accumProb > dice) {
+                return arr[i];
+            }
+        }
+        return arr[arr.length - 1]
+    }
+
     prob(chance) {
         return this.random() <= chance
     }

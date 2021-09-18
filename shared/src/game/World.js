@@ -44,7 +44,8 @@ class World extends GameObject {
         })
 
         // Food
-        let CM = this.r.pickRandom([ChemicalMap2x2, ChemicalMap3x3])
+        let CM = this.r.pickRandomWithProbabilities([ChemicalMap3x3, ChemicalMap2x2], [0.8])
+        console.log(CM)
         this.foodTrail = new CM({
             world: this, name: "food",
             width, height,

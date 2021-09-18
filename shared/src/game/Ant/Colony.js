@@ -16,7 +16,7 @@ module.exports = class Colony extends GameObject {
             width: world.width, height: world.height,
             color: homeColor, homeCount: homeCount
         })
-        let CM = this.r.pickRandom([ChemicalMap2x2, ChemicalMap3x3])
+        let CM = this.r.pickRandomWithProbabilities([ChemicalMap3x3, ChemicalMap2x2], [0.8])
         this.homeTrail = new CM({
             world, name: "home",
             width: world.width, height: world.height,
