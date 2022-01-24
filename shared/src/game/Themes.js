@@ -3,7 +3,7 @@ const { randomColor, randomExp, randomInt } = require("../lib/basic_math")
 
 const Themes = {
     Classic: {
-        antCount: 30000,
+        antCount: 10000,
 
         colonyCount: 1,
         antColor: "#000000",
@@ -24,7 +24,7 @@ const Themes = {
         colonyCount: 1,
         antColor: "#000",
         homeColor: "#000",
-        antCount: 25010,
+        antCount: 8000,
         backgroundColor: "#fff",
         colonyHomeCount: 10,
         foodCapacity: [1, 1],
@@ -36,7 +36,7 @@ const Themes = {
     White: {
         colonyCount: 1,
         antColor: "#fff",
-        antCount: 23010,
+        antCount: 8000,
         backgroundColor: "#000",
         colonyHomeCount: 10,
         foodCapacity: [1, 3],
@@ -50,7 +50,7 @@ const Themes = {
         colonyCount: 1,
         antColor: "#F8F08B",
         homeColor: "#7F0B34",
-        antCount: 24810,
+        antCount: 8600,
 
         colonyHomeCount: 1,
 
@@ -65,7 +65,7 @@ const Themes = {
         constrast: 0.4,
     },
     FelColony: {
-        antCount: 20000,
+        antCount: 7000,
 
         colonyCount: 1,
         colonyHomeCount: 6,
@@ -80,7 +80,7 @@ const Themes = {
         constrast: 0.3,
     },
     Violet: {
-        antCount: 28010,
+        antCount: 9500,
 
         colonyCount: 1,
         colonyHomeCount: 30,
@@ -96,7 +96,7 @@ const Themes = {
         constrast: 0.3,
     },
     StarWar: {
-        antCount: 20000,
+        antCount: 7000,
 
         colonyCount: 1,
         colonyHomeCount: 3,
@@ -113,7 +113,7 @@ const Themes = {
         constrast: 0.5,
     },
     SpaceDesert: {
-        antCount: 20000,
+        antCount: 7000,
 
         colonyCount: 1,
         colonyHomeCount: 2,
@@ -129,7 +129,7 @@ const Themes = {
         constrast: 0.4,
     },
     Forest: {
-        antCount: 23010,
+        antCount: 7800,
 
         colonyCount: 1,
         colonyHomeCount: 10,
@@ -146,7 +146,7 @@ const Themes = {
         constrast: 0.3,
     },
     Underground: {
-        antCount: 24010,
+        antCount: 8000,
 
         colonyCount: 1,
         colonyHomeCount: 2,
@@ -164,7 +164,7 @@ const Themes = {
         constrast: 0.35,
     },
     Bricks: {
-        antCount: 12930,
+        antCount: 4600,
 
         colonyCount: 1,
         colonyHomeCount: 1,
@@ -181,7 +181,7 @@ const Themes = {
         constrast: 0.2,
     },
     Underwater: {
-        antCount: 34940,
+        antCount: 12000,
 
         colonyCount: 1,
         colonyHomeCount: 1,
@@ -203,7 +203,7 @@ const Themes = {
     RANDOM: (() => {
         let colonyCount = randomInt(1, 5)
         return {
-            antCount: Math.round(randomExp(5000, 30000)),
+            antCount: Math.round(randomExp(2000, 10000)),
 
             colonyCount,
             colonyHomeCount: randomInt(1, 10),
