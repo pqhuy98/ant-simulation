@@ -10,12 +10,14 @@ import { Themes } from "antworld-shared/src/game/Themes"
 import { useGlobalFunction } from "lib/custom_react_hooks"
 
 function App() {
-    let trailScale = 2
-    let w = 1200
-    let h = (~~(w / 2.6 / trailScale)) * trailScale
-    if (w % trailScale !== 0 || h % trailScale !== 0) {
-        throw new Error("Width (" + w + ") and height (" + h + ") must be divisible by " + trailScale)
-    }
+    const trailScale = 2
+    const pixelCount = 1000 * 600
+    const whRatio = window.innerWidth / (window.innerHeight - 44)
+    let w = Math.round(Math.sqrt(pixelCount * whRatio))
+    let h = Math.round(w / whRatio)
+    w -= w % trailScale
+    h -= h % trailScale
+
     useEffect(async () => {
         const go = new Go()
         let { instance } = await WebAssembly.instantiateStreaming(
