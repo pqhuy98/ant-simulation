@@ -103,7 +103,7 @@ module.exports = class PropertyCollection extends GameObject {
     render({ profiler, ctx, extraTime }) {
         profiler = profiler || new NullProfiler()
         directPixelManipulation(ctx, (ctx) => {
-            profiler.tick("render : ant prepare")
+            profiler.tick("render::ant_prepare")
             var bitmap = ctx.bitmap
             let width = ctx.canvas.width
             const colorCache = {}
@@ -137,7 +137,7 @@ module.exports = class PropertyCollection extends GameObject {
                 rasterizeOnePixel(bitmap, x, y, colorArr, this.world.width)
             }
         }, false, true)
-        profiler.tick("render : ant post")
+        profiler.tick("render::ant_post")
     }
 
     renderIsDisabled(ant) {

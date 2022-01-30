@@ -6,6 +6,8 @@ const { directPixelManipulation } = require("../../lib/canvas_optimizer")
 const { NullProfiler } = require("../../lib/performance")
 const ChemicalMap2x2 = require("../ChemicalMap/ChemicalMap_2x2")
 
+const FOOD_PER_ANT = 2;
+
 module.exports = class Colony extends GameObject {
     constructor({ world, capacity, antColor, homeColor, homeCount }) {
         capacity = Math.round(capacity)
@@ -33,7 +35,7 @@ module.exports = class Colony extends GameObject {
     canSpawnMoreAnts() {
         return (this.ants.length < 100) || (
             this.ants.length < this.capacity &&
-            this.ants.length * 2 < this.storedFood
+            this.ants.length * FOOD_PER_ANT < this.storedFood
         )
     }
 
@@ -65,13 +67,13 @@ module.exports = class Colony extends GameObject {
         profiler = profiler || new NullProfiler()
         // render ants
         this.pc.render({ profiler, ctx: ctxAnt, extraTime })
-        profiler.tick("render : ants")
+        profiler.tick("render::ants")
 
         // render home trail
         this.homeTrail.render({ profiler, ctx: ctxHomeTrail })
 
         // render home
         this.home.render(ctxHome)
-        profiler.tick("render : home")
+        profiler.tick("render::home")
     }
 }

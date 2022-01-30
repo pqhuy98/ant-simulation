@@ -141,7 +141,7 @@ class Food extends GameObject {
             return
         }
         directPixelManipulation(ctx, (ctx) => {
-            profiler.tick("render : food prepare")
+            profiler.tick("render::food_prepare")
 
 
             let colorFood = this.color
@@ -168,9 +168,9 @@ class Food extends GameObject {
                 }
             }
             ctx.worldVersion = this.world.version
-            profiler.tick("render : food")
+            profiler.tick("render::food")
         }, false, true)
-        profiler.tick("render : food post")
+        profiler.tick("render::food post")
     }
 
     renderIsDisabled() { return this.world.disabledRenders.food }

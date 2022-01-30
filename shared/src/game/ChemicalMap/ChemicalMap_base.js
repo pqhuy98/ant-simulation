@@ -83,7 +83,7 @@ module.exports = class ChemicalMapBase extends GameObject {
     render({ profiler, ctx }) {
         if (!ctx) return
         directPixelManipulation(ctx, (ctx) => {
-            profiler.tick("render : " + this.name + " trail prepare")
+            profiler.tick("render::" + this.name + "_trail_prepare")
 
             let data = this.rawMap
 
@@ -100,10 +100,9 @@ module.exports = class ChemicalMapBase extends GameObject {
                 pos += 4
             }
 
-            profiler.tick("render : " + this.name + " trail")
+            profiler.tick("render::" + this.name + "_trail")
         }, false, true) // do not reset and reuse bitmap
-        ctx.filter = 'blur(100px)';
-        profiler.tick("render : " + this.name + " trail post")
+        profiler.tick("render::" + this.name + "_trail_post")
     }
 
     get(x, y) {

@@ -144,7 +144,7 @@ class World extends GameObject {
         // render background
         ctxBackground.fillStyle = this.backgroundColor
         ctxBackground.fillRect(0, 0, this.width, this.height)
-        profiler.tick("render : background")
+        profiler.tick("render::background")
 
         // render ant colony
         ctxAnt.clearRect(0, 0, ctxAnt.canvas.width, ctxAnt.canvas.height)
@@ -165,8 +165,8 @@ class World extends GameObject {
 
         // render wall
         this.wall.render(ctxWall)
-        profiler.tick("render : wall")
-        profiler.put("total_render", profiler.elapse())
+        profiler.tick("render::wall")
+        profiler.put("render::total", profiler.elapse())
     }
 
     static defaultRenderFilters() {
