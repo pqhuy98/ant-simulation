@@ -14,14 +14,6 @@ module.exports = {
                 });
             });
 
-            const wasmLoader = {
-                test: /\.wasm$/,
-                type: "javascript/auto",
-                exclude: /node_modules/,
-                loaders: ['wasm-loader'],
-            };
-            addBeforeLoader(webpackConfig, loaderByName('file-loader'), wasmLoader);
-
             return webpackConfig;
         },
     },

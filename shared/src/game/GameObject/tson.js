@@ -10,6 +10,7 @@ const Wall = require('../Wall');
 const World = require('../World');
 const ndarray = require("ndarray");
 const Colony = require('../Ant/Colony');
+const { Buffer } = require('buffer');
 
 const ndarrayMap = {
     "int8": Int8Array,

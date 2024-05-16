@@ -1,12 +1,15 @@
 {
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "env": {
         "browser": true,
         "node": true,
         "es2021": true,
         "jest/globals": true
     },
-    "ignorePatterns": ["src/vendors/*", "src/wasm/*"],
+    "ignorePatterns": [
+        "src/vendors/*",
+        "src/wasm/*"
+    ],
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
@@ -14,6 +17,7 @@
         "plugin:jest/style"
     ],
     "parserOptions": {
+        "requireConfigFile": false,
         "ecmaFeatures": {
             "jsx": true
         },
@@ -29,10 +33,7 @@
             "error",
             4
         ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
+        "linebreak-style": "off",
         "quotes": [
             "error",
             "double"

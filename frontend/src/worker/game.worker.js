@@ -4,7 +4,6 @@ import { freshRNG } from "antworld-shared/src/game/Random"
 import { encapsulate } from "antworld-shared/src/game/GameObject/serializer"
 import * as Comlink from "comlink"
 import { Profiler } from "antworld-shared/src/lib/performance"
-// import { GameObject } from "antworld-shared/src/game/GameObject"
 
 const speedScale = 3
 const FPS_LIMIT = 15

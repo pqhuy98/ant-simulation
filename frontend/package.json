@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@craco/craco": "^6.2.0",
+    "@craco/craco": "^5.9.0",
     "@reduxjs/toolkit": "^1.6.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "antworld-shared": "file:../shared",
     "comlink": "^4.3.1",
-    "cwise": "^1.0.10",
+    "cwise": "^0.4.0",
     "deep-diff": "^1.0.2",
     "eslint-plugin-jest": "^24.3.6",
     "ndarray": "^1.0.19",
@@ -20,7 +20,7 @@
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.1",
     "typeson": "^6.1.0",
     "typeson-registry": "^1.0.0-alpha.39",
     "uuid": "^8.3.2",
@@ -52,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.23.3",
     "eslint": "^7.29.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-react": "^7.24.0"
